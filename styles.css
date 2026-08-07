@@ -41,6 +41,8 @@
   --anduril-header-height: 4rem;
   --anduril-tabs-height: 2.5rem;
   --anduril-chrome-height: 104px;
+  --anduril-sidebar-width: 18rem;
+  --anduril-content-width: 40rem;
   --anduril-body-font: "InterDisplay-Regular", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
   --anduril-heading-font: "Inter-Bold", "InterDisplay-Regular", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
   --anduril-code-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -235,7 +237,7 @@ main a,
   background: var(--anduril-shell);
   border-right: 1px solid var(--anduril-gray-3);
   top: var(--anduril-chrome-height) !important;
-  width: 16rem !important;
+  width: var(--anduril-sidebar-width) !important;
 }
 
 .nextra-sidebar-container > div:nth-child(3) > div {
@@ -372,8 +374,20 @@ main a,
   background: var(--anduril-shell) !important;
 }
 
+.nextra-sidebar-container ~ .nextra-content,
+.nextra-sidebar-container ~ .nextra-toc {
+  min-width: 0;
+}
+
+#__next div:has(> .nextra-sidebar-container):has(> .nextra-content) {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+}
+
 .nextra-content main {
-  max-width: 64rem !important;
+  max-width: none !important;
   padding-top: 2rem !important;
 }
 
@@ -383,7 +397,9 @@ main a,
 
 .anduril-main {
   color: var(--anduril-gray-12);
-  max-width: 40rem;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: var(--anduril-content-width);
 }
 
 .anduril-title-block {
