@@ -2,8 +2,8 @@ export default {
   index: {
     display: 'hidden'
   },
-  overview: 'Overview',
-  upload: 'Upload',
-  download: 'Download',
-  manage: 'Manage'
+  overview: '概览',
+  upload: '上传',
+  download: '下载',
+  manage: '管理'
 }

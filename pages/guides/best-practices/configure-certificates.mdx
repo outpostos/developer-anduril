@@ -1,43 +1,43 @@
 ---
-title: "Connect to offline environments"
+title: "连接离线环境"
 ---
 
-# Connect to offline environments
+# 连接离线环境
 
-By default, the Lattice SDK validates TLS certificates against your operating system’s trusted Certificate Authority (CA) store.
+默认情况下，Lattice SDK 会根据操作系统的受信任 Certificate Authority (CA) 存储验证 TLS 证书。
 
-When your Lattice environment is offline or air-gapped, it’s deployed on a local network without access to a public CA infrastructure. The environment presents a certificate signed by a private Anduril CA that isn’t in your system’s trust store, so your SDK client can’t validate it and the connection fails.
+当 Lattice 环境离线或物理隔离时，它部署在无法访问公共 CA 基础设施的本地网络中。该环境会提供由私有 Anduril CA 签名的证书，而该 CA 不在系统信任存储中，因此 SDK 客户端无法验证证书，连接会失败。
 
-This guide describes two ways to connect:
+本指南介绍两种连接方式：
 
-1. Use an Anduril-issued certificate : This method lets the SDK trust your environment while keeping full TLS verification enabled. This is the recommended approach in production.
-2. Skip TLS verification with self-signed certificates : This method lets you connect when an Anduril representative can’t issue a certificate. Use this approach only in development environments.
+1. 使用 Anduril 签发的证书：这种方法让 SDK 信任你的环境，同时保持完整 TLS 验证启用。这是生产环境中的推荐方法。
+2. 对自签名证书跳过 TLS 验证：当 Anduril 代表无法签发证书时，此方法可让你连接。仅在开发环境中使用此方法。
 
-## Before you begin
+## 开始之前
 
-- Complete the steps in Set up to configure your environment variables: LATTICE_ENDPOINT , LATTICE_CLIENT_ID , and LATTICE_CLIENT_SECRET .
+- 完成设置中的步骤，配置环境变量：LATTICE_ENDPOINT、LATTICE_CLIENT_ID 和 LATTICE_CLIENT_SECRET。
 
-gRPC authentication
+gRPC 认证
 
-If you are using gRPC with client credentials, [set up the token refresh module](/guides/getting-started/authenticate#using-grpc) before running the examples on this page.
+如果你将 gRPC 与客户端凭证一起使用，请在运行本页示例前[设置令牌刷新模块](/guides/getting-started/authenticate#using-grpc)。
 
-## Use an Anduril-issued certificate
+## 使用 Anduril 签发的证书
 
-This is the recommended approach because it keeps full TLS verification enabled. You obtain a CA certificate from Anduril, add it to your trust store, and configure the SDK to trust it as a root CA. The SDK still validates the certificate chain, hostname, and expiry date.
+这是推荐方法，因为它会保持完整 TLS 验证启用。你从 Anduril 获取 CA 证书，将其添加到信任存储，并配置 SDK 将其信任为根 CA。SDK 仍会验证证书链、主机名和过期日期。
 
-To obtain the certificate, add it to your trust store, and configure the SDK to trust it, follow these steps:
+要获取证书、将其添加到信任存储并配置 SDK 信任它，请执行以下步骤：
 
 1
 
-### Get the Anduril-issued certificate
+### 获取 Anduril 签发的证书
 
-Contact your Anduril representative to obtain the CA certificate for your Lattice environment. The certificate is delivered as a PEM-encoded file. Because delivery mechanisms vary, follow the instructions your Anduril representative provides to retrieve it.
+联系 Anduril 代表，获取适用于你的 Lattice 环境的 CA 证书。证书会以 PEM 编码文件形式交付。由于交付机制各不相同，请按照 Anduril 代表提供的说明获取证书。
 
 2
 
-### Add the certificate to the system's trust store
+### 将证书添加到系统信任存储
 
-Add the certificate to your operating system’s trust store so that clients on your machine trust it:
+将证书添加到操作系统信任存储，使机器上的客户端信任它：
 
 ```
 sudo security add-trusted-cert -d -r trustRoot \
@@ -46,9 +46,9 @@ sudo security add-trusted-cert -d -r trustRoot \
 
 3
 
-### Set an environment variable with the certificate path
+### 设置包含证书路径的环境变量
 
-Set a `LATTICE_CA_CERT_PATH` environment variable that points to the certificate file. The examples in the following steps load the CA certificate from `LATTICE_CA_CERT_PATH` and configure the Lattice client to trust it as a root CA:
+设置指向证书文件的 `LATTICE_CA_CERT_PATH` 环境变量。后续步骤中的示例会从 `LATTICE_CA_CERT_PATH` 加载 CA 证书，并配置 Lattice 客户端将其信任为根 CA：
 
 ```bash
 export LATTICE_CA_CERT_PATH=/path/to/anduril-ca.pem
@@ -56,9 +56,9 @@ export LATTICE_CA_CERT_PATH=/path/to/anduril-ca.pem
 
 4
 
-### Initialize the client
+### 初始化客户端
 
-Import your environment variables and initialize the client. `LATTICE_CA_CERT_PATH` is the file path to the PEM certificate you received from your Anduril representative. You can achieve the same result using a local `.env` file:
+导入环境变量并初始化客户端。`LATTICE_CA_CERT_PATH` 是你从 Anduril 代表处收到的 PEM 证书文件路径。也可以使用本地 `.env` 文件实现相同效果：
 
 ```
 package main
@@ -159,9 +159,9 @@ func createLatticeClient(endpoint string, clientID string, clientSecret string,
 
 5
 
-### Load the CA certificate
+### 加载 CA 证书
 
-Configure the HTTP or gRPC client to trust the Anduril-issued certificate. The client loads the certificate from the PEM file and adds it to the trust pool, so the client verifies the server’s certificate against the Anduril CA during every TLS handshake:
+配置 HTTP 或 gRPC 客户端信任 Anduril 签发的证书。客户端会从 PEM 文件加载证书并将其添加到信任池，因此每次 TLS 握手期间，客户端都会根据 Anduril CA 验证服务器证书：
 
 ```
 package main
@@ -262,9 +262,9 @@ func createLatticeClient(endpoint string, clientID string, clientSecret string,
 
 6
 
-### Use the client
+### 使用客户端
 
-Use the client to call the Lattice API. This example uses [`GetEntity`](/reference/rest/entities/get-entity) to fetch an entity by its `entityId`:
+使用客户端调用 Lattice API。本示例使用 [`GetEntity`](/reference/rest/entities/get-entity) 按 `entityId` 获取实体：
 
 ```
 package main
@@ -363,21 +363,21 @@ func createLatticeClient(endpoint string, clientID string, clientSecret string,
 }
 ```
 
-After you add the CA certificate to your trust store and load it in your client, your integration can connect to an offline environment with full TLS verification enabled.
+将 CA 证书添加到信任存储并在客户端中加载后，你的集成即可在完整 TLS 验证启用的情况下连接离线环境。
 
-## Skip TLS verification with self-signed certificates
+## 对自签名证书跳过 TLS 验证
 
-If you can’t obtain an Anduril-issued certificate for a development environment, you can configure the SDK to skip TLS verification. The SDK then connects without validating the server’s certificate.
+如果无法为开发环境获取 Anduril 签发的证书，可以配置 SDK 跳过 TLS 验证。这样 SDK 会在不验证服务器证书的情况下连接。
 
-Skipping TLS verification disables certificate validation, which exposes your connection to interception and tampering. Use this approach only in development environments where an Anduril representative can’t issue an Anduril-issued certificate. In production, use an [Anduril-issued certificate](#use-an-anduril-issued-certificate) instead.
+跳过 TLS 验证会禁用证书验证，使连接暴露于拦截和篡改风险。仅在 Anduril 代表无法签发 Anduril 证书的开发环境中使用此方法。生产环境请改用 [Anduril 签发的证书](#use-an-anduril-issued-certificate)。
 
-To skip TLS verification and configure your client, follow these steps:
+要跳过 TLS 验证并配置客户端，请执行以下步骤：
 
 1
 
-### Set an environment variable
+### 设置环境变量
 
-Set a `SKIP_TLS_VERIFY` environment variable so the client knows to skip certificate validation. The examples in the following steps read `SKIP_TLS_VERIFY` and configure a custom Lattice client that skips TLS verification:
+设置 `SKIP_TLS_VERIFY` 环境变量，让客户端知道应跳过证书验证。后续步骤中的示例会读取 `SKIP_TLS_VERIFY`，并配置跳过 TLS 验证的自定义 Lattice 客户端：
 
 ```bash
 export SKIP_TLS_VERIFY=true
@@ -385,9 +385,9 @@ export SKIP_TLS_VERIFY=true
 
 2
 
-### Initialize the client
+### 初始化客户端
 
-Import your environment variables and initialize the client. `SKIP_TLS_VERIFY` controls whether the client validates the server’s certificate. You can achieve the same result using a local `.env` file:
+导入环境变量并初始化客户端。`SKIP_TLS_VERIFY` 控制客户端是否验证服务器证书。也可以使用本地 `.env` 文件实现相同效果：
 
 ```
 package main
@@ -473,9 +473,9 @@ func createLatticeClient(endpoint string, clientID string, clientSecret string,
 
 3
 
-### Create a custom client
+### 创建自定义客户端
 
-Configure a custom client that skips TLS verification. In Go, this uses the `InsecureSkipVerify` option; the other languages provide an equivalent:
+配置跳过 TLS 验证的自定义客户端。在 Go 中，这会使用 `InsecureSkipVerify` 选项；其他语言提供等效选项：
 
 ```
 package main
@@ -561,9 +561,9 @@ func createLatticeClient(endpoint string, clientID string, clientSecret string,
 
 4
 
-### Use the client
+### 使用客户端
 
-Use the client to call the Lattice API. This example uses [`GetEntity`](/reference/rest/entities/get-entity) to fetch an entity by its `entityId`:
+使用客户端调用 Lattice API。本示例使用 [`GetEntity`](/reference/rest/entities/get-entity) 按 `entityId` 获取实体：
 
 ```
 package main
@@ -647,8 +647,8 @@ func createLatticeClient(endpoint string, clientID string, clientSecret string,
 }
 ```
 
-## What’s next
+## 接下来
 
-- Learn how to publish entities to Lattice.
-- Explore tasking to learn how you can task an agent in Lattice.
-- Learn more about the Lattice OAuth 2.0 endpoint.
+- 了解如何将实体发布到 Lattice。
+- 探索任务功能，了解如何在 Lattice 中为 agent 分配任务。
+- 进一步了解 Lattice OAuth 2.0 端点。

@@ -1,44 +1,44 @@
 ---
-title: "Upload objects"
+title: "上传对象"
 ---
 
-# Upload objects
+# 上传对象
 
-In Lattice, an **object** is a data model that represents a single file or a piece of data. This page explains how to upload an object to Lattice and associate it with an entity using the Lattice SDK.
+在 Lattice 中，**对象**是表示单个文件或一段数据的数据模型。本页说明如何使用 Lattice SDK 将对象上传到 Lattice，并将其与实体关联。
 
-In the following steps, you use an image, and a CSV file. Lattice, however, supports all binary data, letting you use objects to implement a variety of use-cases. For example, consider a scenario where an image sensor integrated with Lattice detects a track image and uploads an image of it to Lattice. After the file is uploaded, any device, app, or operator in Lattice can access the image associated with the track.
+在下列步骤中，你会使用一张图像和一个 CSV 文件。不过，Lattice 支持所有二进制数据，因此你可以使用对象实现多种用例。例如，设想一个与 Lattice 集成的图像传感器检测到一张航迹图像，并将该图像上传到 Lattice。文件上传后，Lattice 中的任何设备、应用或操作员都可以访问与该航迹关联的图像。
 
-To implement this use-case, you use the following API operations:
+要实现此用例，需要使用下列 API 操作：
 
-- [**`UploadObject`**](/reference/rest/objects/upload-object) — Uploads an object using multiform data.
-- [**`PutEntityOverride`**](/reference/rest/entities/override-entity) — Override the entity and update the entity’s [`media`](/reference/rest/entities/publish-entity#request.body.media) component. Entity overrides let any integration update certain components in an entity, even if the entity was initially published by another data source. This means that anyone connected to Lattice can update the media associated with the entity, giving you more flexibility.
+- [**`UploadObject`**](/reference/rest/objects/upload-object) - 使用 multipart form data 上传对象。
+- [**`PutEntityOverride`**](/reference/rest/entities/override-entity) - 覆盖实体并更新实体的 [`media`](/reference/rest/entities/publish-entity#request.body.media) 组件。实体 override 允许任何集成更新实体中的某些组件，即使该实体最初由另一个数据源发布。这意味着连接到 Lattice 的任何人都可以更新与实体关联的媒体，从而提供更高灵活性。
 
-## Before you begin
+## 开始之前
 
-- To configure your app to upload objects, set up your Lattice environment.
-- See an overview of the Object schema and the Object Store API in Lattice.
+- 要配置应用上传对象，请设置 Lattice 环境。
+- 查看 Lattice 中对象 schema 和 Object Store API 的概览。
 
-gRPC authentication
+gRPC 认证
 
-If you are using gRPC with client credentials, [set up the token refresh module](/guides/getting-started/authenticate#using-grpc) before running the examples on this page.
+如果你将 gRPC 与客户端凭证一起使用，请在运行本页示例前[设置令牌刷新模块](/guides/getting-started/authenticate#using-grpc)。
 
-## Upload an object
+## 上传对象
 
-In Lattice, an **object** is a data model that represents a single file or a piece of data. To upload an object to Lattice, do the following:
+在 Lattice 中，**对象**是表示单个文件或一段数据的数据模型。要将对象上传到 Lattice，请执行以下操作：
 
 1
 
-### Choose an image
+### 选择图像
 
-Choose an image to upload to Lattice, and save it locally.
+选择要上传到 Lattice 的图像，并保存到本地。
 
 2
 
-### Upload the image to Lattice
+### 将图像上传到 Lattice
 
-Run the following code from the same folder where you saved the image. To upload, use [`UploadObject`](/reference/rest/objects/upload-object) and replace the following:
+在保存图像的同一文件夹中运行以下代码。上传时，请使用 [`UploadObject`](/reference/rest/objects/upload-object) 并替换以下内容：
 
-- file_path : the path to the file you want to upload to Lattice.
+- file_path：要上传到 Lattice 的文件路径。
 
 ```
 package main
@@ -111,13 +111,13 @@ func main() {
 }
 ```
 
-An object path must only contain the following characters: `A-Z`, `a-z`, `0-9`, `.` `_`, `-`.
+对象路径只能包含以下字符：`A-Z`、`a-z`、`0-9`、`.`、`_`、`-`。
 
 3
 
-### Verify the response
+### 验证响应
 
-If successful, you’ll see the following output.
+如果成功，你会看到以下输出。
 
 ```
 $ python upload.py
@@ -125,30 +125,30 @@ INFO - HTTP Request: POST https://lattice-50802.env.sandboxes.developer.anduril.
 INFO - Object path: /api/v1/objects/cessna.jpg
 ```
 
-Note the object path: `/api/v1/objects/cessna.jpg`. In the following section, you’ll override an entity to associate it with this object using its unique object path. This lets Lattice know to display the image in the entity panel as a thumbnail.
+记下对象路径：`/api/v1/objects/cessna.jpg`。在下一节中，你会使用该唯一对象路径覆盖一个实体，使其与此对象关联。这会让 Lattice 知道应在实体面板中将该图像显示为缩略图。
 
 4
 
-### Verify the object in the Lattice UI
+### 在 Lattice UI 中验证对象
 
-To confirm the object uploaded, open the Lattice UI and find it in the Object Explorer. Search by the object path, then download the object to verify its contents are as expected:
+要确认对象已上传，请打开 Lattice UI，并在 Object Explorer 中查找它。按对象路径搜索，然后下载对象以验证其内容符合预期：
 
-![Shows the uploaded object in the Object Explorer in the Lattice Developer Console.](/img/anduril.docs.buildwithfern.com/76d4bcb7f3e0b163fc527c2d43a7643e9ab6607a0bbea6e8cdffc5ea465b081b/assets/images/screenshots/developer-console-object-explorer.png)
+![显示 Lattice Developer Console 的 Object Explorer 中已上传的对象。](/img/anduril.docs.buildwithfern.com/76d4bcb7f3e0b163fc527c2d43a7643e9ab6607a0bbea6e8cdffc5ea465b081b/assets/images/screenshots/developer-console-object-explorer.png)
 
-## Link an object
+## 关联对象
 
-To associate an image with an entity, do the following:
+要将图像与实体关联，请执行以下操作：
 
 1
 
-### Override the entity
+### 覆盖实体
 
-Use the [`OverrideEntity`](/reference/rest/entities/override-entity) operation to override the entity’s [`media`](/reference/rest/entities/publish-entity#request.body.media) component and replace `MediaItem`. To implement a thumbnail, set [`MediaItem.type`](/reference/rest/entities/publish-entity#request.body.media.media.type) to `MEDIA_TYPE_IMAGE`. This lets Lattice know to process the binary object as an image.
+使用 [`OverrideEntity`](/reference/rest/entities/override-entity) 操作覆盖实体的 [`media`](/reference/rest/entities/publish-entity#request.body.media) 组件，并替换 `MediaItem`。要实现缩略图，请将 [`MediaItem.type`](/reference/rest/entities/publish-entity#request.body.media.media.type) 设置为 `MEDIA_TYPE_IMAGE`。这会让 Lattice 知道应将该二进制对象作为图像处理。
 
-Replace the temporary values with your information, then run the code:
+将临时值替换为你的信息，然后运行代码：
 
-- object_path : The unique path of the object in Lattice. For this example, use /api/v1/objects/test-1.test.jpg .
-- entity_id : The ID of the entity you want to associate with the object. If you are developing in Sandboxes, enter adsbEntity to use an existing simulated entity.
+- object_path：对象在 Lattice 中的唯一路径。本例使用 /api/v1/objects/test-1.test.jpg。
+- entity_id：要与对象关联的实体 ID。如果你在 Sandboxes 中开发，请输入 adsbEntity 以使用现有模拟实体。
 
 ```
 package main
@@ -244,48 +244,48 @@ func main() {
 
 2
 
-### Verify the response
+### 验证响应
 
-If successful, you’ll see the following output:
+如果成功，你会看到以下输出：
 
 ```
 $ python override_media_add.py
 INFO - HTTP Request: PUT https://your_lattice_endpoint.env.sandboxes.developer.anduril.com/api/v1/entities/adsbEntity/override/media.media "HTTP/1.1 200 OK"
 ```
 
-## Check the thumbnail
+## 检查缩略图
 
-To see the track thumbnail, open the example C2 app, and do the following:
+要查看航迹缩略图，请打开示例 C2 应用，并执行以下操作：
 
 1
 
-### Open the track panel
+### 打开航迹面板
 
-Open the track panel from the left hand sidebar. Enter the `aliases.name` of the surface vessel in the search bar.
+从左侧边栏打开航迹面板。在搜索栏中输入水面舰艇的 `aliases.name`。
 
-If you are developing on Sandboxes, enter the following name: N113PF.
+如果你在 Sandboxes 上开发，请输入以下名称：N113PF。
 
-![Shows the panel where you can search for the surface vessel.](/img/anduril.docs.buildwithfern.com/58c183e84a49edc4eb2b0c8a5db18eb71e36c6ebdfd68091cd2950a16858f5dc/assets/images/screenshots/lattice-ui-track-panel-n113pf.png)
+![显示可搜索水面舰艇的面板。](/img/anduril.docs.buildwithfern.com/58c183e84a49edc4eb2b0c8a5db18eb71e36c6ebdfd68091cd2950a16858f5dc/assets/images/screenshots/lattice-ui-track-panel-n113pf.png)
 
 2
 
-### Verify the thumbnail
+### 验证缩略图
 
-Select the thumbnail associated with the track to expand the image:
+选择与航迹关联的缩略图以展开图像：
 
-![Shows the uploaded track thumbnail.](/img/anduril.docs.buildwithfern.com/809906483da2a3d55750d8faf43dcf0d27019d45e3defc038755686b2a8579a5/assets/images/screenshots/lattice-ui-track-panel-n113pf-thumbnail.png)
+![显示已上传的航迹缩略图。](/img/anduril.docs.buildwithfern.com/809906483da2a3d55750d8faf43dcf0d27019d45e3defc038755686b2a8579a5/assets/images/screenshots/lattice-ui-track-panel-n113pf-thumbnail.png)
 
-## Link multiple objects
+## 关联多个对象
 
-In some cases, you might associate more than one object with an entity. An airplane, for instance, might link to an image to display a thumbnail, and a CSV that contains additional metadata, such as the airplane’s flight manifest.
+在某些情况下，你可能会将多个对象与一个实体关联。例如，一架飞机可能会关联一张用于显示缩略图的图像，以及一个包含额外元数据的 CSV，例如该飞机的飞行清单。
 
-To do this, get the existing media linked with the entity, then override the entity’s `media` component to append a new `MediaItem` to the list:
+为此，请获取与实体关联的现有 media，然后覆盖实体的 `media` 组件，向列表追加新的 `MediaItem`：
 
 1
 
-### Create a manifest
+### 创建清单
 
-Copy and paste the example into a new CSV file, named `manifest.csv`:
+将示例复制并粘贴到名为 `manifest.csv` 的新 CSV 文件中：
 
 ```
 FlightID,FlightName,PilotName,DepartureAirport,ArrivalAirport,DepartureTime,ArrivalTime
@@ -302,11 +302,11 @@ CargoID,Description,Weight
 
 2
 
-### Upload the file
+### 上传文件
 
-Run the following code from the same folder where you saved `manifest.csv`. To upload, use [`UploadObject`](/reference/rest/objects/upload-object) and replace the following:
+在保存 `manifest.csv` 的同一文件夹中运行以下代码。上传时，请使用 [`UploadObject`](/reference/rest/objects/upload-object) 并替换以下内容：
 
-- file_path : The path to the file you want to upload to Lattice, in this case, ./manifest.csv
+- file_path：要上传到 Lattice 的文件路径，在本例中为 ./manifest.csv。
 
 ```
 package main
@@ -381,12 +381,12 @@ func main() {
 
 3
 
-### Override the entity
+### 覆盖实体
 
-Use [`OverrideEntity`](/reference/rest/entities/override-entity) to modify the entity’s [`media`](/reference/rest/entities/publish-entity#request.body.media) component and append a new `MediaItem`. This `MediaItem` references `manifest.csv`. To run the code, replace the following:
+使用 [`OverrideEntity`](/reference/rest/entities/override-entity) 修改实体的 [`media`](/reference/rest/entities/publish-entity#request.body.media) 组件，并追加新的 `MediaItem`。该 `MediaItem` 引用 `manifest.csv`。要运行代码，请替换以下内容：
 
-- object_path : The unique path of the object in Lattice. For this example, use /api/v1/objects/manifest.csv .
-- entity_id : The ID of the entity you want to associate with the object.
+- object_path：对象在 Lattice 中的唯一路径。本例使用 /api/v1/objects/manifest.csv。
+- entity_id：要与对象关联的实体 ID。
 
 ```
 package main
@@ -483,9 +483,9 @@ func main() {
 
 4
 
-### Verify the response
+### 验证响应
 
-If successful, you’ll see the entity updated with the following `media` component:
+如果成功，你会看到实体已更新为包含以下 `media` 组件：
 
 ```
 "media": {
@@ -504,9 +504,9 @@ If successful, you’ll see the entity updated with the following `media` compon
 }
 ```
 
-Because the manifest is not an image used as a thumbnail, by default, Lattice assigns the item’s media type to `MEDIA_TYPE_INVALID`.
+由于清单不是用作缩略图的图像，默认情况下，Lattice 会将该项的媒体类型分配为 `MEDIA_TYPE_INVALID`。
 
-## What’s next?
+## 接下来
 
-- Learn how to fetch and process objects from Lattice.
-- Learn more about the Object API in the Lattice API Reference .
+- 了解如何从 Lattice 获取并处理对象。
+- 在 Lattice API 参考中进一步了解 Object API。

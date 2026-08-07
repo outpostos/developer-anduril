@@ -1,11 +1,11 @@
 ---
-title: Building with Lattice
+title: 使用 Lattice 构建
 description: Lattice 平台与 Lattice SDK
 ---
 
 import { Cards } from 'nextra/components'
 
-# Building with Lattice
+# 使用 Lattice 构建
 
 Lattice 平台与 Lattice SDK
 
@@ -15,20 +15,20 @@ Lattice 平台与 Lattice SDK
 
 <Cards num={3} className="anduril-entry-cards">
   <a className="anduril-entry-card" href="/guides/getting-started/quickstart">
-    <strong>Get started</strong>
+    <strong>快速开始</strong>
     <span>将一艘水面舰艇发布到 Lattice。</span>
   </a>
   <a className="anduril-entry-card" href="/reference/overview/overview">
-    <strong>API Reference</strong>
+    <strong>API 参考</strong>
     <span>了解 Lattice API。</span>
   </a>
   <a className="anduril-entry-card" href="/samples/overview">
-    <strong>Sample apps</strong>
+    <strong>示例应用</strong>
     <span>在本地机器运行示例应用。</span>
   </a>
 </Cards>
 
-## Data flow
+## 数据流
 
 与 Lattice 的一次*集成*可以是单向的，也可以是双向的，支持下列一项或两项功能：
 
@@ -38,11 +38,11 @@ Lattice 平台与 Lattice SDK
 这些集成的主要入口是 [`Entities`](/reference/rest/entities)、[`Tasks`](/reference/rest/tasks) 和 [`Objects`](/reference/rest/objects) API。下图展示了你的集成如何嵌入 Lattice 生态系统：
 
 <figure className="anduril-diagram">
-  <img src="/img/overview.png" alt="Lattice integration data flow overview" />
+  <img src="/img/overview.png" alt="Lattice 集成数据流概览" />
   <figcaption>图示：集成位于外部应用、机器人、传感器与 Lattice 服务之间，通过 Entities、Tasks 和 Objects API 与 Lattice 交换数据。</figcaption>
 </figure>
 
-## Protocols
+## 协议
 
 Lattice 同时支持 **REST** 和 **gRPC** 协议，二者分别针对不同的集成模式做了优化。REST 提供开发者熟悉的 HTTP/JSON 工作流，适合 Web 应用和快速开发。gRPC 使用二进制 Protocol Buffers 编码，适合对带宽效率有要求的硬件集成。
 
@@ -56,25 +56,25 @@ Lattice 同时支持 **REST** 和 **gRPC** 协议，二者分别针对不同的�
 - **gRPC**: 适合从无人机、机器人和传感器发布高频遥测的硬件集成。二进制编码可在受限网络中降低带宽占用。
 - **REST**: 适合 Web 应用、仪表盘和管理工具。熟悉的 HTTP 模式可配合标准调试工具加快开发。
 
-更多信息见 [Choose a protocol](/guides/best-practices/choose-a-protocol)。
+更多信息见[选择协议](/guides/best-practices/choose-a-protocol)。
 
-## Use cases
+## 用例
 
 Lattice API 及其背后的服务被设计为灵活可组合，能够支持多种工作流。下面是一些常见用例：
 
-**Apps**:
+**应用**：
 
 Lattice 应用是面向用户的软件解决方案，会消费并生成 Lattice 数据。一个 Lattice 应用会为最终用户提供专门能力，例如指挥与控制、态势感知、任务分配或规划。
 
-**Integrations**:
+**集成**：
 
 Lattice 集成负责在 Lattice 与独立外部系统之间传输数据，这些外部系统包括传感器、数据源生产者、机器人，以及其他硬件和软件能力。通过与 Lattice 集成，你可以利用 Anduril 已被广泛采用的框架来放大集成的影响力。
 
-**Data services**:
+**数据服务**：
 
 Lattice 数据服务是在 Lattice 内部丰富或修改数据的软件模块，通常不会直接向最终用户呈现前端工作流。例如，Lattice 数据服务可以提供语言翻译服务、航迹关联、航迹图像的生成式 AI 综合等能力。Lattice 允许你连续处理数据，也允许按需处理数据。
 
-## What's next?
+## 接下来
 
 - 使用 [Lattice Sandboxes](/guides/developer-tools/sandboxes) 开始开发 Lattice。
 - 了解如何[设置开发环境](/guides/getting-started/set-up)。

@@ -4,190 +4,189 @@ title: "Lattice Sandboxes"
 
 # Lattice Sandboxes
 
-Lattice Sandboxes is a secure, isolated platform for creating environments with simulated data to develop and test your Lattice SDK app. Apps developed on Sandboxes are portable and can be used in other Lattice deployments based on your environment requirements.
+Lattice Sandboxes 是一个安全、隔离的平台，可用于创建带有模拟数据的环境，以开发和测试你的 Lattice SDK 应用。在 Sandboxes 上开发的应用具备可移植性，可根据你的环境需求用于其他 Lattice 部署。
 
-Pricing
+价格
 
-Lattice Sandboxes environments are provided free of charge. You can make an unlimited number of free API calls to your environment to create, stream, and task entities in Lattice.
+Lattice Sandboxes 环境免费提供。你可以对环境发起不限次数的免费 API 调用，以在 Lattice 中创建、流式传输实体并为实体分配任务。
 
-## Before you begin
+## 开始之前
 
-- If you don’t have access to Lattice Sandboxes, request to join the Lattice SDK developer program .
+- 如果你无法访问 Lattice Sandboxes，请申请加入 Lattice SDK developer program。
 
-## Sign in
+## 登录
 
-Anduril uses Okta to authenticate access to Lattice Sandboxes. Multi-factor authentication (MFA) is satisfied with a passkey, such as a browser passkey, operating system biometrics, or a physical FIDO/UBI security key.
+Anduril 使用 Okta 对 Lattice Sandboxes 访问进行认证。多因素认证 (MFA) 通过 passkey 完成，例如浏览器 passkey、操作系统生物识别，或实体 FIDO/UBI 安全密钥。
 
-Browser support
+浏览器支持
 
-Use Chrome or a Chromium-based browser, such as Microsoft Edge or Brave, to access the Lattice Sandboxes developer portal. Firefox is not supported and will prevent you from completing the sign-in procedure.
+请使用 Chrome 或基于 Chromium 的浏览器（例如 Microsoft Edge 或 Brave）访问 Lattice Sandboxes 开发者门户。Firefox 不受支持，会导致你无法完成登录流程。
 
-If this is your first time signing in, activate your Okta account and register a passkey:
+如果这是你首次登录，请激活 Okta 账号并注册 passkey：
 
 1
 
-Open the welcome email and choose the
+打开欢迎邮件并选择
 
 Activate Okta Account
 
-link. The link expires seven days after the email is sent.
+链接。该链接会在邮件发出七天后过期。
 
 2
 
-On the
+在
 
 Set up security methods
 
-page, next to
+页面中，在
 
 Password
 
-, choose
+旁边选择
 
 Set up
 
-, then choose and confirm a password.
+，然后选择并确认密码。
 
 3
 
-Next to **Security Key or Biometric Authenticator**, choose **Set up**, then register one of the following passkey options:
+在 **Security Key or Biometric Authenticator** 旁边选择 **Set up**，然后注册下列 passkey 选项之一：
 
-- Browser passkey — Stored by your browser’s password manager so that you can sign in from any device signed in to the same browser profile.
-- Operating system biometrics — Uses Touch ID, Face ID, Windows Hello, or another built-in platform authenticator bound to the current device.
-- Physical FIDO or UBI key — Uses a hardware token such as a YubiKey, which you can carry with you between devices.
+- 浏览器 passkey - 存储在浏览器密码管理器中，因此你可以从已登录同一浏览器个人资料的任何设备登录。
+- 操作系统生物识别 - 使用 Touch ID、Face ID、Windows Hello，或绑定到当前设备的其他内置平台认证器。
+- 实体 FIDO 或 UBI 密钥 - 使用 YubiKey 等硬件令牌，可随身携带并在设备之间使用。
 
-To sign in after activation, do the following:
+激活后要登录，请执行以下操作：
 
 1
 
-Open the
+打开
 
 Lattice Sandboxes sign-in page
 
-.
+。
 
 2
 
-For
+对于
 
 Username
 
-, enter the email address that you used to request access to the Lattice Developer program.
+，输入你用于申请访问 Lattice Developer program 的电子邮件地址。
 
 3
 
-For
+对于
 
 Password
 
-, enter the password you created during activation.
+，输入你在激活期间创建的密码。
 
 4
 
-Complete the passkey challenge using the authenticator method you registered. On success, Okta redirects you to the Lattice Sandboxes dashboard.
+使用你注册的认证器方式完成 passkey 挑战。成功后，Okta 会将你重定向到 Lattice Sandboxes 仪表盘。
 
-To manage your passkeys and password, visit `https://login.developer.anduril.com/account-settings/home`. If you lose access to your passkey, reach out to `lattice-developers@anduril.com` for assistance.
+要管理 passkey 和密码，请访问 `https://login.developer.anduril.com/account-settings/home`。如果无法访问 passkey，请联系 `lattice-developers@anduril.com` 获取帮助。
 
-After logging in, the dashboard displays all existing environments associated with your account and the status of each environment.
+登录后，仪表盘会显示与你账号关联的所有现有环境及每个环境的状态。
 
-## Create an environment
+## 创建环境
 
-To create a new environment, open the [Environment Catalog](https://sandboxes.developer.anduril.com/environment-catalog), the do the following:
+要创建新环境，请打开 [Environment Catalog](https://sandboxes.developer.anduril.com/environment-catalog)，然后执行以下操作：
 
 1
 
-Choose **New Environment**.
+选择 **New Environment**。
 
-![Shows an empty list of environments](/img/anduril.docs.buildwithfern.com/50acdfa5596cba9813763367a61c168ee58a82776b25d4ac1fafda0053e9d5ac/assets/images/screenshots/environments-list-null.png)
+![显示空环境列表](/img/anduril.docs.buildwithfern.com/50acdfa5596cba9813763367a61c168ee58a82776b25d4ac1fafda0053e9d5ac/assets/images/screenshots/environments-list-null.png)
 
 2
 
-On the **Environment Catalog** page, choose **Lattice** and click **Create**. You’ll be redirected to the environment creation details page, where you see the status of your environment:
+在 **Environment Catalog** 页面，选择 **Lattice** 并点击 **Create**。你会被重定向到环境创建详情页，并在那里看到环境状态：
 
-![Shows the environment details page](/img/anduril.docs.buildwithfern.com/50b68edbbda8e34fb5b1e6c4fd0db6e979e833aaacd497b965af21c3b7a7a11f/assets/images/screenshots/environment-details.png)
+![显示环境详情页](/img/anduril.docs.buildwithfern.com/50b68edbbda8e34fb5b1e6c4fd0db6e979e833aaacd497b965af21c3b7a7a11f/assets/images/screenshots/environment-details.png)
 
 3
 
-Once the state changes to **Ready**, review the following details:
+状态变为 **Ready** 后，查看下列详情：
 
 - `Resource Endpoint`
-  Use this to launch the Lattice UI or connect to Lattice programmatically.
+  用它启动 Lattice UI，或以编程方式连接到 Lattice。
 
 - `Lattice Client ID`
-  Use the client ID to authorize your integration with the Lattice SDK.
+  使用 client ID 通过 Lattice SDK 授权你的集成。
 
 - `Lattice Client Secret`
-  Use the client secret to authenticate your integration with the Lattice SDK.
+  使用 client secret 通过 Lattice SDK 认证你的集成。
 
 - `Lattice User`
-  The user name you use to log in to the Lattice UI.
+  用于登录 Lattice UI 的用户名。
 
 - `Lattice Password`
-  The password you use to log in to the Lattice UI.
+  用于登录 Lattice UI 的密码。
 
 - `Lattice Auth Token`
-  This is your **environment token**. Save this token in addition to the [Sandboxes token](#set-up-credentials), to authenticate your requests with the Lattice API.
+  这是你的**环境令牌**。除 [Sandboxes 令牌](#set-up-credentials)外，也请保存该令牌，以便向 Lattice API 认证请求。
 
 4
 
-Confirm you have access to your environment by clicking the Lattice URL link, then log in using the provided user name and password.
+点击 Lattice URL 链接确认你可以访问环境，然后使用提供的用户名和密码登录。
 
-Restrictions
+限制
 
-- Create up to 2 concurrent environments in Sandboxes.
-- Environments have a maximum lifetime of 12 hours .
-- Environments have a maximum idle lifetime of 2 hours. You must make a network call, or sign in to the Lattice UI to keep your environment active.
-- Access tokens obtained using client credentials have a lifetime of 30 minutes.
+- 在 Sandboxes 中最多可同时创建 2 个环境。
+- 环境最长生命周期为 12 小时。
+- 环境最长空闲生命周期为 2 小时。你必须发起网络调用，或登录 Lattice UI，才能保持环境活跃。
+- 使用客户端凭证获取的访问令牌生命周期为 30 分钟。
 
-## Set up credentials
+## 设置凭证
 
-To query your Sandboxes environment, you will need:
+要查询 Sandboxes 环境，你需要：
 
-- Sandboxes token ( anduril-sandbox-authorization header) — This is your account-level authorization token. Create this token once, then use it to access all of your environments.
-- Lattice Client ID — This is the credential your integration will use for authorization with the environment. The Client ID is automatically generated when creating a new environment .
-- Lattice Client Secret — This is the credential your integration will use for authentication with the environment. The Client Secret is automatically generated when creating a new environment .
+- Sandboxes 令牌（anduril-sandbox-authorization header）- 这是账号级授权令牌。只需创建一次，然后即可用它访问你的所有环境。
+- Lattice Client ID - 这是你的集成用于向环境授权的凭证。创建新环境时会自动生成 Client ID。
+- Lattice Client Secret - 这是你的集成用于向环境认证的凭证。创建新环境时会自动生成 Client Secret。
 
-All credentials are required at runtime to interact with Lattice Sandboxes. The **Sandboxes Proxy** verifies your Sandboxes token, then forwards the request to your environment.
+运行时需要所有凭证才能与 Lattice Sandboxes 交互。**Sandboxes Proxy** 会验证你的 Sandboxes 令牌，然后将请求转发到你的环境。
 
-![Diagram showing the authorization flow for Lattice Sandboxes.](/img/anduril.docs.buildwithfern.com/aff262eaf9f72a8e3e87f59fd6d5db7d5e948bd30bc3e0483a98e22f6d6c61fa/assets/images/diagrams/authorization-flow.png)
+![显示 Lattice Sandboxes 授权流程的图示。](/img/anduril.docs.buildwithfern.com/aff262eaf9f72a8e3e87f59fd6d5db7d5e948bd30bc3e0483a98e22f6d6c61fa/assets/images/diagrams/authorization-flow.png)
 
-To create a new Sandboxes token, do the following:
+要创建新的 Sandboxes 令牌，请执行以下操作：
 
 1
 
-Open the
+打开 Sandboxes 门户中的
 
 Account & Security
 
-page in Sandboxes portal, not the Lattice environment. This token can be used for all environments for the life of the token.
+页面，而不是 Lattice 环境中的页面。该令牌在生命周期内可用于所有环境。
 
 2
 
-In the **Bearer tokens** section, click **+ New Token**:
+在 **Bearer tokens** 部分，点击 **+ New Token**：
 
-![Shows the Account & Security page where you can create, and manage, your
-authorization tokens.](/img/anduril.docs.buildwithfern.com/f9fc9ebcfe81ab1f18459a58d0e220ae9f3af95240b817d8b02166f1a897a27e/assets/images/screenshots/bearer-token.png)
+![显示可创建和管理授权令牌的 Account & Security 页面。](/img/anduril.docs.buildwithfern.com/f9fc9ebcfe81ab1f18459a58d0e220ae9f3af95240b817d8b02166f1a897a27e/assets/images/screenshots/bearer-token.png)
 
 3
 
-On the **Create Bearer Token** modal, enter the following:
+在 **Create Bearer Token** 模态框中输入以下内容：
 
-- Bearer token name — Enter a descriptive name for your Sandboxes token.
-- Bearer token expiration — Select an expiration time frame.
+- Bearer token name - 为 Sandboxes 令牌输入一个描述性名称。
+- Bearer token expiration - 选择过期时间范围。
 
 4
 
-Click **Create** to generate a Sandboxes token, then save your Sandboxes token.
+点击 **Create** 生成 Sandboxes 令牌，然后保存该令牌。
 
-After this step, the Sandboxes token will not be visible again.
+完成此步骤后，Sandboxes 令牌将不会再次显示。
 
-To authenticate API requests to your Sandboxes environment, you will need to obtain an access token using the **Lattice Client ID** and **Lattice Client Secret**.
+要对发往 Sandboxes 环境的 API 请求进行认证，你需要使用 **Lattice Client ID** 和 **Lattice Client Secret** 获取访问令牌。
 
-If your environment page doesn’t display a **Lattice Client ID** or **Lattice Client Secret**, under “Resource Credentials”, contact your Anduril representative.
+如果环境页面的 “Resource Credentials” 下未显示 **Lattice Client ID** 或 **Lattice Client Secret**，请联系 Anduril 代表。
 
 1
 
-Send a `POST` request with the `client_id` and `client_secret` to the `/api/v1/oauth/token` endpoint.
+向 `/api/v1/oauth/token` 端点发送包含 `client_id` 和 `client_secret` 的 `POST` 请求。
 
 ```bash
 curl --request POST "https://$LATTICE_ENDPOINT/api/v1/oauth/token" \
@@ -200,7 +199,7 @@ curl --request POST "https://$LATTICE_ENDPOINT/api/v1/oauth/token" \
 
 2
 
-If the request is successful, you will receive a `200` status response. The body will contain the following data:
+如果请求成功，你会收到状态码为 `200` 的响应。正文会包含以下数据：
 
 ```json
 {
@@ -210,7 +209,7 @@ If the request is successful, you will receive a `200` status response. The body
 }
 ```
 
-Export the `access_token` as an environment variable.
+将 `access_token` 导出为环境变量。
 
 ```bash
 export ENVIRONMENT_TOKEN="*****"
@@ -218,7 +217,7 @@ export ENVIRONMENT_TOKEN="*****"
 
 3
 
-You can now use the `access_token` as the Authorization token to interact with Lattice.
+现在可以使用 `access_token` 作为 Authorization 令牌与 Lattice 交互。
 
 ```bash
 curl -X GET https://$LATTICE_ENDPOINT/api/v1/objects \
@@ -226,11 +225,11 @@ curl -X GET https://$LATTICE_ENDPOINT/api/v1/objects \
      -H "Anduril-Sandbox-Authorization: Bearer $SANDBOXES_TOKEN"
 ```
 
-Token refresh
+令牌刷新
 
-The `access_token` returned will only be valid for the value of `expires_in`, in seconds. If you’re accessing the SDK through the REST clients, the clients will automatically manage refresh for you. If you are interacting with the SDK using gRPC or cURL, you will have to manage the token refresh based on the `expires_in` property.
+返回的 `access_token` 仅在 `expires_in` 指定的秒数内有效。如果你通过 REST 客户端访问 SDK，客户端会自动为你管理刷新。如果你使用 gRPC 或 cURL 与 SDK 交互，则必须根据 `expires_in` 属性自行管理令牌刷新。
 
-## What’s next?
+## 接下来
 
-- Test your new environment by running the Quickstart guide.
-- Install the Lattice SDK for a protocol and language of your choice to get started developing with Lattice.
+- 运行快速入门指南，测试你的新环境。
+- 为你选择的协议和语言安装 Lattice SDK，开始使用 Lattice 开发。

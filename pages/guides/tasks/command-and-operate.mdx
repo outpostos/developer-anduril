@@ -1,54 +1,54 @@
 ---
-title: "Command agents and operate on tasks"
+title: "指挥 agent 并操作任务"
 ---
 
-# Command agents and operate on tasks
+# 指挥 agent 并操作任务
 
-Operators use the Tasks API to create, monitor, and manage tasks across their operational domain.
+操作员使用 Tasks API 在其作战域内创建、监控和管理任务。
 
-The specific tasks you command, and monitor, in Lattice depend on the mission requirements, and the environment you’re integrating with. This page shows you how to use the Lattice Sandboxes to create, monitor, and cancel tasks.
+你在 Lattice 中指挥和监控的具体任务取决于任务需求以及你正在集成的环境。本页展示如何使用 Lattice Sandboxes 创建、监控和取消任务。
 
-The `CreateTask` ([REST](/reference/rest/tasks/create-task)) API lets you create tasks in Lattice using custom task definitions published to the Lattice Schema Registry. The `StreamTasks` ([REST](/reference/rest/tasks/stream-tasks) | [gRPC](/reference/grpc/taskmanager-v1/stream-tasks)) API provides centralized visibility into task creation, updates, and status changes for all tasks in your environment. The `CancelTask` ([REST](/reference/rest/tasks/cancel-task) | [gRPC](/reference/grpc/taskmanager-v1/cancel-task)) API allows you to request cancellation of tasks that are no longer needed.
+`CreateTask`（[REST](/reference/rest/tasks/create-task)）API 让你可以使用发布到 Lattice Schema Registry 的自定义任务定义，在 Lattice 中创建任务。`StreamTasks`（[REST](/reference/rest/tasks/stream-tasks) | [gRPC](/reference/grpc/taskmanager-v1/stream-tasks)）API 为环境中的所有任务创建、更新和状态变化提供集中可见性。`CancelTask`（[REST](/reference/rest/tasks/cancel-task) | [gRPC](/reference/grpc/taskmanager-v1/cancel-task)）API 允许你请求取消不再需要的任务。
 
-## Before you begin
+## 开始之前
 
-- To create, monitor, or cancel tasks, set up your Lattice environment.
-- Familiarize yourself with tasks and the task lifecycle.
-- To create custom tasks, publish your schemas to the Lattice Schema Registry (LSR).
+- 要创建、监控或取消任务，请设置 Lattice 环境。
+- 熟悉任务和任务生命周期。
+- 要创建自定义任务，请将 schema 发布到 Lattice Schema Registry (LSR)。
 
-## Create tasks using REST
+## 使用 REST 创建任务
 
-When working with custom tasks using REST:
+使用 REST 处理自定义任务时：
 
-1. First, you retrieve your JSON Schema definitions from the Schema Registry.
-2. Then you validate your task data against these schema definitions.
-3. Finally, you use the validated data to create tasks in Lattice using the CreateTask API.
+1. 首先，从 Schema Registry 检索 JSON Schema 定义。
+2. 然后，使用这些 schema 定义验证任务数据。
+3. 最后，使用验证后的数据通过 CreateTask API 在 Lattice 中创建任务。
 
-The Lattice Schema Registry (LSR) lets you validate your task data using JSON schema:
+Lattice Schema Registry (LSR) 让你可以使用 JSON schema 验证任务数据：
 
 1
 
-Log in to the [LSR](https://schema-registry.developer.anduril.com/) using your credentials.
+使用凭证登录 [LSR](https://schema-registry.developer.anduril.com/)。
 
 2
 
-Navigate to your organization’s repositories.
+导航到组织的仓库。
 
 3
 
-Select the repository that contains your custom task definitions.
+选择包含自定义任务定义的仓库。
 
 4
 
-Browse to the specific protobuf definition you want to use for your task.
+浏览到要用于任务的特定 protobuf 定义。
 
 5
 
-Select the plugin dropdown and choose JSON Schema to view the available JSON Schema files.
+选择插件下拉菜单并选择 JSON Schema，以查看可用的 JSON Schema 文件。
 
 6
 
-Download the JSON schema files:
+下载 JSON schema 文件：
 
 ```bash
 curl -H "Authorization: Bearer $BUF_TOKEN" \
@@ -56,7 +56,7 @@ curl -H "Authorization: Bearer $BUF_TOKEN" \
      https://schema-registry.developer.anduril.com/plugins/<your-organization>/<your-repository>/<your-schema>/jsonschema/bundle
 ```
 
-This command downloads the bundled JSON Schema file that includes all referenced schemas. For example: Example JSON Schema structure for a custom task:
+该命令会下载包含所有被引用 schema 的打包 JSON Schema 文件。例如：自定义任务的 JSON Schema 结构示例：
 
 ```json
 {
@@ -74,13 +74,13 @@ This command downloads the bundled JSON Schema file that includes all referenced
 }
 ```
 
-To create a task using a custom task definition, do the following:
+要使用自定义任务定义创建任务，请执行以下操作：
 
 1
 
-### Prepare your task data
+### 准备任务数据
 
-Define the data for your custom task that matches your schema structure. This data will be encapsulated in the [`specification`](/reference/rest/tasks/create-task#request.body.specification) field of the [`CreateTaskRequest`](/reference/rest/tasks/create-task#request) message.
+定义与你的 schema 结构匹配的自定义任务数据。该数据会封装在 [`CreateTaskRequest`](/reference/rest/tasks/create-task#request) 消息的 [`specification`](/reference/rest/tasks/create-task#request.body.specification) 字段中。
 
 ```
 task_data = {
@@ -94,9 +94,9 @@ task_data = {
 
 2
 
-### Validate task data using the schema
+### 使用 schema 验证任务数据
 
-Before sending data to Lattice, validate it against the JSON Schema to ensure it matches your custom task definition. This prevents issues when submitting invalid task data to the API.
+向 Lattice 发送数据前，请根据 JSON Schema 进行验证，确保它与你的自定义任务定义匹配。这可以避免向 API 提交无效任务数据时出现问题。
 
 ```
 #!/usr/bin/env python3
@@ -236,14 +236,14 @@ if __name__ == "__main__":
 
 3
 
-### Create the task using validated data
+### 使用验证后的数据创建任务
 
-Use the [`CreateTask`](/reference/rest/tasks/create-task) API to submit your task to Lattice. This API expects the following key fields:
+使用 [`CreateTask`](/reference/rest/tasks/create-task) API 将任务提交到 Lattice。该 API 需要下列关键字段：
 
-- description : A human-readable description of the task (up to 4096 characters).
-- specification : Your validated task data wrapped in a Google Protocol Buffer Any message.
-- author : Information about who or what created the task.
-- relations : Relationships for the task, such as a parent task or an assignee. Set relations.assignee to the agent’s Principal to route the task to that agent for execution.
+- description：任务的人类可读描述（最多 4096 个字符）。
+- specification：包装在 Google Protocol Buffer Any 消息中的已验证任务数据。
+- author：有关谁或什么创建了任务的信息。
+- relations：任务关系，例如父任务或被分配者。将 relations.assignee 设置为 agent 的 Principal，以将任务路由给该 agent 执行。
 
 ```
 #!/usr/bin/env python3
@@ -381,17 +381,17 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-The response contains a [`Task`](/reference/rest/tasks/create-task#response.body.task) object with details including the assigned task ID and initial status, which starts as `STATUS_CREATED` in the task lifecycle.
+响应包含一个 [`Task`](/reference/rest/tasks/create-task#response.body.task) 对象，其中包含已分配任务 ID 和初始状态等详情；任务生命周期中的初始状态为 `STATUS_CREATED`。
 
-## Create tasks using gRPC
+## 使用 gRPC 创建任务
 
-When you use gRPC, the Protobuf types are generated from your task definition directly, so there’s no separate JSON schema validation step. Instead, the compiler enforces the task’s shape. You build your custom task message, pack it into the [`specification`](/reference/grpc/taskmanager-v1/create-task) `Any` field, and call `CreateTask`.
+使用 gRPC 时，Protobuf 类型会直接从任务定义生成，因此没有单独的 JSON schema 验证步骤。相反，编译器会强制任务形态。你构建自定义任务消息，将其打包到 [`specification`](/reference/grpc/taskmanager-v1/create-task) `Any` 字段中，然后调用 `CreateTask`。
 
 1
 
-### Build and pack the task specification
+### 构建并打包任务 specification
 
-Construct your `Objective` message from the bindings generated from your [task definition](/guides/tasks/define-a-task), then pack it into a `google.protobuf.Any`. The type URL on the `Any` is what lets the receiving agent identify and unpack the task:
+使用从[任务定义](/guides/tasks/define-a-task)生成的绑定构造 `Objective` 消息，然后将其打包到 `google.protobuf.Any` 中。`Any` 上的类型 URL 让接收 agent 能够识别并解包任务：
 
 ```
 # This Python example is compatible with artifacts generated using
@@ -483,14 +483,14 @@ if __name__ == "__main__":
 
 2
 
-### Create the task
+### 创建任务
 
-Call the [`CreateTask`](/reference/grpc/taskmanager-v1/create-task) RPC with the packed specification. Set the following key fields on the [`CreateTaskRequest`](/reference/grpc/taskmanager-v1/create-task):
+使用打包后的 specification 调用 [`CreateTask`](/reference/grpc/taskmanager-v1/create-task) RPC。在 [`CreateTaskRequest`](/reference/grpc/taskmanager-v1/create-task) 上设置下列关键字段：
 
-- specification : Your custom task message packed into a google.protobuf.Any .
-- author : The Principal — a user or system — creating the task.
-- relations.assignee : The agent’s Principal . Set this to route the task to that agent for execution.
-- description : A human-readable description of the task.
+- specification：打包到 google.protobuf.Any 中的自定义任务消息。
+- author：创建任务的 Principal，即用户或系统。
+- relations.assignee：agent 的 Principal。设置此字段以将任务路由给该 agent 执行。
+- description：任务的人类可读描述。
 
 ```
 # This Python example is compatible with artifacts generated using
@@ -580,17 +580,17 @@ if __name__ == "__main__":
     main()
 ```
 
-The response contains the created [`Task`](/reference/grpc/taskmanager-v1/create-task), including its assigned task ID.
+响应包含已创建的 [`Task`](/reference/grpc/taskmanager-v1/create-task)，包括其分配到的任务 ID。
 
-## Monitor tasks
+## 监控任务
 
-The `StreamTasks` ([REST](/reference/rest/tasks/stream-tasks) | [gRPC](/reference/grpc/taskmanager-v1/stream-tasks)) API establishes a server-sent events (SSE) stream that lets you monitor tasks in Lattice:
+`StreamTasks`（[REST](/reference/rest/tasks/stream-tasks) | [gRPC](/reference/grpc/taskmanager-v1/stream-tasks)）API 会建立 server-sent events (SSE) 流，让你监控 Lattice 中的任务：
 
 1
 
-### Initialize the task stream
+### 初始化任务流
 
-In the following example, we specify a prefix to filter the task stream with:
+在下列示例中，我们指定一个前缀来过滤任务流：
 
 ```
 package main
@@ -677,22 +677,22 @@ func main() {
 }
 ```
 
-The `StreamTasks` method accepts the following parameters:
+`StreamTasks` 方法接受下列参数：
 
 - `heartbeatIntervalMs` _Number_
-  The interval in milliseconds at which the server sends heartbeat events (default: 30000 ms). Use heartbeats to verify the connection is still active. The minimum is 1000 ms; smaller values are raised to 1000 ms.
+  服务器发送 heartbeat 事件的间隔，单位为毫秒（默认值：30000 ms）。使用 heartbeat 验证连接仍然活跃。最小值为 1000 ms；更小的值会提升为 1000 ms。
 
 - `excludePreexistingTasks` _Boolean_
-  When set to `true`, the stream will only include tasks created after the stream starts. When `false` (default), existing tasks will also be included in the stream.
+  设为 `true` 时，流只包含流启动后创建的任务。设为 `false`（默认值）时，现有任务也会包含在流中。
 
 - `taskType` _Object_
-  Specifies which task types to include in the stream. Can filter by exact match or by prefix.taskTypePrefixStringOnly include tasks whose type starts with the specified prefix. For example, `type.googleapis.com/<your-organization.tasks>`.taskTypeUrlsListOnly include tasks specified in the list. You must list the full URL of the task definition for each of the tasks you want to filter from the stream.
+  指定流中包含哪些任务类型。可以按精确匹配或前缀过滤。taskTypePrefixString 只包含类型以指定前缀开头的任务，例如 `type.googleapis.com/<your-organization.tasks>`。taskTypeUrlsList 只包含列表中指定的任务。对于要从流中过滤出的每个任务，必须列出任务定义的完整 URL。
 
 2
 
-### Process stream events
+### 处理流事件
 
-Process the different types of events that arrive through the stream:
+处理通过流到达的不同类型事件：
 
 ```
 package main
@@ -779,16 +779,16 @@ func main() {
 }
 ```
 
-The stream produces two main event types:
+该流会产生两种主要事件类型：
 
-- heartbeat : Regular server heartbeats that confirm the connection is active.
-- task_event : Notifications about task creation, updates, or status changes.
+- heartbeat：常规服务器 heartbeat，用于确认连接处于活跃状态。
+- task_event：关于任务创建、更新或状态变化的通知。
 
 3
 
-### Verify the results
+### 验证结果
 
-When successfully running the `StreamTasks` code, you’ll see output similar to the following:
+成功运行 `StreamTasks` 代码时，你会看到类似以下输出：
 
 ```
 Starting task stream
@@ -805,20 +805,20 @@ Task Event: TASK_UPDATED
   Status: STATUS_EXECUTING
 ```
 
-## Cancel tasks
+## 取消任务
 
-The [`CancelTask`](/reference/rest/tasks/cancel-task) API cancels a task by marking it for cancellation in the system. The behavior depends on the task’s current state:
+[`CancelTask`](/reference/rest/tasks/cancel-task) API 通过在系统中将任务标记为待取消来取消任务。其行为取决于任务当前状态：
 
-- If the task has not been sent to an agent, it cancels immediately and transitions to a terminal state ( STATUS_DONE_NOT_OK with ERROR_CODE_CANCELLED ).
-- If the task has been sent to an agent, the cancellation request is routed to the agent, which decides whether to accept or reject the cancellation.
+- 如果任务尚未发送给 agent，它会立即取消并转换为终止状态（STATUS_DONE_NOT_OK，并带有 ERROR_CODE_CANCELLED）。
+- 如果任务已经发送给 agent，取消请求会路由到该 agent，由它决定接受还是拒绝取消。
 
-This section covers the operator’s side of cancellation: sending the request and reading the result. The agent that receives the routed request must set up a task processor and handle cancellation requests — see [Handle task cancellation](/guides/tasks/integrate-an-agent#handle-task-cancellation) in the agent integration guide.
+本节涵盖取消流程中的操作员侧：发送请求并读取结果。接收被路由请求的 agent 必须设置任务处理器并处理取消请求，请参阅 agent 集成指南中的[处理任务取消](/guides/tasks/integrate-an-agent#handle-task-cancellation)。
 
 1
 
-### Request task cancellation
+### 请求取消任务
 
-Send a task cancellation request to Lattice. If the task has already been sent to an agent, Lattice routes the request to the agent:
+向 Lattice 发送任务取消请求。如果任务已经发送给 agent，Lattice 会将请求路由给该 agent：
 
 ```
 package main
@@ -910,15 +910,15 @@ func main() {
 }
 ```
 
-The `CancelTask` API accepts the following parameters:
+`CancelTask` API 接受下列参数：
 
 - `taskId` _StringRequired_
-  The unique identifier of the task to cancel.
+  要取消任务的唯一标识符。
 
 - `author` _PrincipalRequired_
-  Who or what is requesting the cancellation. Can be a user [`Principal`](/reference/rest/tasks/cancel-task#request.body.author) with a [`userId`](/reference/rest/tasks/cancel-task#request.body.author.user.userId) or a system `Principal` with an [`entityId`](/reference/rest/tasks/cancel-task#request.body.author.system.entityId).
+  请求取消的是谁或什么。可以是带有 [`userId`](/reference/rest/tasks/cancel-task#request.body.author.user.userId) 的用户 [`Principal`](/reference/rest/tasks/cancel-task#request.body.author)，也可以是带有 [`entityId`](/reference/rest/tasks/cancel-task#request.body.author.system.entityId) 的系统 `Principal`。
 
-Run the cancellation request with the ID of the task you want to cancel:
+使用要取消任务的 ID 运行取消请求：
 
 ```
 python cancel_task.py <task_id>
@@ -926,13 +926,13 @@ python cancel_task.py <task_id>
 
 2
 
-### Verify the results
+### 验证结果
 
-After requesting cancellation, the task will transition to one of two outcomes:
+请求取消后，任务会转换为两种结果之一：
 
-**Successful cancellation:**
+**取消成功：**
 
-When the agent accepts the cancellation, the task transitions to `STATUS_DONE_NOT_OK` with `ERROR_CODE_CANCELLED`:
+当 agent 接受取消时，任务会转换为 `STATUS_DONE_NOT_OK`，并带有 `ERROR_CODE_CANCELLED`：
 
 ```
 Cancelling task: task-123456
@@ -942,9 +942,9 @@ Error Code: ERROR_CODE_CANCELLED
 Error Message: Task cancelled by agent.
 ```
 
-**Rejected cancellation:**
+**取消被拒绝：**
 
-When the agent rejects the cancellation, the task retains its current status but includes a `TaskError` with `ERROR_CODE_REJECTED`:
+当 agent 拒绝取消时，任务会保留当前状态，但包含带有 `ERROR_CODE_REJECTED` 的 `TaskError`：
 
 ```
 Cancelling task: task-123456
@@ -954,8 +954,8 @@ Error Code: ERROR_CODE_REJECTED
 Error Message: Task is already active, and cannot be cancelled.
 ```
 
-For more information, see `CancelTask` in the *Lattice API Reference*.
+更多信息请参阅 *Lattice API Reference* 中的 `CancelTask`。
 
-## What’s next
+## 接下来
 
-- Learn how to integrate an agent to listen for, and process, tasks using the Lattice SDK.
+- 了解如何集成 agent，以使用 Lattice SDK 监听和处理任务。

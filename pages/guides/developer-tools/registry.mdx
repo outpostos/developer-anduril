@@ -4,97 +4,97 @@ title: "Lattice Schema Registry"
 
 # Lattice Schema Registry
 
-The **Lattice Schema Registry (LSR)** is a centralized registry that tracks schema definitions for Lattice integrations. Publish your schemas to use them in your Lattice integration, such as custom task definitions that express your platform’s capabilities.
+**Lattice Schema Registry (LSR)** 是一个集中式注册表，用于跟踪 Lattice 集成的 schema 定义。发布你的 schema 后，即可在 Lattice 集成中使用它们，例如用自定义任务定义表达平台能力。
 
-The LSR accepts schemas written in the [Protobuf IDL](https://protobuf.dev/overview/). Protobuf is supported by a variety of language-specific plugins, so your schemas can be used to create both REST and gRPC integrations using most major programming languages.
+LSR 接受使用 [Protobuf IDL](https://protobuf.dev/overview/) 编写的 schema。Protobuf 由多种特定语言插件支持，因此你的 schema 可用于通过大多数主流编程语言创建 REST 和 gRPC 集成。
 
-![The Lattice Schema Registry dashboard](/img/anduril.docs.buildwithfern.com/948813b683a8d8aae00d83c090fe6cde782a0c6d68119969aa1ddf7674ffa076/assets/images/screenshots/registry-dashboard.png)
+![Lattice Schema Registry 仪表盘](/img/anduril.docs.buildwithfern.com/948813b683a8d8aae00d83c090fe6cde782a0c6d68119969aa1ddf7674ffa076/assets/images/screenshots/registry-dashboard.png)
 
-In the following sections, you learn how to set up your account in the Lattice Schema Registry, create a repository, and publish your custom schemas.
+在下列章节中，你将了解如何在 Lattice Schema Registry 中设置账号、创建仓库并发布自定义 schema。
 
-## Before you begin
+## 开始之前
 
-- If you don’t have a Lattice Developer login, request to join the Lattice SDK Developer program .
-- Your user account in the LSR is created the first time you log in.
-- Review how to define a custom task to understand best practices for authoring Protobuf schemas before publishing them to the registry.
+- 如果你没有 Lattice Developer 登录账号，请申请加入 Lattice SDK Developer program。
+- 你的 LSR 用户账号会在首次登录时创建。
+- 发布到注册表前，请复习如何定义自定义任务，以理解编写 Protobuf schema 的最佳实践。
 
-## Set up your registry
+## 设置注册表
 
-Open the [Schema Registry dashboard](https://schema-registry.developer.anduril.com/), then do the following:
+打开 [Schema Registry dashboard](https://schema-registry.developer.anduril.com/)，然后执行以下操作：
 
 1
 
-Log in using your Lattice Developer SSO.
+使用你的 Lattice Developer SSO 登录。
 
-User and organization provisioning
+用户和组织预配
 
-- Your LSR account is created when you log in for the first time and is automatically provisioned as a member of the organization associated with your Lattice Developer SSO.
-- Organizations in the LSR are created when the first associated Lattice Developer logs in. The first member of a new organization becomes its default admin.
+- 你的 LSR 账号会在首次登录时创建，并自动预配为与你的 Lattice Developer SSO 关联的组织成员。
+- LSR 中的组织会在第一个关联的 Lattice Developer 登录时创建。新组织的第一位成员会成为默认管理员。
 
 2
 
-Select your organization from the list of organizations displayed on the left.
+从左侧显示的组织列表中选择你的组织。
 
 3
 
-If you are an admin, you can modify user roles from the **Members** panel.
+如果你是管理员，可以在 **Members** 面板中修改用户角色。
 
 4
 
-From the organization dashboard, choose **Create Repository**:
+在组织仪表盘中选择 **Create Repository**：
 
-![Create Repository dialog with fields for name and visibility](/img/anduril.docs.buildwithfern.com/560a599eb901e95a0c4d772df41b1f10e30aa55ed423043643ea29679759b28d/assets/images/screenshots/registry-create-repo.png)
+![包含名称和可见性字段的 Create Repository 对话框](/img/anduril.docs.buildwithfern.com/560a599eb901e95a0c4d772df41b1f10e30aa55ed423043643ea29679759b28d/assets/images/screenshots/registry-create-repo.png)
 
-In the modal, enter **your-repository** for the repository name, and select **Private** for visibility. Then click **Create**.
+在模态框中，将仓库名称填写为 **your-repository**，并将可见性选择为 **Private**。然后点击 **Create**。
 
-Privacy
+隐私
 
-Treat your schema definitions as a public interface for your integration.
+请把你的 schema 定义视为集成的公共接口。
 
-- The LSR does not support ITAR specifications, regardless of repository visibility. Do not use the registry to store any classified or export-controlled information.
-- Public repositories are visible to all users of the Lattice Schema Registry.
-- Private repositories are only visible to organization members. Repositories are Private by default.
-- All repositories, regardless of visibility, are readable for a subset of Anduril engineers. Do not include proprietary information that you would not share with an Anduril engineer.
+- 无论仓库可见性如何，LSR 都不支持 ITAR 规格。不要使用注册表存储任何涉密或受出口管制的信息。
+- 公共仓库对 Lattice Schema Registry 的所有用户可见。
+- 私有仓库仅对组织成员可见。仓库默认为 Private。
+- 无论可见性如何，所有仓库都可被一部分 Anduril 工程师读取。不要包含任何你不会与 Anduril 工程师共享的专有信息。
 
-## Publish to the registry
+## 发布到注册表
 
-After creating a repository, you can publish Protobuf schemas to the LSR. First, define your package and associated schemas in .proto files. Publishing your schemas to the LSR will automatically register these definitions for use in [Sandboxes](/guides/developer-tools/sandboxes) test environments. If you’re integrating with a production deployment, confirm this behavior with your Anduril representative.
+创建仓库后，你可以将 Protobuf schema 发布到 LSR。首先，在 `.proto` 文件中定义你的 package 和相关 schema。将 schema 发布到 LSR 后，这些定义会自动注册，以便在 [Sandboxes](/guides/developer-tools/sandboxes) 测试环境中使用。如果你正在与生产部署集成，请向 Anduril 代表确认此行为。
 
-To publish schemas to your repository, use the Buf CLI:
+要把 schema 发布到你的仓库，请使用 Buf CLI：
 
 1
 
-### Install the Buf CLI
+### 安装 Buf CLI
 
-Follow the [Buf CLI installation guide](https://buf.build/docs/cli/installation/) for your operating system.
+按照适用于你操作系统的 [Buf CLI 安装指南](https://buf.build/docs/cli/installation/)操作。
 
 2
 
-### Authenticate with the LSR
+### 向 LSR 认证
 
-When you authenticate with the LSR, you create a token that is scoped to your user.
+向 LSR 认证时，你会创建一个限定到当前用户的令牌。
 
-From your account dropdown, navigate to `Settings`. Create a new token and save it. Export the token in your CLI:
+从账号下拉菜单进入 `Settings`。创建新令牌并保存。然后在 CLI 中导出该令牌：
 
 ```bash
 export BUF_TOKEN=<YOUR_BUF_TOKEN>@schema-registry.developer.anduril.com
 ```
 
-Any time you use Buf CLI with the domain name `schema-registry.developer.anduril.com`, Buf uses `$BUF_TOKEN` to authenticate. To confirm your token works, run:
+每次你通过域名 `schema-registry.developer.anduril.com` 使用 Buf CLI 时，Buf 都会使用 `$BUF_TOKEN` 进行认证。要确认令牌有效，请运行：
 
 ```
 buf registry whoami schema-registry.developer.anduril.com
 ```
 
-Read more about ways to [authenticate](https://buf.build/docs/bsr/authentication/#buf_token-reference) with the Buf CLI.
+阅读更多关于使用 Buf CLI [认证](https://buf.build/docs/bsr/authentication/#buf_token-reference)的方式。
 
-You’re now ready to start publishing schemas to the LSR:
+现在可以开始向 LSR 发布 schema：
 
 1
 
-### Create a buf.yaml configuration file
+### 创建 buf.yaml 配置文件
 
-The `buf.yaml` file defines how your modules are published. Create a `buf.yaml` file in the root of your protobuf directory:
+`buf.yaml` 文件定义模块的发布方式。请在 protobuf 目录根目录中创建 `buf.yaml` 文件：
 
 ```
 version: v2 // Buf config file version
@@ -103,41 +103,41 @@ modules:
     name: schema-registry.developer.anduril.com/<your-org>/<your-repository>
 ```
 
-This file defines where and how your schemas are pushed to the registry. View the full [buf.yaml config spec](https://buf.build/docs/configuration/v2/buf-yaml/) for more options.
+该文件定义 schema 推送到注册表的位置和方式。更多选项请查看完整的 [buf.yaml 配置规范](https://buf.build/docs/configuration/v2/buf-yaml/)。
 
 2
 
-### Push your definitions to the registry
+### 将定义推送到注册表
 
-Push your schema definitions to the Schema Registry:
+将 schema 定义推送到 Schema Registry：
 
 ```
 buf push
 ```
 
-This command compiles your protobuf definitions and uploads them to your repository in the Schema Registry.
+该命令会编译 protobuf 定义，并将它们上传到 Schema Registry 中的仓库。
 
-You can now use this custom definition with the Lattice SDK to send your data across the Lattice mesh.
+现在可以在 Lattice SDK 中使用该自定义定义，通过 Lattice 网格发送数据。
 
-## Manage schema versions
+## 管理 schema 版本
 
-When you need to iterate on a message without breaking existing consumers, release a new version of the package instead of editing the published one in place.
+当你需要迭代消息且不能破坏现有消费者时，请发布 package 的新版本，而不是直接编辑已发布版本。
 
-A package name consists of `<namespace>.<pkg>.<version>`, and a message’s fully qualified name is `<namespace>.<pkg>.<version>.<Message>`. A published schema is a contract. Existing integrations that already consume a message built from it depend on both the package name, as well as the field numbers in each message, which consumers use to decode the message.
+package 名称由 `<namespace>.<pkg>.<version>` 组成，消息的完全限定名为 `<namespace>.<pkg>.<version>.<Message>`。已发布的 schema 是一份契约。已经消费基于该 schema 构建的消息的现有集成，既依赖 package 名称，也依赖每条消息中的字段编号；消费者会使用这些编号解码消息。
 
-Adding fields is safe. However, renaming, reordering, changing a field’s type, or removing a field, is a breaking change. If a change results in a breaking change, LSR requires that you cut a new release instead.
+添加字段是安全的。但是，重命名、重新排序、更改字段类型或移除字段都属于破坏性变更。如果某项变更会导致破坏性变更，LSR 要求你改为发布新版本。
 
-Breaking change protection
+破坏性变更保护
 
-You cannot make breaking changes while developing `alpha`, `beta`, and `test` versions.
+开发 `alpha`、`beta` 和 `test` 版本时，不能进行破坏性变更。
 
-This ensures that message types are backwards-compatible and that messages remain valid even if the definitions have not been uniformly updated. If you must release a breaking change in development, create a new version, for example, `v1alpha` → `v2alpha`.
+这可以确保消息类型向后兼容，并确保即使定义尚未统一更新，消息仍然有效。如果你必须在开发中发布破坏性变更，请创建新版本，例如 `v1alpha` -> `v2alpha`。
 
 1
 
-### Create the new version directory
+### 创建新版本目录
 
-Mirror the existing layout. Each version lives in its own directory and gets its own package:
+镜像现有布局。每个版本都位于自己的目录中，并拥有自己的 package：
 
 ```
 <pkg>/
@@ -149,9 +149,9 @@ Mirror the existing layout. Each version lives in its own directory and gets its
 
 2
 
-### Copy the proto and bump the package
+### 复制 proto 并提升 package 版本
 
-Copy `<pkg>/v1/<file>.proto` to `<pkg>/v2alpha/<file>.proto`, then change only the package line:
+将 `<pkg>/v1/<file>.proto` 复制到 `<pkg>/v2alpha/<file>.proto`，然后只更改 package 行：
 
 ```proto
 // <pkg>/v2alpha/<file>.proto
@@ -160,13 +160,13 @@ syntax = "proto3";
 package <namespace>.<pkg>.v2alpha;
 ```
 
-The version segment of the package must match the directory. This keeps the fully qualified names distinct (`<namespace>.<pkg>.v2alpha.<Message>`), so `v1` and `v2alpha` consumers never collide and can be served side by side.
+package 的版本段必须与目录匹配。这样可以保持完全限定名不同（`<namespace>.<pkg>.v2alpha.<Message>`），因此 `v1` 和 `v2alpha` 消费者不会冲突，可以并行服务。
 
 3
 
-### Make your changes in v2alpha
+### 在 v2alpha 中进行变更
 
-Iterate freely—this is a fresh contract with no consumers yet. For example, you might add optional parameters to a message that previously carried none:
+可以自由迭代，因为这是一份还没有消费者的新契约。例如，你可以向先前没有参数的消息添加可选参数：
 
 ```
 message <Message> {
@@ -179,29 +179,29 @@ message <Message> {
 
 4
 
-### Verify with the Buf CLI
+### 使用 Buf CLI 验证
 
-If the module is managed by `buf.yaml`, run the following from the root of your Protobuf directory:
+如果模块由 `buf.yaml` 管理，请从 Protobuf 目录根目录运行：
 
 ```
 buf lint     # Checks style and naming, including PACKAGE_DIRECTORY_MATCH.
 buf build    # Confirms everything compiles.
 ```
 
-Because `v2alpha` is a new package, running `buf breaking` against your published baseline does not flag it: the `v1` contract is unchanged, which is the point. When you’re ready, publish the new version with `buf push`.
+由于 `v2alpha` 是新 package，针对已发布基线运行 `buf breaking` 不会将其标记为问题：`v1` 契约保持不变，这正是目的。准备好后，使用 `buf push` 发布新版本。
 
-Rules for iterating without breaking changes
+无破坏性变更迭代规则
 
-Once other services consume a version, follow the standard [proto3 evolution rules](https://protobuf.dev/programming-guides/proto3/) so you can keep adding to a message without releasing another version:
+一旦其他服务开始消费某个版本，请遵循标准 [proto3 演进规则](https://protobuf.dev/programming-guides/proto3/)，这样你就可以继续向消息添加内容，而无需发布另一个版本：
 
-- Add new fields with new, never-before-used field numbers. Existing consumers ignore fields they don’t recognize, so this stays backwards-compatible.
-- Never reuse or renumber an existing field number. Consumers decode by number, so reusing one silently breaks downstream consumers
-- Never rename a field if consumers rely on the JSON or text name. JSON uses field names, so renaming a field breaks JSON consumers.
-- Never change a field’s type, such as int32 to string or uint32 to its wrapper type. The wire encoding differs, so add a new field instead.
-- Reserve the number and name of any field you remove so they can’t be reused. This prevents a future field from accidentally reclaiming a retired number and colliding with old data.
-- Prefer wrapper types such as google.protobuf.UInt32Value and google.protobuf.FloatValue over bare scalars. Callers can then distinguish “unset” from an explicit zero, which lets you add optional parameters later without ambiguity.
+- 使用新的、从未用过的字段编号添加新字段。现有消费者会忽略无法识别的字段，因此这能保持向后兼容。
+- 不要复用或重新编号现有字段编号。消费者按编号解码，因此复用字段编号会静默破坏下游消费者。
+- 如果消费者依赖 JSON 名称或文本名称，不要重命名字段。JSON 使用字段名，因此重命名字段会破坏 JSON 消费者。
+- 不要更改字段类型，例如从 int32 改为 string，或从 uint32 改为其 wrapper 类型。线缆编码不同，因此应改为添加新字段。
+- 为你移除的任何字段保留其编号和名称，防止它们被复用。这可以避免未来字段意外取回已退役编号并与旧数据冲突。
+- 优先使用 google.protobuf.UInt32Value 和 google.protobuf.FloatValue 等 wrapper 类型，而不是裸标量。这样调用方可以区分“未设置”和显式零值，让你以后能够无歧义地添加可选参数。
 
-When you remove a field, reserve its number and name:
+移除字段时，请保留其编号和名称：
 
 ```
 message <Message> {
@@ -210,30 +210,30 @@ message <Message> {
 }
 ```
 
-## Use tokens for automated workflows
+## 为自动化工作流使用令牌
 
-For automated workflows, such as in a CI/CD pipeline, use API tokens to authenticate with the LSR:
+对于 CI/CD 流水线等自动化工作流，请使用 API 令牌向 LSR 认证：
 
 1
 
-From the LSR dashboard, select your username in the top-right corner to open the dropdown list. Choose **Settings** to open the setting dashboard.
+在 LSR 仪表盘中，选择右上角的用户名以打开下拉列表。选择 **Settings** 打开设置仪表盘。
 
 2
 
-Use the **Create a token** pane to create an API token.
+使用 **Create a token** 面板创建 API 令牌。
 
-The token is displayed only once and can’t be retrieved again. If you lose the token or it’s compromised, delete it and create a new one.
+令牌只会显示一次，之后无法再次取回。如果令牌丢失或泄露，请删除它并创建新令牌。
 
 3
 
-Set the `BUF_TOKEN` environment variable in your CI/CD environment:
+在 CI/CD 环境中设置 `BUF_TOKEN` 环境变量：
 
 ```bash
 export BUF_TOKEN=<your-token-here>
 ```
 
-The Buf CLI will automatically use this token for authentication. For more information, see [Authenticating in CI](https://buf.build/docs/bsr/authentication/#authenticating-in-ci) in the *Buf Developer Documentation*.
+Buf CLI 会自动使用该令牌进行认证。更多信息请参阅 *Buf Developer Documentation* 中的 [Authenticating in CI](https://buf.build/docs/bsr/authentication/#authenticating-in-ci)。
 
-## What’s next?
+## 接下来
 
-- Use your published schema to create tasks in Lattice.
+- 使用已发布的 schema 在 Lattice 中创建任务。

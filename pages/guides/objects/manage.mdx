@@ -1,40 +1,40 @@
 ---
-title: "Manage objects"
+title: "管理对象"
 ---
 
-# Manage objects
+# 管理对象
 
-In Lattice, an **object** is a data model that represents a single file or a piece of data. This page explains how to manage objects in Lattice, including retrieving metadata, setting expiration times, and deleting objects.
+在 Lattice 中，**对象**是表示单个文件或一段数据的数据模型。本页说明如何管理 Lattice 中的对象，包括检索元数据、设置过期时间以及删除对象。
 
-## Before you begin
+## 开始之前
 
-- To configure your app to manage objects, set up your Lattice environment.
-- See an overview of the Object schema and the Object Store API in Lattice.
-- If you haven’t already, learn how to upload and download objects.
+- 要配置应用管理对象，请设置 Lattice 环境。
+- 查看 Lattice 中对象 schema 和 Object Store API 的概览。
+- 如果尚未了解，请学习如何上传和下载对象。
 
-gRPC authentication
+gRPC 认证
 
-If you are using gRPC with client credentials, [set up the token refresh module](/guides/getting-started/authenticate#using-grpc) before running the examples on this page.
+如果你将 gRPC 与客户端凭证一起使用，请在运行本页示例前[设置令牌刷新模块](/guides/getting-started/authenticate#using-grpc)。
 
-## Get object metadata
+## 获取对象元数据
 
-To retrieve metadata about an object without downloading its contents, use the `getObjectMetadata` method, which performs a HEAD request to the server.
+要在不下载对象内容的情况下检索对象元数据，请使用 `getObjectMetadata` 方法；该方法会向服务器执行 HEAD 请求。
 
-This operation returns metadata such as the object size in bytes, the SHA-256 checksum, and timestamps indicating when the object was last modified, and when it expires.
+该操作会返回元数据，例如对象大小（字节）、SHA-256 校验和，以及表示对象最后修改时间和过期时间的时间戳。
 
 1
 
-### Specify the object path
+### 指定对象路径
 
-When using the [GetObjectMetadata](/reference/rest/objects/get-object-metadata) API, you must specify the object path of the object for which you want to retrieve metadata.
+使用 [GetObjectMetadata](/reference/rest/objects/get-object-metadata) API 时，必须指定要检索元数据的对象路径。
 
-For example, if you previously uploaded an image at `/api/v1/objects/image.jpg`, you would use this path to request its metadata.
+例如，如果你之前在 `/api/v1/objects/image.jpg` 上传了一张图像，就应使用该路径请求其元数据。
 
 2
 
-### Get the object metadata
+### 获取对象元数据
 
-Run the following code to retrieve the object’s metadata. Replace `objectPath` with the path of the object.
+运行以下代码以检索对象元数据。将 `objectPath` 替换为对象路径。
 
 ```
 // Example code for getting object metadata
@@ -102,9 +102,9 @@ func main() {
 
 3
 
-### Inspect the metadata
+### 检查元数据
 
-If successful, the response will include headers with valuable information:
+如果成功，响应会包含带有有用信息的 header：
 
 ```
 Object metadata:
@@ -115,28 +115,28 @@ Object metadata:
 - Expires: Thu, 30 Oct 2025 01:30:41 UTC
 ```
 
-You can use this information to verify the object size before downloading, confirm the object hasn’t been modified using the checksum, and check when the object expires and is removed from your environment.
+你可以使用这些信息在下载前验证对象大小，通过校验和确认对象未被修改，并检查对象何时过期并从环境中移除。
 
-## Set object time-to-live
+## 设置对象存活时间
 
-In Lattice, an **object** is a data model that represents a single file or a piece of data. When uploading objects, you can control how long they will be stored in Lattice by setting a Time-To-Live (TTL) value. This is useful for temporary files or for implementing storage policies.
+在 Lattice 中，**对象**是表示单个文件或一段数据的数据模型。上传对象时，可以通过设置 Time-To-Live (TTL) 值来控制对象在 Lattice 中存储多久。这对临时文件或实现存储策略很有用。
 
 1
 
-### Prepare the file and TTL value
+### 准备文件和 TTL 值
 
-Before uploading, you need to:
+上传前，你需要：
 
-1. Have a file ready to upload
-2. Determine the desired time-to-live in nanoseconds
+1. 准备好要上传的文件
+2. 确定所需存活时间，单位为纳秒
 
-For example, to keep an object for 24 hours, you would set the TTL to: `24 * 60 * 60 * 1,000,000,000` nanoseconds (86,400,000,000,000 ns)
+例如，要保留对象 24 小时，应将 TTL 设置为：`24 * 60 * 60 * 1,000,000,000` 纳秒（86,400,000,000,000 ns）。
 
 2
 
-### Upload with TTL header
+### 使用 TTL header 上传
 
-Use the Lattice SDK to upload the object, adding the `Time-To-Live` request header to specify the TTL:
+使用 Lattice SDK 上传对象，并添加 `Time-To-Live` 请求 header 来指定 TTL：
 
 ```
 package main
@@ -232,27 +232,27 @@ func main() {
 
 3
 
-### Verify the expiry time
+### 验证过期时间
 
-If successful, Lattice sets an expiry time based on the value you specify in the `Time-To-Live` header. The example from the previous steps confirms the result by fetching the object’s metadata and checking the `Expires` header:
+如果成功，Lattice 会根据你在 `Time-To-Live` header 中指定的值设置过期时间。前面步骤中的示例会通过获取对象元数据并检查 `Expires` header 来确认结果：
 
 ```
 Object expires on Mon, 01 Jan 2026 00:00:00 UTC
 ```
 
-If you don’t set a TTL, Lattice will use a default typically set to 90 days. This default TTL policy might vary, based on your environment’s configurations.
+如果不设置 TTL，Lattice 会使用默认值，通常为 90 天。该默认 TTL 策略可能会因环境配置而异。
 
-## Delete an object
+## 删除对象
 
-In Lattice, an **object** is a data model that represents a single file or a piece of data. When you no longer need an object, you can delete it from Lattice to free up storage space. Deleting an object is a permanent operation that cannot be undone.
+在 Lattice 中，**对象**是表示单个文件或一段数据的数据模型。不再需要某个对象时，可以将其从 Lattice 删除以释放存储空间。删除对象是永久操作，无法撤销。
 
 1
 
-### Delete the object
+### 删除对象
 
-When using the [DeleteObject](/reference/rest/objects/delete-object) API, you must specify the object path of the object you want to delete.
+使用 [DeleteObject](/reference/rest/objects/delete-object) API 时，必须指定要删除对象的对象路径。
 
-Replace the object path with your information, then run the following code to delete the object:
+将对象路径替换为你的信息，然后运行以下代码删除对象：
 
 ```
 // Example code for deleting an object
@@ -319,7 +319,7 @@ func main() {
 }
 ```
 
-If successful, this produces an error with the following output: the object no longer exists”
+如果成功，这会产生以下输出所示的错误：对象不再存在。
 
 ```
 Object deleted successfully: test.jpg
@@ -328,11 +328,11 @@ Status: 404
 
 2
 
-### (Optional) Unlink entity
+### （可选）解除实体关联
 
-When you delete an object, you must clean up any references to the object path in your environment.
+删除对象时，必须清理环境中对该对象路径的所有引用。
 
-For example, if the object is linked to an entity, using the entity’s `Media` component, your app must submit an `Override` to remove the object path from the list. Run the following example:
+例如，如果对象通过实体的 `Media` 组件与实体关联，应用必须提交 `Override`，从列表中移除对象路径。运行以下示例：
 
 ```
 package main
@@ -433,14 +433,14 @@ func main() {
 }
 ```
 
-If successful, you’ll see an output similar to the following, confirming that the entity’s `Media` component is empty
+如果成功，你会看到类似以下输出，确认实体的 `Media` 组件为空。
 
 ```
 Entity: <your_entity_id>
 Media: None
 ```
 
-## What’s next?
+## 接下来
 
-- Learn more about the Objects API .
-- Explore how to use objects with Entities to associate binary data with your Lattice entities.
+- 进一步了解 Objects API。
+- 探索如何结合 Objects 与 Entities 使用，将二进制数据关联到 Lattice 实体。
