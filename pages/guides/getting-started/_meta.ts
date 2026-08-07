@@ -1,5 +1,8 @@
 export default {
-  quickstart: 'Quickstart',
-  'set-up': 'Install',
-  authenticate: 'Authenticate'
+  index: {
+    display: 'hidden'
+  },
+  'set-up': 'Set up',
+  authenticate: 'Authenticate',
+  quickstart: 'Quickstart'
 }

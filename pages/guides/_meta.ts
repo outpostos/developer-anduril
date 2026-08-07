@@ -1,9 +1,12 @@
 export default {
+  index: {
+    display: 'hidden'
+  },
   concepts: 'Concepts',
-  'getting-started': 'Getting Started',
+  'getting-started': 'Getting started',
+  'best-practices': 'Best practices',
+  'developer-tools': 'Developer tools',
   entities: 'Entities',
   tasks: 'Tasks',
-  objects: 'Objects',
-  'best-practices': 'Best Practices',
-  'developer-tools': 'Developer Tools'
+  objects: 'Objects'
 }
