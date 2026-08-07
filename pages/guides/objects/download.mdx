@@ -1,7 +1,120 @@
 ---
-title: Download
+title: "Download an object"
 ---
 
-# Download
+# Download an object
 
-占位页：后续补充对象下载说明。
+In Lattice, an **object** is a data model that represents a single file or a piece of data. This page explains how to retrieve objects from Lattice.
+
+## Before you begin
+
+- To configure your app to upload objects, set up your Lattice environment.
+- See an overview of the Object schema and the Object Store API in Lattice.
+
+## Download an object
+
+In Lattice, an **object** is a data model that represents a single file or a piece of data. To download a specific binary object from Lattice using its unique object path, do the following:
+
+1
+
+### Get the object path
+
+When using the [DownloadObject](/reference/rest/objects/get-object) API, you must specify the object path of the object you want to download at runtime.
+
+In the [previous](/guides/objects/upload) procedure, you uploaded the following objects:
+
+- Image: A .jpg image at the following path: /api/v1/objects/cessna.jpg . This image is a thumbnail of its associated track entity.
+- CSV: A .csv file at the following path: /api/v1/objects/manifest.csv . This serves as metadata, in this case, a vessel manifest for the associated entity. Choose one, and note the object path.
+
+2
+
+### Download the object
+
+Run the following code in the directory where you’d like to download the object. To download, use the [`GetObject`](/reference/rest/objects/get-object) operation. Replace the following:
+
+- object_path : the unique path of the object in Lattice.
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+
+	// Remove sandboxesToken from the following statements if you are not developing on Sandboxes
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	c := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+	// Set object path
+	objectPath := "<OBJECT_PATH>"
+
+	// Create context for the request
+	ctx := context.Background()
+
+	// Get the object
+	response, err := c.Objects.GetObject(ctx, &Lattice.GetObjectRequest{ObjectPath: objectPath})
+	if err != nil {
+		fmt.Printf("Error getting object: %v\n", err)
+		os.Exit(1)
+	}
+	// Create output file
+	file, err := os.Create(objectPath)
+	if err != nil {
+		fmt.Printf("Error creating file: %v\n", err)
+		os.Exit(1)
+	}
+	defer file.Close()
+
+	// Copy data from response to file
+	_, err = io.Copy(file, response)
+	if err != nil {
+		fmt.Printf("Error writing to file: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Object downloaded successfully. Object path: %s\n", objectPath)
+}
+```
+
+3
+
+### Verify the response
+
+If successful, you’ll see the following output:
+
+```http
+INFO - HTTP Request: GET https://lattice-50802.env.sandboxes.developer.anduril.com/api/v1/objects/your_object_name "HTTP/1.1 200 OK"
+```
+
+## What’s next?
+
+- Learn more about the Objects API .

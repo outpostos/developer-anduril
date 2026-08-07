@@ -1,0 +1,73 @@
+---
+title: "List objects"
+---
+
+# List objects
+
+**Endpoint**: `GET /api/v1/objects`
+
+**cURL**
+
+```bash
+curl https://example.developer.anduril.com/api/v1/objects \
+     -H "Authorization: Bearer <token>"
+```
+
+**200 Retrieved**
+
+```json
+{
+  "path_metadatas": [
+    {
+      "content_identifier": {
+        "path": "string",
+        "checksum": "string"
+      },
+      "size_bytes": 1,
+      "last_updated_at": "2024-01-15T09:30:00Z",
+      "expiry_time": "2024-01-15T09:30:00Z"
+    }
+  ],
+  "next_page_token": "string"
+}
+```
+
+Lists objects in your environment. You can define a prefix to list a subset of your objects. If you do not set a prefix, Lattice returns all available objects. By default this endpoint will list local objects only.
+
+### Authentication
+
+- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+
+### Query parameters
+
+- `prefix` — _string · optional_ — Filters the objects based on the specified prefix path. If no path is specified, all objects are returned.
+
+- `sinceTimestamp` — _datetime · optional_ — Sets the age for the oldest objects to query across the environment.
+
+- `pageToken` — _string · optional_ — Base64 and URL-encoded cursor returned by the service to continue paging.
+
+- `allObjectsInMesh` — _boolean · optional_ — Lists objects across all environment nodes in a Lattice Mesh.
+
+- `maxPageSize` — _integer · optional_ — Sets the maximum number of items that should be returned on a single page.
+
+### Response
+
+Successful operation
+
+- `path_metadatas` — _list of objects_
+
+- `next_page_token` — _string · optional_
+
+### Errors
+
+400
+
+Bad Request Error
+
+401
+
+Unauthorized Error
+
+500
+
+Internal Server Error

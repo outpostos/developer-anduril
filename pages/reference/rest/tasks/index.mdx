@@ -1,0 +1,2634 @@
+---
+title: "Create task"
+---
+
+# Create task
+
+**Endpoint**: `POST /api/v1/tasks`
+
+**cURL**
+
+```bash
+curl -X POST https://example.developer.anduril.com/api/v1/tasks \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{}'
+```
+
+**201 Created**
+
+```json
+{
+  "version": {
+    "taskId": "string",
+    "definitionVersion": 1,
+    "statusVersion": 1
+  },
+  "displayName": "string",
+  "specification": {
+    "@type": "string"
+  },
+  "createdBy": {
+    "system": {
+      "serviceName": "string",
+      "entityId": "string",
+      "managesOwnScheduling": true
+    },
+    "user": {
+      "userId": "string"
+    },
+    "team": {
+      "entityId": "string",
+      "members": [
+        {
+          "entityId": "string"
+        }
+      ]
+    },
+    "onBehalfOf": {
+      "system": {
+        "serviceName": "string",
+        "entityId": "string",
+        "managesOwnScheduling": true
+      },
+      "user": {
+        "userId": "string"
+      },
+      "team": {
+        "entityId": "string",
+        "members": [
+          {
+            "entityId": "string"
+          }
+        ]
+      },
+      "onBehalfOf": {
+        "system": {
+          "serviceName": "string",
+          "entityId": "string",
+          "managesOwnScheduling": true
+        },
+        "user": {
+          "userId": "string"
+        },
+        "team": {
+          "entityId": "string",
+          "members": [
+            {
+              "entityId": "string"
+            }
+          ]
+        },
+        "onBehalfOf": {
+          "system": {
+            "serviceName": "string",
+            "entityId": "string",
+            "managesOwnScheduling": true
+          },
+          "user": {
+            "userId": "string"
+          },
+          "team": {
+            "entityId": "string",
+            "members": [
+              {
+                "entityId": "string"
+              }
+            ]
+          },
+          "onBehalfOf": {
+            "system": {
+              "serviceName": "string",
+              "entityId": "string",
+              "managesOwnScheduling": true
+            },
+            "user": {
+              "userId": "string"
+            },
+            "team": {
+              "entityId": "string",
+              "members": [
+                {
+                  "entityId": "string"
+                }
+              ]
+            },
+            "onBehalfOf": {
+              "system": {
+                "serviceName": "string",
+                "entityId": "string",
+                "managesOwnScheduling": true
+              },
+              "user": {
+                "userId": "string"
+              },
+              "team": {
+                "entityId": "string",
+                "members": [
+                  {
+                    "entityId": "string"
+                  }
+                ]
+              },
+              "onBehalfOf": {
+                "system": {
+                  "serviceName": "string",
+                  "entityId": "string",
+                  "managesOwnScheduling": true
+                },
+                "user": {
+                  "userId": "string"
+                },
+                "team": {
+                  "entityId": "string",
+                  "members": [
+                    {
+                      "entityId": "string"
+                    }
+                  ]
+                },
+                "onBehalfOf": {
+                  "system": {
+                    "serviceName": "string",
+                    "entityId": "string",
+                    "managesOwnScheduling": true
+                  },
+                  "user": {
+                    "userId": "string"
+                  },
+                  "team": {
+                    "entityId": "string",
+                    "members": [
+                      {
+                        "entityId": "string"
+                      }
+                    ]
+                  },
+                  "onBehalfOf": {
+                    "system": {
+                      "serviceName": "string",
+                      "entityId": "string",
+                      "managesOwnScheduling": true
+                    },
+                    "user": {
+                      "userId": "string"
+                    },
+                    "team": {
+                      "entityId": "string",
+                      "members": [
+                        {
+                          "entityId": "string"
+                        }
+                      ]
+                    },
+                    "onBehalfOf": {
+                      "system": {
+                        "serviceName": "string",
+                        "entityId": "string",
+                        "managesOwnScheduling": true
+                      },
+                      "user": {
+                        "userId": "string"
+                      },
+                      "team": {
+                        "entityId": "string",
+                        "members": [
+                          {
+                            "entityId": {}
+                          }
+                        ]
+                      },
+                      "onBehalfOf": {
+                        "system": {
+                          "serviceName": {},
+                          "entityId": {},
+                          "managesOwnScheduling": {}
+                        },
+                        "user": {
+                          "userId": {}
+                        },
+                        "team": {
+                          "entityId": {},
+                          "members": {}
+                        },
+                        "onBehalfOf": {
+                          "system": {},
+                          "user": {},
+                          "team": {},
+                          "onBehalfOf": {}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "lastUpdatedBy": {
+    "system": {
+      "serviceName": "string",
+      "entityId": "string",
+      "managesOwnScheduling": true
+    },
+    "user": {
+      "userId": "string"
+    },
+    "team": {
+      "entityId": "string",
+      "members": [
+        {
+          "entityId": "string"
+        }
+      ]
+    },
+    "onBehalfOf": {
+      "system": {
+        "serviceName": "string",
+        "entityId": "string",
+        "managesOwnScheduling": true
+      },
+      "user": {
+        "userId": "string"
+      },
+      "team": {
+        "entityId": "string",
+        "members": [
+          {
+            "entityId": "string"
+          }
+        ]
+      },
+      "onBehalfOf": {
+        "system": {
+          "serviceName": "string",
+          "entityId": "string",
+          "managesOwnScheduling": true
+        },
+        "user": {
+          "userId": "string"
+        },
+        "team": {
+          "entityId": "string",
+          "members": [
+            {
+              "entityId": "string"
+            }
+          ]
+        },
+        "onBehalfOf": {
+          "system": {
+            "serviceName": "string",
+            "entityId": "string",
+            "managesOwnScheduling": true
+          },
+          "user": {
+            "userId": "string"
+          },
+          "team": {
+            "entityId": "string",
+            "members": [
+              {
+                "entityId": "string"
+              }
+            ]
+          },
+          "onBehalfOf": {
+            "system": {
+              "serviceName": "string",
+              "entityId": "string",
+              "managesOwnScheduling": true
+            },
+            "user": {
+              "userId": "string"
+            },
+            "team": {
+              "entityId": "string",
+              "members": [
+                {
+                  "entityId": "string"
+                }
+              ]
+            },
+            "onBehalfOf": {
+              "system": {
+                "serviceName": "string",
+                "entityId": "string",
+                "managesOwnScheduling": true
+              },
+              "user": {
+                "userId": "string"
+              },
+              "team": {
+                "entityId": "string",
+                "members": [
+                  {
+                    "entityId": "string"
+                  }
+                ]
+              },
+              "onBehalfOf": {
+                "system": {
+                  "serviceName": "string",
+                  "entityId": "string",
+                  "managesOwnScheduling": true
+                },
+                "user": {
+                  "userId": "string"
+                },
+                "team": {
+                  "entityId": "string",
+                  "members": [
+                    {
+                      "entityId": "string"
+                    }
+                  ]
+                },
+                "onBehalfOf": {
+                  "system": {
+                    "serviceName": "string",
+                    "entityId": "string",
+                    "managesOwnScheduling": true
+                  },
+                  "user": {
+                    "userId": "string"
+                  },
+                  "team": {
+                    "entityId": "string",
+                    "members": [
+                      {
+                        "entityId": "string"
+                      }
+                    ]
+                  },
+                  "onBehalfOf": {
+                    "system": {
+                      "serviceName": "string",
+                      "entityId": "string",
+                      "managesOwnScheduling": true
+                    },
+                    "user": {
+                      "userId": "string"
+                    },
+                    "team": {
+                      "entityId": "string",
+                      "members": [
+                        {
+                          "entityId": "string"
+                        }
+                      ]
+                    },
+                    "onBehalfOf": {
+                      "system": {
+                        "serviceName": "string",
+                        "entityId": "string",
+                        "managesOwnScheduling": true
+                      },
+                      "user": {
+                        "userId": "string"
+                      },
+                      "team": {
+                        "entityId": "string",
+                        "members": [
+                          {
+                            "entityId": {}
+                          }
+                        ]
+                      },
+                      "onBehalfOf": {
+                        "system": {
+                          "serviceName": {},
+                          "entityId": {},
+                          "managesOwnScheduling": {}
+                        },
+                        "user": {
+                          "userId": {}
+                        },
+                        "team": {
+                          "entityId": {},
+                          "members": {}
+                        },
+                        "onBehalfOf": {
+                          "system": {},
+                          "user": {},
+                          "team": {},
+                          "onBehalfOf": {}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "lastUpdateTime": "2024-01-15T09:30:00Z",
+  "status": {
+    "status": "STATUS_INVALID",
+    "taskError": {
+      "code": "ERROR_CODE_INVALID",
+      "message": "string",
+      "errorDetails": {
+        "@type": "string"
+      }
+    },
+    "progress": {
+      "@type": "string"
+    },
+    "result": {
+      "@type": "string"
+    },
+    "startTime": "2024-01-15T09:30:00Z",
+    "estimate": {
+      "@type": "string"
+    },
+    "allocation": {
+      "activeAgents": [
+        {
+          "entityId": "string"
+        }
+      ]
+    }
+  },
+  "scheduledTime": "2024-01-15T09:30:00Z",
+  "relations": {
+    "assignee": {
+      "system": {
+        "serviceName": "string",
+        "entityId": "string",
+        "managesOwnScheduling": true
+      },
+      "user": {
+        "userId": "string"
+      },
+      "team": {
+        "entityId": "string",
+        "members": [
+          {
+            "entityId": "string"
+          }
+        ]
+      },
+      "onBehalfOf": {
+        "system": {
+          "serviceName": "string",
+          "entityId": "string",
+          "managesOwnScheduling": true
+        },
+        "user": {
+          "userId": "string"
+        },
+        "team": {
+          "entityId": "string",
+          "members": [
+            {
+              "entityId": "string"
+            }
+          ]
+        },
+        "onBehalfOf": {
+          "system": {
+            "serviceName": "string",
+            "entityId": "string",
+            "managesOwnScheduling": true
+          },
+          "user": {
+            "userId": "string"
+          },
+          "team": {
+            "entityId": "string",
+            "members": [
+              {
+                "entityId": "string"
+              }
+            ]
+          },
+          "onBehalfOf": {
+            "system": {
+              "serviceName": "string",
+              "entityId": "string",
+              "managesOwnScheduling": true
+            },
+            "user": {
+              "userId": "string"
+            },
+            "team": {
+              "entityId": "string",
+              "members": [
+                {
+                  "entityId": "string"
+                }
+              ]
+            },
+            "onBehalfOf": {
+              "system": {
+                "serviceName": "string",
+                "entityId": "string",
+                "managesOwnScheduling": true
+              },
+              "user": {
+                "userId": "string"
+              },
+              "team": {
+                "entityId": "string",
+                "members": [
+                  {
+                    "entityId": "string"
+                  }
+                ]
+              },
+              "onBehalfOf": {
+                "system": {
+                  "serviceName": "string",
+                  "entityId": "string",
+                  "managesOwnScheduling": true
+                },
+                "user": {
+                  "userId": "string"
+                },
+                "team": {
+                  "entityId": "string",
+                  "members": [
+                    {
+                      "entityId": "string"
+                    }
+                  ]
+                },
+                "onBehalfOf": {
+                  "system": {
+                    "serviceName": "string",
+                    "entityId": "string",
+                    "managesOwnScheduling": true
+                  },
+                  "user": {
+                    "userId": "string"
+                  },
+                  "team": {
+                    "entityId": "string",
+                    "members": [
+                      {
+                        "entityId": "string"
+                      }
+                    ]
+                  },
+                  "onBehalfOf": {
+                    "system": {
+                      "serviceName": "string",
+                      "entityId": "string",
+                      "managesOwnScheduling": true
+                    },
+                    "user": {
+                      "userId": "string"
+                    },
+                    "team": {
+                      "entityId": "string",
+                      "members": [
+                        {
+                          "entityId": "string"
+                        }
+                      ]
+                    },
+                    "onBehalfOf": {
+                      "system": {
+                        "serviceName": "string",
+                        "entityId": "string",
+                        "managesOwnScheduling": true
+                      },
+                      "user": {
+                        "userId": "string"
+                      },
+                      "team": {
+                        "entityId": "string",
+                        "members": [
+                          {
+                            "entityId": {}
+                          }
+                        ]
+                      },
+                      "onBehalfOf": {
+                        "system": {
+                          "serviceName": {},
+                          "entityId": {},
+                          "managesOwnScheduling": {}
+                        },
+                        "user": {
+                          "userId": {}
+                        },
+                        "team": {
+                          "entityId": {},
+                          "members": {}
+                        },
+                        "onBehalfOf": {
+                          "system": {},
+                          "user": {},
+                          "team": {},
+                          "onBehalfOf": {}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parentTaskId": "string"
+  },
+  "description": "string",
+  "isExecutedElsewhere": true,
+  "createTime": "2024-01-15T09:30:00Z",
+  "replication": {
+    "staleTime": "2024-01-15T09:30:00Z"
+  },
+  "initialEntities": [
+    {
+      "entity": {
+        "entityId": "string",
+        "description": "string",
+        "isLive": true,
+        "createdTime": "2024-01-15T09:30:00Z",
+        "expiryTime": "2024-01-15T09:30:00Z",
+        "noExpiry": true,
+        "status": {
+          "platformActivity": "string",
+          "role": "string"
+        },
+        "location": {
+          "position": {
+            "latitudeDegrees": 1.1,
+            "longitudeDegrees": 1.1,
+            "altitudeHaeMeters": 1.1,
+            "altitudeAglMeters": 1.1,
+            "altitudeAsfMeters": 1.1,
+            "pressureDepthMeters": 1.1
+          },
+          "velocityEnu": {
+            "e": 1.1,
+            "n": 1.1,
+            "u": 1.1
+          },
+          "speedMps": 1.1,
+          "acceleration": {
+            "e": 1.1,
+            "n": 1.1,
+            "u": 1.1
+          },
+          "attitudeEnu": {
+            "x": 1.1,
+            "y": 1.1,
+            "z": 1.1,
+            "w": 1.1
+          }
+        },
+        "locationUncertainty": {
+          "positionEnuCov": {
+            "mxx": 1.1,
+            "mxy": 1.1,
+            "mxz": 1.1,
+            "myy": 1.1,
+            "myz": 1.1,
+            "mzz": 1.1
+          },
+          "velocityEnuCov": {
+            "mxx": 1.1,
+            "mxy": 1.1,
+            "mxz": 1.1,
+            "myy": 1.1,
+            "myz": 1.1,
+            "mzz": 1.1
+          },
+          "positionErrorEllipse": {
+            "probability": 1.1,
+            "semiMajorAxisM": 1.1,
+            "semiMinorAxisM": 1.1,
+            "orientationD": 1.1
+          }
+        },
+        "kinematics": {
+          "kinematicsGeodetic": {
+            "location": {
+              "latitudeDegrees": 1.1,
+              "longitudeDegrees": 1.1,
+              "universalAltitudeHae": {
+                "provenance": {
+                  "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                },
+                "valueMeters": 1.1
+              },
+              "additionalAltitudes": [
+                {
+                  "haeWgs84": {
+                    "provenance": {
+                      "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                    },
+                    "valueMeters": 1.1
+                  },
+                  "asf": {
+                    "provenance": {
+                      "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                    },
+                    "valueMeters": 1.1
+                  },
+                  "bss": {
+                    "provenance": {
+                      "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                    },
+                    "valueMeters": 1.1
+                  },
+                  "pressureSdp": {
+                    "provenance": {
+                      "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                    },
+                    "valueMeters": 1.1
+                  },
+                  "pressureAmsl": {
+                    "provenance": {
+                      "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                    },
+                    "valueMeters": 1.1
+                  },
+                  "egm96Amsl": {
+                    "provenance": {
+                      "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                    },
+                    "valueMeters": 1.1
+                  },
+                  "agl": {
+                    "provenance": {
+                      "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                    },
+                    "valueMeters": 1.1
+                  }
+                }
+              ]
+            },
+            "locationUncertaintyEnu": {
+              "mxx": 1.1,
+              "mxy": 1.1,
+              "mxz": 1.1,
+              "myy": 1.1,
+              "myz": 1.1,
+              "mzz": 1.1
+            },
+            "velocityEnuMPerS": {
+              "x": 1.1,
+              "y": 1.1,
+              "z": 1.1
+            },
+            "velocityUncertaintyEnu": {
+              "mxx": 1.1,
+              "mxy": 1.1,
+              "mxz": 1.1,
+              "myy": 1.1,
+              "myz": 1.1,
+              "mzz": 1.1
+            },
+            "accelerationMPerS2": {
+              "x": 1.1,
+              "y": 1.1,
+              "z": 1.1
+            },
+            "attitudeEnu": {
+              "x": 1.1,
+              "y": 1.1,
+              "z": 1.1,
+              "w": 1.1
+            },
+            "measurementTime": "2024-01-15T09:30:00Z"
+          },
+          "kinematicsGeocentric": {
+            "location": {
+              "xMeters": 1.1,
+              "yMeters": 1.1,
+              "zMeters": 1.1
+            },
+            "locationUncertaintyEcef": {
+              "mxx": 1.1,
+              "mxy": 1.1,
+              "mxz": 1.1,
+              "myy": 1.1,
+              "myz": 1.1,
+              "mzz": 1.1
+            },
+            "velocityEcefMPerS": {
+              "x": 1.1,
+              "y": 1.1,
+              "z": 1.1
+            },
+            "velocityUncertaintyEcef": {
+              "mxx": 1.1,
+              "mxy": 1.1,
+              "mxz": 1.1,
+              "myy": 1.1,
+              "myz": 1.1,
+              "mzz": 1.1
+            },
+            "accelerationMPerS2": {
+              "x": 1.1,
+              "y": 1.1,
+              "z": 1.1
+            },
+            "attitudeEcef": {
+              "x": 1.1,
+              "y": 1.1,
+              "z": 1.1,
+              "w": 1.1
+            },
+            "measurementTime": "2024-01-15T09:30:00Z"
+          }
+        },
+        "geoShape": {
+          "point": {
+            "position": {
+              "latitudeDegrees": 1.1,
+              "longitudeDegrees": 1.1,
+              "altitudeHaeMeters": 1.1,
+              "altitudeAglMeters": 1.1,
+              "altitudeAsfMeters": 1.1,
+              "pressureDepthMeters": 1.1
+            }
+          },
+          "line": {
+            "positions": [
+              {
+                "latitudeDegrees": 1.1,
+                "longitudeDegrees": 1.1,
+                "altitudeHaeMeters": 1.1,
+                "altitudeAglMeters": 1.1,
+                "altitudeAsfMeters": 1.1,
+                "pressureDepthMeters": 1.1
+              }
+            ]
+          },
+          "polygon": {
+            "rings": [
+              {
+                "positions": [
+                  {
+                    "position": {
+                      "latitudeDegrees": 1.1,
+                      "longitudeDegrees": 1.1,
+                      "altitudeHaeMeters": 1.1,
+                      "altitudeAglMeters": 1.1,
+                      "altitudeAsfMeters": 1.1,
+                      "pressureDepthMeters": 1.1
+                    },
+                    "heightM": 1.1
+                  }
+                ]
+              }
+            ],
+            "isRectangle": true
+          },
+          "ellipse": {
+            "semiMajorAxisM": 1.1,
+            "semiMinorAxisM": 1.1,
+            "orientationD": 1.1,
+            "heightM": 1.1
+          },
+          "ellipsoid": {
+            "forwardAxisM": 1.1,
+            "sideAxisM": 1.1,
+            "upAxisM": 1.1
+          }
+        },
+        "geoDetails": {
+          "type": "GEO_TYPE_INVALID",
+          "controlArea": {
+            "type": "CONTROL_AREA_TYPE_INVALID"
+          },
+          "acm": {
+            "acmType": "ACM_DETAIL_TYPE_INVALID",
+            "acmDescription": "string"
+          },
+          "visualDetails": {
+            "fillColor": {
+              "red": 1.1,
+              "green": 1.1,
+              "blue": 1.1,
+              "alpha": 1.1
+            },
+            "lineColor": {
+              "red": 1.1,
+              "green": 1.1,
+              "blue": 1.1,
+              "alpha": 1.1
+            }
+          }
+        },
+        "aliases": {
+          "alternateIds": [
+            {
+              "id": "string",
+              "type": "ALT_ID_TYPE_INVALID"
+            }
+          ],
+          "name": "string"
+        },
+        "tracked": {
+          "trackQualityWrapper": 1,
+          "sensorHits": 1,
+          "numberOfObjects": {
+            "lowerBound": 1,
+            "upperBound": 1
+          },
+          "radarCrossSection": 1.1,
+          "lastMeasurementTime": "2024-01-15T09:30:00Z",
+          "lineOfBearing": {
+            "angleOfArrival": {
+              "relativePose": {
+                "pos": {
+                  "lon": 1.1,
+                  "lat": 1.1,
+                  "alt": 1.1,
+                  "is2d": true,
+                  "altitudeReference": "ALTITUDE_REFERENCE_INVALID"
+                },
+                "attEnu": {
+                  "x": 1.1,
+                  "y": 1.1,
+                  "z": 1.1,
+                  "w": 1.1
+                }
+              },
+              "bearingElevationCovarianceRad2": {
+                "mxx": 1.1,
+                "mxy": 1.1,
+                "myy": 1.1
+              }
+            },
+            "rangeEstimateM": {
+              "value": 1.1,
+              "sigma": 1.1
+            },
+            "maxRangeM": {
+              "value": 1.1,
+              "sigma": 1.1
+            }
+          }
+        },
+        "correlation": {
+          "primary": {
+            "secondaryEntityIds": [
+              "string"
+            ]
+          },
+          "secondary": {
+            "primaryEntityId": "string",
+            "metadata": {
+              "provenance": {
+                "integrationName": "string",
+                "dataType": "string",
+                "sourceId": "string",
+                "sourceUpdateTime": "2024-01-15T09:30:00Z",
+                "sourceDescription": "string"
+              },
+              "replicationMode": "CORRELATION_REPLICATION_MODE_INVALID",
+              "type": "CORRELATION_TYPE_INVALID"
+            }
+          },
+          "membership": {
+            "correlationSetId": "string",
+            "primary": {},
+            "nonPrimary": {},
+            "metadata": {
+              "provenance": {
+                "integrationName": "string",
+                "dataType": "string",
+                "sourceId": "string",
+                "sourceUpdateTime": "2024-01-15T09:30:00Z",
+                "sourceDescription": "string"
+              },
+              "replicationMode": "CORRELATION_REPLICATION_MODE_INVALID",
+              "type": "CORRELATION_TYPE_INVALID"
+            }
+          },
+          "decorrelation": {
+            "all": {
+              "metadata": {
+                "provenance": {
+                  "integrationName": "string",
+                  "dataType": "string",
+                  "sourceId": "string",
+                  "sourceUpdateTime": "2024-01-15T09:30:00Z",
+                  "sourceDescription": "string"
+                },
+                "replicationMode": "CORRELATION_REPLICATION_MODE_INVALID",
+                "type": "CORRELATION_TYPE_INVALID"
+              }
+            },
+            "decorrelatedEntities": [
+              {
+                "entityId": "string",
+                "metadata": {
+                  "provenance": {
+                    "integrationName": "string",
+                    "dataType": "string",
+                    "sourceId": "string",
+                    "sourceUpdateTime": "2024-01-15T09:30:00Z",
+                    "sourceDescription": "string"
+                  },
+                  "replicationMode": "CORRELATION_REPLICATION_MODE_INVALID",
+                  "type": "CORRELATION_TYPE_INVALID"
+                }
+              }
+            ]
+          }
+        },
+        "milView": {
+          "disposition": "DISPOSITION_UNKNOWN",
+          "environment": "ENVIRONMENT_UNKNOWN",
+          "nationality": "NATIONALITY_INVALID"
+        },
+        "ontology": {
+          "platformType": "string",
+          "specificType": "string",
+          "template": "TEMPLATE_INVALID"
+        },
+        "sensors": {
+          "sensors": [
+            {
+              "sensorId": "string",
+              "operationalState": "OPERATIONAL_STATE_INVALID",
+              "sensorType": "SENSOR_TYPE_INVALID",
+              "sensorDescription": "string",
+              "rfConfiguraton": {
+                "frequencyRangeHz": [
+                  {
+                    "minimumFrequencyHz": {
+                      "frequencyHz": {
+                        "value": 1.1,
+                        "sigma": 1.1
+                      }
+                    },
+                    "maximumFrequencyHz": {
+                      "frequencyHz": {
+                        "value": 1.1,
+                        "sigma": 1.1
+                      }
+                    }
+                  }
+                ],
+                "bandwidthRangeHz": [
+                  {
+                    "minimumBandwidth": {
+                      "bandwidthHz": 1.1
+                    },
+                    "maximumBandwidth": {
+                      "bandwidthHz": 1.1
+                    }
+                  }
+                ]
+              },
+              "lastDetectionTimestamp": "2024-01-15T09:30:00Z",
+              "fieldsOfView": [
+                {
+                  "fovId": 1,
+                  "mountId": "string",
+                  "projectedFrustum": {
+                    "upperLeft": {
+                      "latitudeDegrees": 1.1,
+                      "longitudeDegrees": 1.1,
+                      "altitudeHaeMeters": 1.1,
+                      "altitudeAglMeters": 1.1,
+                      "altitudeAsfMeters": 1.1,
+                      "pressureDepthMeters": 1.1
+                    },
+                    "upperRight": {
+                      "latitudeDegrees": 1.1,
+                      "longitudeDegrees": 1.1,
+                      "altitudeHaeMeters": 1.1,
+                      "altitudeAglMeters": 1.1,
+                      "altitudeAsfMeters": 1.1,
+                      "pressureDepthMeters": 1.1
+                    },
+                    "bottomRight": {
+                      "latitudeDegrees": 1.1,
+                      "longitudeDegrees": 1.1,
+                      "altitudeHaeMeters": 1.1,
+                      "altitudeAglMeters": 1.1,
+                      "altitudeAsfMeters": 1.1,
+                      "pressureDepthMeters": 1.1
+                    },
+                    "bottomLeft": {
+                      "latitudeDegrees": 1.1,
+                      "longitudeDegrees": 1.1,
+                      "altitudeHaeMeters": 1.1,
+                      "altitudeAglMeters": 1.1,
+                      "altitudeAsfMeters": 1.1,
+                      "pressureDepthMeters": 1.1
+                    }
+                  },
+                  "projectedCenterRay": {
+                    "latitudeDegrees": 1.1,
+                    "longitudeDegrees": 1.1,
+                    "altitudeHaeMeters": 1.1,
+                    "altitudeAglMeters": 1.1,
+                    "altitudeAsfMeters": 1.1,
+                    "pressureDepthMeters": 1.1
+                  },
+                  "centerRayPose": {
+                    "pos": {
+                      "latitudeDegrees": 1.1,
+                      "longitudeDegrees": 1.1,
+                      "altitudeHaeMeters": 1.1,
+                      "altitudeAglMeters": 1.1,
+                      "altitudeAsfMeters": 1.1,
+                      "pressureDepthMeters": 1.1
+                    },
+                    "orientation": {
+                      "x": 1.1,
+                      "y": 1.1,
+                      "z": 1.1,
+                      "w": 1.1
+                    }
+                  },
+                  "horizontalFov": 1.1,
+                  "verticalFov": 1.1,
+                  "range": 1.1,
+                  "mode": "SENSOR_MODE_INVALID"
+                }
+              ]
+            }
+          ]
+        },
+        "payloads": {
+          "payloadConfigurations": [
+            {
+              "config": {
+                "capabilityId": "string",
+                "quantity": 1,
+                "effectiveEnvironment": [
+                  "ENVIRONMENT_UNKNOWN"
+                ],
+                "payloadOperationalState": "PAYLOAD_OPERATIONAL_STATE_INVALID",
+                "payloadDescription": "string"
+              }
+            }
+          ]
+        },
+        "powerState": {
+          "sourceIdToState": {}
+        },
+        "provenance": {
+          "integrationName": "string",
+          "dataType": "string",
+          "sourceId": "string",
+          "sourceUpdateTime": "2024-01-15T09:30:00Z",
+          "sourceDescription": "string"
+        },
+        "overrides": {
+          "override": [
+            {
+              "requestId": "string",
+              "fieldPath": "string",
+              "maskedFieldValue": {
+                "entityId": "string",
+                "description": "string",
+                "isLive": true,
+                "createdTime": "2024-01-15T09:30:00Z",
+                "expiryTime": "2024-01-15T09:30:00Z",
+                "noExpiry": true,
+                "status": {
+                  "platformActivity": "string",
+                  "role": "string"
+                },
+                "location": {
+                  "position": {
+                    "latitudeDegrees": 1.1,
+                    "longitudeDegrees": 1.1,
+                    "altitudeHaeMeters": 1.1,
+                    "altitudeAglMeters": 1.1,
+                    "altitudeAsfMeters": 1.1,
+                    "pressureDepthMeters": 1.1
+                  },
+                  "velocityEnu": {
+                    "e": 1.1,
+                    "n": 1.1,
+                    "u": 1.1
+                  },
+                  "speedMps": 1.1,
+                  "acceleration": {
+                    "e": 1.1,
+                    "n": 1.1,
+                    "u": 1.1
+                  },
+                  "attitudeEnu": {
+                    "x": 1.1,
+                    "y": 1.1,
+                    "z": 1.1,
+                    "w": 1.1
+                  }
+                },
+                "locationUncertainty": {
+                  "positionEnuCov": {
+                    "mxx": 1.1,
+                    "mxy": 1.1,
+                    "mxz": 1.1,
+                    "myy": 1.1,
+                    "myz": 1.1,
+                    "mzz": 1.1
+                  },
+                  "velocityEnuCov": {
+                    "mxx": 1.1,
+                    "mxy": 1.1,
+                    "mxz": 1.1,
+                    "myy": 1.1,
+                    "myz": 1.1,
+                    "mzz": 1.1
+                  },
+                  "positionErrorEllipse": {
+                    "probability": 1.1,
+                    "semiMajorAxisM": 1.1,
+                    "semiMinorAxisM": 1.1,
+                    "orientationD": 1.1
+                  }
+                },
+                "kinematics": {
+                  "kinematicsGeodetic": {
+                    "location": {
+                      "latitudeDegrees": 1.1,
+                      "longitudeDegrees": 1.1,
+                      "universalAltitudeHae": {
+                        "provenance": {
+                          "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                        },
+                        "valueMeters": 1.1
+                      },
+                      "additionalAltitudes": [
+                        {
+                          "haeWgs84": {
+                            "provenance": {
+                              "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                            },
+                            "valueMeters": 1.1
+                          },
+                          "asf": {
+                            "provenance": {
+                              "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                            },
+                            "valueMeters": 1.1
+                          },
+                          "bss": {
+                            "provenance": {
+                              "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                            },
+                            "valueMeters": 1.1
+                          },
+                          "pressureSdp": {
+                            "provenance": {
+                              "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                            },
+                            "valueMeters": 1.1
+                          },
+                          "pressureAmsl": {
+                            "provenance": {
+                              "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                            },
+                            "valueMeters": 1.1
+                          },
+                          "egm96Amsl": {
+                            "provenance": {
+                              "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                            },
+                            "valueMeters": 1.1
+                          },
+                          "agl": {
+                            "provenance": {
+                              "sourceType": "ALTITUDE_PROVENANCE_TYPE_INVALID"
+                            },
+                            "valueMeters": 1.1
+                          }
+                        }
+                      ]
+                    },
+                    "locationUncertaintyEnu": {
+                      "mxx": 1.1,
+                      "mxy": 1.1,
+                      "mxz": 1.1,
+                      "myy": 1.1,
+                      "myz": 1.1,
+                      "mzz": 1.1
+                    },
+                    "velocityEnuMPerS": {
+                      "x": 1.1,
+                      "y": 1.1,
+                      "z": 1.1
+                    },
+                    "velocityUncertaintyEnu": {
+                      "mxx": 1.1,
+                      "mxy": 1.1,
+                      "mxz": 1.1,
+                      "myy": 1.1,
+                      "myz": 1.1,
+                      "mzz": 1.1
+                    },
+                    "accelerationMPerS2": {
+                      "x": 1.1,
+                      "y": 1.1,
+                      "z": 1.1
+                    },
+                    "attitudeEnu": {
+                      "x": 1.1,
+                      "y": 1.1,
+                      "z": 1.1,
+                      "w": 1.1
+                    },
+                    "measurementTime": "2024-01-15T09:30:00Z"
+                  },
+                  "kinematicsGeocentric": {
+                    "location": {
+                      "xMeters": 1.1,
+                      "yMeters": 1.1,
+                      "zMeters": 1.1
+                    },
+                    "locationUncertaintyEcef": {
+                      "mxx": 1.1,
+                      "mxy": 1.1,
+                      "mxz": 1.1,
+                      "myy": 1.1,
+                      "myz": 1.1,
+                      "mzz": 1.1
+                    },
+                    "velocityEcefMPerS": {
+                      "x": 1.1,
+                      "y": 1.1,
+                      "z": 1.1
+                    },
+                    "velocityUncertaintyEcef": {
+                      "mxx": 1.1,
+                      "mxy": 1.1,
+                      "mxz": 1.1,
+                      "myy": 1.1,
+                      "myz": 1.1,
+                      "mzz": 1.1
+                    },
+                    "accelerationMPerS2": {
+                      "x": 1.1,
+                      "y": 1.1,
+                      "z": 1.1
+                    },
+                    "attitudeEcef": {
+                      "x": 1.1,
+                      "y": 1.1,
+                      "z": 1.1,
+                      "w": 1.1
+                    },
+                    "measurementTime": "2024-01-15T09:30:00Z"
+                  }
+                },
+                "geoShape": {
+                  "point": {
+                    "position": {
+                      "latitudeDegrees": 1.1,
+                      "longitudeDegrees": 1.1,
+                      "altitudeHaeMeters": 1.1,
+                      "altitudeAglMeters": 1.1,
+                      "altitudeAsfMeters": 1.1,
+                      "pressureDepthMeters": 1.1
+                    }
+                  },
+                  "line": {
+                    "positions": [
+                      {
+                        "latitudeDegrees": 1.1,
+                        "longitudeDegrees": 1.1,
+                        "altitudeHaeMeters": 1.1,
+                        "altitudeAglMeters": 1.1,
+                        "altitudeAsfMeters": 1.1,
+                        "pressureDepthMeters": 1.1
+                      }
+                    ]
+                  },
+                  "polygon": {
+                    "rings": [
+                      {
+                        "positions": [
+                          {
+                            "position": {
+                              "latitudeDegrees": 1.1,
+                              "longitudeDegrees": 1.1,
+                              "altitudeHaeMeters": 1.1,
+                              "altitudeAglMeters": 1.1,
+                              "altitudeAsfMeters": 1.1,
+                              "pressureDepthMeters": 1.1
+                            },
+                            "heightM": 1.1
+                          }
+                        ]
+                      }
+                    ],
+                    "isRectangle": true
+                  },
+                  "ellipse": {
+                    "semiMajorAxisM": 1.1,
+                    "semiMinorAxisM": 1.1,
+                    "orientationD": 1.1,
+                    "heightM": 1.1
+                  },
+                  "ellipsoid": {
+                    "forwardAxisM": 1.1,
+                    "sideAxisM": 1.1,
+                    "upAxisM": 1.1
+                  }
+                },
+                "geoDetails": {
+                  "type": "GEO_TYPE_INVALID",
+                  "controlArea": {
+                    "type": "CONTROL_AREA_TYPE_INVALID"
+                  },
+                  "acm": {
+                    "acmType": "ACM_DETAIL_TYPE_INVALID",
+                    "acmDescription": "string"
+                  },
+                  "visualDetails": {
+                    "fillColor": {
+                      "red": 1.1,
+                      "green": 1.1,
+                      "blue": 1.1,
+                      "alpha": 1.1
+                    },
+                    "lineColor": {
+                      "red": 1.1,
+                      "green": 1.1,
+                      "blue": 1.1,
+                      "alpha": 1.1
+                    }
+                  }
+                },
+                "aliases": {
+                  "alternateIds": [
+                    {
+                      "id": "string",
+                      "type": "ALT_ID_TYPE_INVALID"
+                    }
+                  ],
+                  "name": "string"
+                },
+                "tracked": {
+                  "trackQualityWrapper": 1,
+                  "sensorHits": 1,
+                  "numberOfObjects": {
+                    "lowerBound": 1,
+                    "upperBound": 1
+                  },
+                  "radarCrossSection": 1.1,
+                  "lastMeasurementTime": "2024-01-15T09:30:00Z",
+                  "lineOfBearing": {
+                    "angleOfArrival": {
+                      "relativePose": {
+                        "pos": {
+                          "lon": 1.1,
+                          "lat": 1.1,
+                          "alt": 1.1,
+                          "is2d": true,
+                          "altitudeReference": "ALTITUDE_REFERENCE_INVALID"
+                        },
+                        "attEnu": {
+                          "x": 1.1,
+                          "y": 1.1,
+                          "z": 1.1,
+                          "w": 1.1
+                        }
+                      },
+                      "bearingElevationCovarianceRad2": {
+                        "mxx": 1.1,
+                        "mxy": 1.1,
+                        "myy": 1.1
+                      }
+                    },
+                    "rangeEstimateM": {
+                      "value": 1.1,
+                      "sigma": 1.1
+                    },
+                    "maxRangeM": {
+                      "value": 1.1,
+                      "sigma": 1.1
+                    }
+                  }
+                },
+                "correlation": {
+                  "primary": {
+                    "secondaryEntityIds": [
+                      "string"
+                    ]
+                  },
+                  "secondary": {
+                    "primaryEntityId": "string",
+                    "metadata": {
+                      "provenance": {
+                        "integrationName": "string",
+                        "dataType": "string",
+                        "sourceId": "string",
+                        "sourceUpdateTime": "2024-01-15T09:30:00Z",
+                        "sourceDescription": "string"
+                      },
+                      "replicationMode": "CORRELATION_REPLICATION_MODE_INVALID",
+                      "type": "CORRELATION_TYPE_INVALID"
+                    }
+                  },
+                  "membership": {
+                    "correlationSetId": "string",
+                    "primary": {},
+                    "nonPrimary": {},
+                    "metadata": {
+                      "provenance": {
+                        "integrationName": "string",
+                        "dataType": "string",
+                        "sourceId": "string",
+                        "sourceUpdateTime": "2024-01-15T09:30:00Z",
+                        "sourceDescription": "string"
+                      },
+                      "replicationMode": "CORRELATION_REPLICATION_MODE_INVALID",
+                      "type": "CORRELATION_TYPE_INVALID"
+                    }
+                  },
+                  "decorrelation": {
+                    "all": {
+                      "metadata": {
+                        "provenance": {
+                          "integrationName": "string",
+                          "dataType": "string",
+                          "sourceId": "string",
+                          "sourceUpdateTime": "2024-01-15T09:30:00Z",
+                          "sourceDescription": "string"
+                        },
+                        "replicationMode": "CORRELATION_REPLICATION_MODE_INVALID",
+                        "type": "CORRELATION_TYPE_INVALID"
+                      }
+                    },
+                    "decorrelatedEntities": [
+                      {
+                        "entityId": "string",
+                        "metadata": {
+                          "provenance": {
+                            "integrationName": "string",
+                            "dataType": "string",
+                            "sourceId": "string",
+                            "sourceUpdateTime": "2024-01-15T09:30:00Z",
+                            "sourceDescription": "string"
+                          },
+                          "replicationMode": "CORRELATION_REPLICATION_MODE_INVALID",
+                          "type": "CORRELATION_TYPE_INVALID"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "milView": {
+                  "disposition": "DISPOSITION_UNKNOWN",
+                  "environment": "ENVIRONMENT_UNKNOWN",
+                  "nationality": "NATIONALITY_INVALID"
+                },
+                "ontology": {
+                  "platformType": "string",
+                  "specificType": "string",
+                  "template": "TEMPLATE_INVALID"
+                },
+                "sensors": {
+                  "sensors": [
+                    {
+                      "sensorId": "string",
+                      "operationalState": "OPERATIONAL_STATE_INVALID",
+                      "sensorType": "SENSOR_TYPE_INVALID",
+                      "sensorDescription": "string",
+                      "rfConfiguraton": {
+                        "frequencyRangeHz": [
+                          {
+                            "minimumFrequencyHz": {
+                              "frequencyHz": {
+                                "value": 1.1,
+                                "sigma": 1.1
+                              }
+                            },
+                            "maximumFrequencyHz": {
+                              "frequencyHz": {
+                                "value": 1.1,
+                                "sigma": 1.1
+                              }
+                            }
+                          }
+                        ],
+                        "bandwidthRangeHz": [
+                          {
+                            "minimumBandwidth": {
+                              "bandwidthHz": 1.1
+                            },
+                            "maximumBandwidth": {
+                              "bandwidthHz": 1.1
+                            }
+                          }
+                        ]
+                      },
+                      "lastDetectionTimestamp": "2024-01-15T09:30:00Z",
+                      "fieldsOfView": [
+                        {
+                          "fovId": 1,
+                          "mountId": "string",
+                          "projectedFrustum": {
+                            "upperLeft": {
+                              "latitudeDegrees": 1.1,
+                              "longitudeDegrees": 1.1,
+                              "altitudeHaeMeters": 1.1,
+                              "altitudeAglMeters": 1.1,
+                              "altitudeAsfMeters": 1.1,
+                              "pressureDepthMeters": 1.1
+                            },
+                            "upperRight": {
+                              "latitudeDegrees": 1.1,
+                              "longitudeDegrees": 1.1,
+                              "altitudeHaeMeters": 1.1,
+                              "altitudeAglMeters": 1.1,
+                              "altitudeAsfMeters": 1.1,
+                              "pressureDepthMeters": 1.1
+                            },
+                            "bottomRight": {
+                              "latitudeDegrees": 1.1,
+                              "longitudeDegrees": 1.1,
+                              "altitudeHaeMeters": 1.1,
+                              "altitudeAglMeters": 1.1,
+                              "altitudeAsfMeters": 1.1,
+                              "pressureDepthMeters": 1.1
+                            },
+                            "bottomLeft": {
+                              "latitudeDegrees": 1.1,
+                              "longitudeDegrees": 1.1,
+                              "altitudeHaeMeters": 1.1,
+                              "altitudeAglMeters": 1.1,
+                              "altitudeAsfMeters": 1.1,
+                              "pressureDepthMeters": 1.1
+                            }
+                          },
+                          "projectedCenterRay": {
+                            "latitudeDegrees": 1.1,
+                            "longitudeDegrees": 1.1,
+                            "altitudeHaeMeters": 1.1,
+                            "altitudeAglMeters": 1.1,
+                            "altitudeAsfMeters": 1.1,
+                            "pressureDepthMeters": 1.1
+                          },
+                          "centerRayPose": {
+                            "pos": {
+                              "latitudeDegrees": 1.1,
+                              "longitudeDegrees": 1.1,
+                              "altitudeHaeMeters": 1.1,
+                              "altitudeAglMeters": 1.1,
+                              "altitudeAsfMeters": 1.1,
+                              "pressureDepthMeters": 1.1
+                            },
+                            "orientation": {
+                              "x": 1.1,
+                              "y": 1.1,
+                              "z": 1.1,
+                              "w": 1.1
+                            }
+                          },
+                          "horizontalFov": 1.1,
+                          "verticalFov": 1.1,
+                          "range": 1.1,
+                          "mode": "SENSOR_MODE_INVALID"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "payloads": {
+                  "payloadConfigurations": [
+                    {
+                      "config": {
+                        "capabilityId": "string",
+                        "quantity": 1,
+                        "effectiveEnvironment": [
+                          "ENVIRONMENT_UNKNOWN"
+                        ],
+                        "payloadOperationalState": "PAYLOAD_OPERATIONAL_STATE_INVALID",
+                        "payloadDescription": "string"
+                      }
+                    }
+                  ]
+                },
+                "powerState": {
+                  "sourceIdToState": {}
+                },
+                "provenance": {
+                  "integrationName": "string",
+                  "dataType": "string",
+                  "sourceId": "string",
+                  "sourceUpdateTime": "2024-01-15T09:30:00Z",
+                  "sourceDescription": "string"
+                },
+                "overrides": {
+                  "override": [
+                    null
+                  ]
+                },
+                "indicators": {
+                  "simulated": true,
+                  "exercise": true,
+                  "emergency": true,
+                  "c2": true,
+                  "egressable": true,
+                  "starred": true
+                },
+                "targetPriority": {
+                  "highValueTarget": {
+                    "isHighValueTarget": true,
+                    "targetPriority": 1,
+                    "targetMatches": [
+                      {
+                        "highValueTargetListId": "string",
+                        "highValueTargetDescriptionId": "string"
+                      }
+                    ],
+                    "isHighPayoffTarget": true
+                  },
+                  "threat": {
+                    "isThreat": true
+                  }
+                },
+                "signal": {
+                  "frequencyCenter": {
+                    "frequencyHz": {
+                      "value": 1.1,
+                      "sigma": 1.1
+                    }
+                  },
+                  "frequencyRange": {
+                    "minimumFrequencyHz": {
+                      "frequencyHz": {
+                        "value": 1.1,
+                        "sigma": 1.1
+                      }
+                    },
+                    "maximumFrequencyHz": {
+                      "frequencyHz": {
+                        "value": 1.1,
+                        "sigma": 1.1
+                      }
+                    }
+                  },
+                  "bandwidthHz": 1.1,
+                  "signalToNoiseRatio": 1.1,
+                  "lineOfBearing": {
+                    "angleOfArrival": {
+                      "relativePose": {
+                        "pos": {
+                          "lon": 1.1,
+                          "lat": 1.1,
+                          "alt": 1.1,
+                          "is2d": true,
+                          "altitudeReference": "ALTITUDE_REFERENCE_INVALID"
+                        },
+                        "attEnu": {
+                          "x": 1.1,
+                          "y": 1.1,
+                          "z": 1.1,
+                          "w": 1.1
+                        }
+                      },
+                      "bearingElevationCovarianceRad2": {
+                        "mxx": 1.1,
+                        "mxy": 1.1,
+                        "myy": 1.1
+                      }
+                    },
+                    "rangeEstimateM": {
+                      "value": 1.1,
+                      "sigma": 1.1
+                    },
+                    "maxRangeM": {
+                      "value": 1.1,
+                      "sigma": 1.1
+                    }
+                  },
+                  "fixed": {},
+                  "emitterNotations": [
+                    {
+                      "emitterNotation": "string",
+                      "confidence": 1.1
+                    }
+                  ],
+                  "pulseWidthS": 1.1,
+                  "pulseRepetitionInterval": {
+                    "pulseRepetitionIntervalS": {
+                      "value": 1.1,
+                      "sigma": 1.1
+                    }
+                  },
+                  "scanCharacteristics": {
+                    "scanType": "SCAN_TYPE_INVALID",
+                    "scanPeriodS": 1.1
+                  }
+                },
+                "transponderCodes": {
+                  "mode1": 1,
+                  "mode2": 1,
+                  "mode3": 1,
+                  "mode4InterrogationResponse": "INTERROGATION_RESPONSE_INVALID",
+                  "mode5": {
+                    "mode5InterrogationResponse": "INTERROGATION_RESPONSE_INVALID",
+                    "mode5": 1,
+                    "mode5PlatformId": 1
+                  },
+                  "modeS": {
+                    "id": "string",
+                    "address": 1
+                  },
+                  "modeCAltitudeFt": 1
+                },
+                "dataClassification": {
+                  "default": {
+                    "level": "CLASSIFICATION_LEVELS_INVALID",
+                    "caveats": [
+                      "string"
+                    ]
+                  },
+                  "fields": [
+                    {
+                      "fieldPath": "string",
+                      "classificationInformation": {
+                        "level": "CLASSIFICATION_LEVELS_INVALID",
+                        "caveats": [
+                          "string"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "taskCatalog": {
+                  "taskDefinitions": [
+                    {
+                      "taskSpecificationUrl": "string"
+                    }
+                  ]
+                },
+                "media": {
+                  "media": [
+                    {
+                      "itemIdentifier": "string",
+                      "type": "MEDIA_TYPE_INVALID",
+                      "relativePath": "string"
+                    }
+                  ]
+                },
+                "relationships": {
+                  "relationships": [
+                    {
+                      "relatedEntityId": "string",
+                      "relationshipId": "string",
+                      "relationshipType": {
+                        "trackedBy": {
+                          "activelyTrackingSensors": {
+                            "sensors": [
+                              {
+                                "sensorId": "string",
+                                "operationalState": "OPERATIONAL_STATE_INVALID",
+                                "sensorType": "SENSOR_TYPE_INVALID",
+                                "sensorDescription": "string",
+                                "rfConfiguraton": {
+                                  "frequencyRangeHz": {},
+                                  "bandwidthRangeHz": {}
+                                },
+                                "lastDetectionTimestamp": "2024-01-15T09:30:00Z",
+                                "fieldsOfView": [
+                                  {
+                                    "fovId": {},
+                                    "mountId": {},
+                                    "projectedFrustum": {},
+                                    "projectedCenterRay": {},
+                                    "centerRayPose": {},
+                                    "horizontalFov": {},
+                                    "verticalFov": {},
+                                    "range": {},
+                                    "mode": {}
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          "lastMeasurementTimestamp": "2024-01-15T09:30:00Z"
+                        },
+                        "groupChild": {},
+                        "groupParent": {},
+                        "mergedFrom": {},
+                        "activeTarget": {}
+                      }
+                    }
+                  ]
+                },
+                "visualDetails": {
+                  "rangeRings": {
+                    "minDistanceM": 1.1,
+                    "maxDistanceM": 1.1,
+                    "ringCount": 1,
+                    "ringLineColor": {
+                      "red": 1.1,
+                      "green": 1.1,
+                      "blue": 1.1,
+                      "alpha": 1.1
+                    }
+                  }
+                },
+                "dimensions": {
+                  "lengthM": 1.1
+                },
+                "routeDetails": {
+                  "destinationName": "string",
+                  "estimatedArrivalTime": "2024-01-15T09:30:00Z"
+                },
+                "schedules": {
+                  "schedules": [
+                    {
+                      "windows": [
+                        {
+                          "cronExpression": "string",
+                          "durationMillis": "string"
+                        }
+                      ],
+                      "scheduleId": "string",
+                      "scheduleType": "SCHEDULE_TYPE_INVALID"
+                    }
+                  ]
+                },
+                "health": {
+                  "connectionStatus": "CONNECTION_STATUS_INVALID",
+                  "healthStatus": "HEALTH_STATUS_INVALID",
+                  "components": [
+                    {
+                      "id": "string",
+                      "name": "string",
+                      "health": "HEALTH_STATUS_INVALID",
+                      "messages": [
+                        {
+                          "status": "HEALTH_STATUS_INVALID",
+                          "message": "string"
+                        }
+                      ],
+                      "updateTime": "2024-01-15T09:30:00Z"
+                    }
+                  ],
+                  "updateTime": "2024-01-15T09:30:00Z",
+                  "activeAlerts": [
+                    {
+                      "alertCode": "string",
+                      "description": "string",
+                      "level": "ALERT_LEVEL_INVALID",
+                      "activatedTime": "2024-01-15T09:30:00Z",
+                      "activeConditions": [
+                        {
+                          "conditionCode": "string",
+                          "description": "string"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "groupDetails": {
+                  "team": {
+                    "entityId": "string",
+                    "members": [
+                      {
+                        "entityId": "string"
+                      }
+                    ]
+                  },
+                  "echelon": {
+                    "armyEchelon": "ARMY_ECHELON_INVALID"
+                  }
+                },
+                "supplies": {
+                  "munitions": [
+                    {
+                      "munitionId": "string",
+                      "name": "string",
+                      "quantityUnits": 1
+                    }
+                  ],
+                  "fuel": [
+                    {
+                      "fuelId": "string",
+                      "name": "string",
+                      "reportedDate": "2024-01-15T09:30:00Z",
+                      "amountGallons": 1,
+                      "maxAuthorizedCapacityGallons": 1,
+                      "operationalRequirementGallons": 1,
+                      "dataClassification": {
+                        "default": {
+                          "level": "CLASSIFICATION_LEVELS_INVALID",
+                          "caveats": [
+                            "string"
+                          ]
+                        },
+                        "fields": [
+                          {
+                            "fieldPath": "string",
+                            "classificationInformation": {
+                              "level": "CLASSIFICATION_LEVELS_INVALID",
+                              "caveats": [
+                                "string"
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "dataSource": "string"
+                    }
+                  ]
+                },
+                "orbit": {
+                  "orbitMeanElements": {
+                    "metadata": {
+                      "creationDate": "2024-01-15T09:30:00Z",
+                      "originator": "string",
+                      "messageId": "string",
+                      "refFrame": "ECI_REFERENCE_FRAME_INVALID",
+                      "refFrameEpoch": "2024-01-15T09:30:00Z",
+                      "meanElementTheory": "MEAN_ELEMENT_THEORY_INVALID"
+                    },
+                    "meanKeplerianElements": {
+                      "epoch": "2024-01-15T09:30:00Z",
+                      "semiMajorAxisKm": 1.1,
+                      "meanMotion": 1.1,
+                      "eccentricity": 1.1,
+                      "inclinationDeg": 1.1,
+                      "raOfAscNodeDeg": 1.1,
+                      "argOfPericenterDeg": 1.1,
+                      "meanAnomalyDeg": 1.1,
+                      "gm": 1.1
+                    },
+                    "tleParameters": {
+                      "ephemerisType": 1,
+                      "classificationType": "string",
+                      "noradCatId": 1,
+                      "elementSetNo": 1,
+                      "revAtEpoch": 1,
+                      "bstar": 1.1,
+                      "bterm": 1.1,
+                      "meanMotionDot": 1.1,
+                      "meanMotionDdot": 1.1,
+                      "agom": 1.1
+                    }
+                  }
+                },
+                "symbology": {
+                  "milStd2525C": {
+                    "sidc": "string"
+                  }
+                }
+              },
+              "status": "OVERRIDE_STATUS_INVALID",
+              "provenance": {
+                "integrationName": "string",
+                "dataType": "string",
+                "sourceId": "string",
+                "sourceUpdateTime": "2024-01-15T09:30:00Z",
+                "sourceDescription": "string"
+              },
+              "type": "OVERRIDE_TYPE_INVALID",
+              "requestTimestamp": "2024-01-15T09:30:00Z"
+            }
+          ]
+        },
+        "indicators": {
+          "simulated": true,
+          "exercise": true,
+          "emergency": true,
+          "c2": true,
+          "egressable": true,
+          "starred": true
+        },
+        "targetPriority": {
+          "highValueTarget": {
+            "isHighValueTarget": true,
+            "targetPriority": 1,
+            "targetMatches": [
+              {
+                "highValueTargetListId": "string",
+                "highValueTargetDescriptionId": "string"
+              }
+            ],
+            "isHighPayoffTarget": true
+          },
+          "threat": {
+            "isThreat": true
+          }
+        },
+        "signal": {
+          "frequencyCenter": {
+            "frequencyHz": {
+              "value": 1.1,
+              "sigma": 1.1
+            }
+          },
+          "frequencyRange": {
+            "minimumFrequencyHz": {
+              "frequencyHz": {
+                "value": 1.1,
+                "sigma": 1.1
+              }
+            },
+            "maximumFrequencyHz": {
+              "frequencyHz": {
+                "value": 1.1,
+                "sigma": 1.1
+              }
+            }
+          },
+          "bandwidthHz": 1.1,
+          "signalToNoiseRatio": 1.1,
+          "lineOfBearing": {
+            "angleOfArrival": {
+              "relativePose": {
+                "pos": {
+                  "lon": 1.1,
+                  "lat": 1.1,
+                  "alt": 1.1,
+                  "is2d": true,
+                  "altitudeReference": "ALTITUDE_REFERENCE_INVALID"
+                },
+                "attEnu": {
+                  "x": 1.1,
+                  "y": 1.1,
+                  "z": 1.1,
+                  "w": 1.1
+                }
+              },
+              "bearingElevationCovarianceRad2": {
+                "mxx": 1.1,
+                "mxy": 1.1,
+                "myy": 1.1
+              }
+            },
+            "rangeEstimateM": {
+              "value": 1.1,
+              "sigma": 1.1
+            },
+            "maxRangeM": {
+              "value": 1.1,
+              "sigma": 1.1
+            }
+          },
+          "fixed": {},
+          "emitterNotations": [
+            {
+              "emitterNotation": "string",
+              "confidence": 1.1
+            }
+          ],
+          "pulseWidthS": 1.1,
+          "pulseRepetitionInterval": {
+            "pulseRepetitionIntervalS": {
+              "value": 1.1,
+              "sigma": 1.1
+            }
+          },
+          "scanCharacteristics": {
+            "scanType": "SCAN_TYPE_INVALID",
+            "scanPeriodS": 1.1
+          }
+        },
+        "transponderCodes": {
+          "mode1": 1,
+          "mode2": 1,
+          "mode3": 1,
+          "mode4InterrogationResponse": "INTERROGATION_RESPONSE_INVALID",
+          "mode5": {
+            "mode5InterrogationResponse": "INTERROGATION_RESPONSE_INVALID",
+            "mode5": 1,
+            "mode5PlatformId": 1
+          },
+          "modeS": {
+            "id": "string",
+            "address": 1
+          },
+          "modeCAltitudeFt": 1
+        },
+        "dataClassification": {
+          "default": {
+            "level": "CLASSIFICATION_LEVELS_INVALID",
+            "caveats": [
+              "string"
+            ]
+          },
+          "fields": [
+            {
+              "fieldPath": "string",
+              "classificationInformation": {
+                "level": "CLASSIFICATION_LEVELS_INVALID",
+                "caveats": [
+                  "string"
+                ]
+              }
+            }
+          ]
+        },
+        "taskCatalog": {
+          "taskDefinitions": [
+            {
+              "taskSpecificationUrl": "string"
+            }
+          ]
+        },
+        "media": {
+          "media": [
+            {
+              "itemIdentifier": "string",
+              "type": "MEDIA_TYPE_INVALID",
+              "relativePath": "string"
+            }
+          ]
+        },
+        "relationships": {
+          "relationships": [
+            {
+              "relatedEntityId": "string",
+              "relationshipId": "string",
+              "relationshipType": {
+                "trackedBy": {
+                  "activelyTrackingSensors": {
+                    "sensors": [
+                      {
+                        "sensorId": "string",
+                        "operationalState": "OPERATIONAL_STATE_INVALID",
+                        "sensorType": "SENSOR_TYPE_INVALID",
+                        "sensorDescription": "string",
+                        "rfConfiguraton": {
+                          "frequencyRangeHz": [
+                            {
+                              "minimumFrequencyHz": {
+                                "frequencyHz": {
+                                  "value": {},
+                                  "sigma": {}
+                                }
+                              },
+                              "maximumFrequencyHz": {
+                                "frequencyHz": {
+                                  "value": {},
+                                  "sigma": {}
+                                }
+                              }
+                            }
+                          ],
+                          "bandwidthRangeHz": [
+                            {
+                              "minimumBandwidth": {
+                                "bandwidthHz": 1.1
+                              },
+                              "maximumBandwidth": {
+                                "bandwidthHz": 1.1
+                              }
+                            }
+                          ]
+                        },
+                        "lastDetectionTimestamp": "2024-01-15T09:30:00Z",
+                        "fieldsOfView": [
+                          {
+                            "fovId": 1,
+                            "mountId": "string",
+                            "projectedFrustum": {
+                              "upperLeft": {
+                                "latitudeDegrees": 1.1,
+                                "longitudeDegrees": 1.1,
+                                "altitudeHaeMeters": 1.1,
+                                "altitudeAglMeters": 1.1,
+                                "altitudeAsfMeters": 1.1,
+                                "pressureDepthMeters": 1.1
+                              },
+                              "upperRight": {
+                                "latitudeDegrees": 1.1,
+                                "longitudeDegrees": 1.1,
+                                "altitudeHaeMeters": 1.1,
+                                "altitudeAglMeters": 1.1,
+                                "altitudeAsfMeters": 1.1,
+                                "pressureDepthMeters": 1.1
+                              },
+                              "bottomRight": {
+                                "latitudeDegrees": 1.1,
+                                "longitudeDegrees": 1.1,
+                                "altitudeHaeMeters": 1.1,
+                                "altitudeAglMeters": 1.1,
+                                "altitudeAsfMeters": 1.1,
+                                "pressureDepthMeters": 1.1
+                              },
+                              "bottomLeft": {
+                                "latitudeDegrees": 1.1,
+                                "longitudeDegrees": 1.1,
+                                "altitudeHaeMeters": 1.1,
+                                "altitudeAglMeters": 1.1,
+                                "altitudeAsfMeters": 1.1,
+                                "pressureDepthMeters": 1.1
+                              }
+                            },
+                            "projectedCenterRay": {
+                              "latitudeDegrees": 1.1,
+                              "longitudeDegrees": 1.1,
+                              "altitudeHaeMeters": 1.1,
+                              "altitudeAglMeters": 1.1,
+                              "altitudeAsfMeters": 1.1,
+                              "pressureDepthMeters": 1.1
+                            },
+                            "centerRayPose": {
+                              "pos": {
+                                "latitudeDegrees": 1.1,
+                                "longitudeDegrees": 1.1,
+                                "altitudeHaeMeters": 1.1,
+                                "altitudeAglMeters": 1.1,
+                                "altitudeAsfMeters": 1.1,
+                                "pressureDepthMeters": 1.1
+                              },
+                              "orientation": {
+                                "x": 1.1,
+                                "y": 1.1,
+                                "z": 1.1,
+                                "w": 1.1
+                              }
+                            },
+                            "horizontalFov": 1.1,
+                            "verticalFov": 1.1,
+                            "range": 1.1,
+                            "mode": "SENSOR_MODE_INVALID"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "lastMeasurementTimestamp": "2024-01-15T09:30:00Z"
+                },
+                "groupChild": {},
+                "groupParent": {},
+                "mergedFrom": {},
+                "activeTarget": {}
+              }
+            }
+          ]
+        },
+        "visualDetails": {
+          "rangeRings": {
+            "minDistanceM": 1.1,
+            "maxDistanceM": 1.1,
+            "ringCount": 1,
+            "ringLineColor": {
+              "red": 1.1,
+              "green": 1.1,
+              "blue": 1.1,
+              "alpha": 1.1
+            }
+          }
+        },
+        "dimensions": {
+          "lengthM": 1.1
+        },
+        "routeDetails": {
+          "destinationName": "string",
+          "estimatedArrivalTime": "2024-01-15T09:30:00Z"
+        },
+        "schedules": {
+          "schedules": [
+            {
+              "windows": [
+                {
+                  "cronExpression": "string",
+                  "durationMillis": "string"
+                }
+              ],
+              "scheduleId": "string",
+              "scheduleType": "SCHEDULE_TYPE_INVALID"
+            }
+          ]
+        },
+        "health": {
+          "connectionStatus": "CONNECTION_STATUS_INVALID",
+          "healthStatus": "HEALTH_STATUS_INVALID",
+          "components": [
+            {
+              "id": "string",
+              "name": "string",
+              "health": "HEALTH_STATUS_INVALID",
+              "messages": [
+                {
+                  "status": "HEALTH_STATUS_INVALID",
+                  "message": "string"
+                }
+              ],
+              "updateTime": "2024-01-15T09:30:00Z"
+            }
+          ],
+          "updateTime": "2024-01-15T09:30:00Z",
+          "activeAlerts": [
+            {
+              "alertCode": "string",
+              "description": "string",
+              "level": "ALERT_LEVEL_INVALID",
+              "activatedTime": "2024-01-15T09:30:00Z",
+              "activeConditions": [
+                {
+                  "conditionCode": "string",
+                  "description": "string"
+                }
+              ]
+            }
+          ]
+        },
+        "groupDetails": {
+          "team": {
+            "entityId": "string",
+            "members": [
+              {
+                "entityId": "string"
+              }
+            ]
+          },
+          "echelon": {
+            "armyEchelon": "ARMY_ECHELON_INVALID"
+          }
+        },
+        "supplies": {
+          "munitions": [
+            {
+              "munitionId": "string",
+              "name": "string",
+              "quantityUnits": 1
+            }
+          ],
+          "fuel": [
+            {
+              "fuelId": "string",
+              "name": "string",
+              "reportedDate": "2024-01-15T09:30:00Z",
+              "amountGallons": 1,
+              "maxAuthorizedCapacityGallons": 1,
+              "operationalRequirementGallons": 1,
+              "dataClassification": {
+                "default": {
+                  "level": "CLASSIFICATION_LEVELS_INVALID",
+                  "caveats": [
+                    "string"
+                  ]
+                },
+                "fields": [
+                  {
+                    "fieldPath": "string",
+                    "classificationInformation": {
+                      "level": "CLASSIFICATION_LEVELS_INVALID",
+                      "caveats": [
+                        "string"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "dataSource": "string"
+            }
+          ]
+        },
+        "orbit": {
+          "orbitMeanElements": {
+            "metadata": {
+              "creationDate": "2024-01-15T09:30:00Z",
+              "originator": "string",
+              "messageId": "string",
+              "refFrame": "ECI_REFERENCE_FRAME_INVALID",
+              "refFrameEpoch": "2024-01-15T09:30:00Z",
+              "meanElementTheory": "MEAN_ELEMENT_THEORY_INVALID"
+            },
+            "meanKeplerianElements": {
+              "epoch": "2024-01-15T09:30:00Z",
+              "semiMajorAxisKm": 1.1,
+              "meanMotion": 1.1,
+              "eccentricity": 1.1,
+              "inclinationDeg": 1.1,
+              "raOfAscNodeDeg": 1.1,
+              "argOfPericenterDeg": 1.1,
+              "meanAnomalyDeg": 1.1,
+              "gm": 1.1
+            },
+            "tleParameters": {
+              "ephemerisType": 1,
+              "classificationType": "string",
+              "noradCatId": 1,
+              "elementSetNo": 1,
+              "revAtEpoch": 1,
+              "bstar": 1.1,
+              "bterm": 1.1,
+              "meanMotionDot": 1.1,
+              "meanMotionDdot": 1.1,
+              "agom": 1.1
+            }
+          }
+        },
+        "symbology": {
+          "milStd2525C": {
+            "sidc": "string"
+          }
+        }
+      },
+      "snapshot": true
+    }
+  ],
+  "owner": {
+    "entityId": "string"
+  },
+  "retryStrategy": {
+    "fixedRetryStrategy": {
+      "retryInterval": "string"
+    }
+  },
+  "deliveryState": {
+    "status": "DELIVERY_STATUS_INVALID",
+    "error": {
+      "code": "DELIVERY_ERROR_CODE_INVALID",
+      "message": "string"
+    },
+    "deliveryConstraints": {
+      "deliverAfter": "2024-01-15T09:30:00Z",
+      "deliverBefore": "2024-01-15T09:30:00Z"
+    }
+  }
+}
+```
+
+Creates a new Task in the system with the specified parameters. This method initiates a new task with a unique ID (either provided or auto-generated), sets the initial task state to STATUS_CREATED, and establishes task ownership. The task can be assigned to a specific agent through the Relations field. Once created, a task enters the lifecycle workflow and can be tracked, updated, and managed through other Tasks API endpoints.
+
+### Authentication
+
+- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+
+### Request
+
+This endpoint expects an object.
+
+- `taskId` — _string · optional_ — If non-empty, will set the requested Task ID, otherwise will generate a new random GUID. Will reject if supplied Task ID does not match [A-Za-z0-9_-.]36.
+
+- `description` — _string · optional_ — Longer, free form human readable description of this Task.
+
+- `specification` — _object · optional_ — The path for the Protobuf task definition, and the complete task data.
+
+- `author` — _object · optional_ — A Principal is an entity that has authority over this task.
+
+- `relations` — _object · optional_ — Any relationships associated with this Task, such as a parent Task or an assignee this Task is designated to for execution.
+
+- `isExecutedElsewhere` — _boolean · optional_ — If set, then the service will not trigger execution of this task on an agent. Useful for when ingesting tasks from an external system that is triggering execution of tasks on agents.
+
+- `initialEntities` — _list of objects · optional_ — Indicates an initial set of entities that can be used to execute an entity aware task. For example, an entity Objective, an entity Keep In Zone, etc.
+
+- `retryStrategy` — _object · optional_ — Any retry strategy for task execution or update.
+
+- `deliveryConstraints` — _object · optional_ — Any scheduling constraints for Lattice delivery of the task.
+
+- `displayName` — _string · optional · deprecated_ — Human readable display name for this Task, should be short (&lt;100 chars).
+
+### Response
+
+Task creation was successful
+
+- `version` — _object · optional_ — Version of this task.
+
+- `displayName` — _string · optional_ — DEPRECATED: Human readable display name for this task, should be short (&lt;100 chars).
+
+- `specification` — _object · optional_ — The path for the Protobuf task definition, and the complete task data.
+
+- `createdBy` — _object · optional_ — Records who created this task. This field will not change after the task has been created.
+
+- `lastUpdatedBy` — _object · optional_ — Records who updated this task last.
+
+- `lastUpdateTime` — _datetime · optional_ — Records the time of last update.
+
+- `status` — _object · optional_ — The status of this task.
+
+- `scheduledTime` — _datetime · optional_ — If the task has been scheduled to execute, what time it should execute at.
+
+- `relations` — _object · optional_ — Any related Tasks associated with this, typically includes an assignee for this task and/or a parent.
+
+- `description` — _string · optional_ — Longer, free form human readable description of this task
+
+- `isExecutedElsewhere` — _boolean · optional_ — If set, execution of this task is managed elsewhere, not by Task Manager. In other words, task manager will not attempt to update the assigned agent with execution instructions.
+
+- `createTime` — _datetime · optional_ — Time of task creation.
+
+- `replication` — _object · optional_ — If populated, designates this to be a replicated task.
+
+- `initialEntities` — _list of objects · optional_ — If populated, indicates an initial set of entities that can be used to execute an entity aware task For example, an entity Objective, an entity Keep In Zone, etc. These will not be updated during execution. If a taskable agent needs continuous updates on the entities from the COP, can call entity-manager, or use an AlternateId escape hatch.
+
+- `owner` — _object · optional_ — The networked owner of this task. It is used to ensure that linear writes occur on the node responsible for replication of task data to other nodes running Task Manager.
+
+- `retryStrategy` — _object · optional_ — Sets an optional try strategy for tasks. Use this option to control how Lattice attempts to retry delivery of tasks to assets with intermittent access or network connectivity to your environment.
+
+- `deliveryState` — _object · optional_ — The current delivery state of a task.
+
+### Errors
+
+400
+
+Bad Request Error
+
+401
+
+Unauthorized Error

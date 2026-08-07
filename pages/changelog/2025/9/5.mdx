@@ -1,0 +1,53 @@
+---
+title: "Changelog"
+---
+
+# Changelog
+
+September 5, 2025
+
+Updated all Java examples to use the new `addHeader` method for adding authentication headers, simplifying how Sandbox authentication headers are set in Java applications.
+
+```
+--- java-client-before.java	2025-09-05 10:00:00
++++ java-client-after.java	2025-09-05 10:30:00
+@@ -1,19 +1,11 @@
+ import com.anduril.Lattice;
+-import okhttp3.OkHttpClient;
+
+ public class LatticeClientExample {
+     public static void main(String[] args) {
+         String endpoint = System.getenv("LATTICE_ENDPOINT");
+         String token = System.getenv("ENVIRONMENT_TOKEN");
+         String sandboxesToken = System.getenv("SANDBOXES_TOKEN");
+-
+-        // Create HTTP client with Sandbox authentication
+-        OkHttpClient httpClient = new OkHttpClient.Builder()
+-            .addInterceptor(chain -> {
+-                return chain.proceed(chain.request().newBuilder()
+-                    .header("Anduril-Sandbox-Authorization", "Bearer " + sandboxesToken)
+-                    .build());
+-            })
+-            .build();
+-
++
++        // Create Lattice client with Sandbox authentication
+         Lattice client = Lattice.builder()
+             .url(endpoint)
+             .token(token)
+-            .httpClient(httpClient)
++            .addHeader("Anduril-Sandbox-Authorization", "Bearer " + sandboxesToken)
+             .build();
+     }
+ }
+```
+
+## Java SDK Improvements
+
+The [Lattice SDK for Java 2.3.0](https://github.com/anduril/lattice-sdk-java/releases/tag/v2.3.0) introduces a simplified approach for adding authentication headers to API requests:
+
+- Added new addHeader method to the Lattice client builder that eliminates the need to create custom OkHttpClient instances.
+- Updated all Java examples to use this new approach, resulting in cleaner, more maintainable code.
+- Removed boilerplate OkHttpClient interceptor configuration that was previously required.
+
+Was this page helpful?

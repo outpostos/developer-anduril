@@ -1,0 +1,22 @@
+---
+title: "Changelog"
+---
+
+# Changelog
+
+April 14, 2026
+
+## Cancel tasks API
+
+The Lattice SDK now supports task cancellation through the [`CancelTask`](/reference/rest/tasks/cancel-task) API available in both REST and gRPC. This API lets an operator request to cancel, giving you greater control over task lifecycle management.
+
+The cancellation behavior depends on the task’s current state:
+
+- Tasks not yet sent to an agent cancel immediately and transition to a terminal state.
+- Tasks already sent to an agent receive a cancellation request that the agent can accept or reject based on the task’s execution state.
+
+For more information on using the `CancelTask` API in your integration, see [Cancel tasks](/guides/tasks/command-and-operate#cancel-tasks) in the Lattice SDK guide.
+
+For API reference details, see [`CancelTask` (REST)](/reference/rest/tasks/cancel-task) and [`CancelTask` (gRPC)](/reference/grpc/taskmanager-v1/cancel-task).
+
+Was this page helpful?

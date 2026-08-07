@@ -1,0 +1,47 @@
+---
+title: "ListenForManualControlFrames"
+---
+
+# ListenForManualControlFrames
+
+```json
+{
+  "task_id": "example"
+}
+```
+
+```json
+{
+  "frame": {
+    "task_id": "example",
+    "epoch_micros": 42,
+    "sequence": 42,
+    "creation_time": {
+      "seconds": 42,
+      "nanos": 42
+    },
+    "specification": {
+      "type_url": "example",
+      "value": "bytes"
+    }
+  }
+}
+```
+
+Establishes a server streaming connection for receiving manual control frames for a specific task. Agents call this RPC to subscribe to manual control frames for a task they are executing. Task Manager forwards frames from the operator's `SendManualControlFrames` stream, including epoch and sequence metadata for handling concurrent control sessions and detecting stale frames. The agent should open this stream before setting the task status to `STATUS_EXECUTING` to ensure it is ready to receive control input as soon as the operator begins sending frames. The stream terminates when the task reaches a terminal state, either `STATUS_DONE_OK` or `STATUS_DONE_NOT_OK`.
+
+### Request
+
+**ListenForManualControlFramesRequest**
+
+This endpoint expects an object.
+
+- `task_id` — _string_ — The task ID of the manual control task the agent listens for.
+
+### Response
+
+**ListenForManualControlFramesResponse**
+
+This endpoint returns an object.
+
+- `frame` — _object_ — The manual control frame. Contains the control instructions and sequencing metadata.

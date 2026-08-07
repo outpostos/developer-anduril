@@ -1,7 +1,167 @@
 ---
-title: Set up
+title: "Install"
 ---
 
-# Set up
+# Install
 
-占位页：后续补充开发环境设置说明。
+To integrate with Lattice using the Lattice SDK, set up your credentials and environment endpoint as system variables, then install the SDK in a language, and protocol, of your choice. Lattice supports both gRPC and REST as first-class protocols:
+
+Choosing a protocol
+
+For more information on selecting the right protocol for your integration, see [Choose a protocol](/guides/best-practices/choose-a-protocol).
+
+Go
+
+[gRPC](https://schema-registry.developer.anduril.com/anduril/lattice-sdk/sdks/main:grpc/go) | [REST](https://github.com/anduril/lattice-sdk-go)
+
+Java
+
+[gRPC](https://schema-registry.developer.anduril.com/anduril/lattice-sdk/sdks/main:grpc/java) | [REST](https://github.com/anduril/lattice-sdk-java)
+
+Python
+
+[gRPC](https://schema-registry.developer.anduril.com/anduril/lattice-sdk/sdks/main:grpc/python) | [REST](https://github.com/anduril/lattice-sdk-python)
+
+Rust
+
+[gRPC](https://schema-registry.developer.anduril.com/anduril/lattice-sdk/sdks/main:rust)
+
+TypeScript
+
+[gRPC](https://schema-registry.developer.anduril.com/anduril/lattice-sdk/sdks/main:bufbuild/es) | [REST](https://github.com/anduril/lattice-sdk-javascript)
+
+gRPC
+
+If you do not have access to the Lattice Schema Registry yet [schema-registry.developer.anduril.com](https://schema-registry.developer.anduril.com/), the SDKs and schemas are mirrored publicly at [buf.build/anduril/lattice-sdk](https://buf.build/anduril/lattice-sdk)
+
+The gRPC examples in Lattice SDK documentation use Go, Python, and Rust.
+
+If you’re using another language, you can choose from up to 16 languages and various plugins to get your [Lattice SDK artifacts for gRPC](https://schema-registry.developer.anduril.com/anduril/lattice-sdk/sdks/main:grpc).
+
+## Before you begin
+
+- If you are using Lattice Sandboxes, complete the steps in Developing with Lattice Sandboxes to create an environment and generate your credentials.
+
+## Get the SDK for gRPC
+
+Lattice provides a gRPC SDK in a variety of languages and plugins using the [Lattice Schema Registry](https://schema-registry.developer.anduril.com/anduril/lattice-sdk/sdks). The following steps show how to get the Lattice SDK for gRPC in Go, Python, and Rust:
+
+Go
+
+Python
+
+Rust
+
+1
+
+Install the [latest version](https://go.dev/) of Go.
+
+2
+
+Create a new folder and initialize your project:
+
+```
+go mod init lattice-sdk-go-example
+```
+
+This generates a `go.mod` file in the project directory.
+
+3
+
+Install the generated Lattice SDK gRPC stubs using the [`grpc/go`](https://buf.build/anduril/lattice-sdk/sdks/main:grpc/go) plugin:
+
+```
+go get schema-registry.developer.anduril.com/gen/go/anduril/lattice-sdk/grpc/go@v<latest-supported-version>
+```
+
+This installs the generated Lattice SDK gRPC stubs along with the required gRPC runtime dependencies and creates a `go.sum` file in the project directory.
+
+4
+
+Import Lattice and use the client:
+
+```
+package main
+
+import (
+    "buf.build/gen/go/anduril/lattice-sdk/grpc/go/anduril/entitymanager/v1/entitymanagerv1grpc"
+)
+
+func main() {
+    client := entitymanagerv1grpc.NewEntityManagerAPIClient(conn)
+
+    response, err := client.GetEntity(ctx, &entitymanagerv1.GetEntityRequest{
+        EntityId: "<ENTITY_ID>",
+    })
+}
+```
+
+For additional information on using the Buf Schema Registry, refer to the Buf [documentation](https://buf.build/docs/bsr/generated-sdks/tutorial/).
+
+## Get the SDK for REST
+
+Lattice provides a REST SDK in the following languages:
+
+Go
+
+Java
+
+Python
+
+TypeScript
+
+1
+
+Download the [latest version](https://go.dev/learn/) of Go.
+
+2
+
+Verify your installation:
+
+```
+go version
+```
+
+3
+
+Install the latest version of the Lattice SDK:
+
+```
+go get github.com/anduril/lattice-sdk-go/v3
+```
+
+4
+
+Import Lattice and use the client:
+
+```
+package main
+
+import (
+    "os"
+    "fmt"
+    "github.com/anduril/lattice-sdk-go/v3/client"
+    "github.com/anduril/lattice-sdk-go/v3/option"
+)
+
+func main() {
+    latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+    environmentToken := os.Getenv("ENVIRONMENT_TOKEN")
+
+    client := client.NewClient(
+        option.WithToken(environmentToken),
+        option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+    )
+
+    client.Entities.GetEntity(
+        context.TODO(),
+        "ENTITY_ID",
+    )
+}
+```
+
+## What’s next?
+
+- Start building and publishing entities into Lattice.
+- Learn how to watch entities, stream specific components, and apply filters .
+- See the Lattice sample applications .

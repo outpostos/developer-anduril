@@ -1,0 +1,27 @@
+---
+title: "Changelog"
+---
+
+# Changelog
+
+August 11, 2025
+
+The Lattice SDK now supports streaming entity updates in real-time using the REST API across all supported languages:
+
+- Added StreamEntities API for establishing persistent connections to stream entity events
+- Implemented examples for streaming entities in Go, Java, Python, and TypeScript
+- Updated documentation to demonstrate both basic streaming and component filtering
+
+## New features
+
+The new `StreamEntities` API provides several configurable parameters:
+
+- preExistingOnly : Controls whether to stream only existing entities or include real-time updates.
+- heartbeatIntervalMS : Configures how frequently the server sends heartbeat events.
+- componentsToInclude : Allows filtering which entity components are streamed, reducing bandwidth usage and improving performance.
+
+## Documentation updates
+
+As a part of this release, [Watch entities](/guides/entities/watch) guide has been updated with code examples in all supported languages. Each example demonstrates both basic entity streaming and filtering specific components, providing common patterns for integrating real-time entity data into your Lattice apps.
+
+Was this page helpful?

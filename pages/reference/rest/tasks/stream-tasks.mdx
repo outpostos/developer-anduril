@@ -1,0 +1,64 @@
+---
+title: "Stream tasks"
+---
+
+# Stream tasks
+
+**Endpoint**: `POST /api/v1/tasks/stream`
+
+**cURL**
+
+```bash
+curl -X POST https://example.developer.anduril.com/api/v1/tasks/stream \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{}'
+```
+
+Establishes a server streaming connection that delivers task updates in real-time using Server-Sent Events (SSE).
+
+The stream delivers all existing non-terminal tasks when first connected, followed by real-time updates for task creation and status changes. Additionally, heartbeat messages are sent periodically to maintain the connection.
+
+### Authentication
+
+- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+
+### Request
+
+This endpoint expects an object.
+
+- `heartbeatIntervalMs` — _integer · optional_ — The time interval, in milliseconds, that determines the frequency at which to send heartbeat events. Defaults to 30000 (30 seconds).
+
+- `rateLimit` — _integer · optional_ — The time interval, in milliseconds, after an update for a given task before another one will be sent for the same task. If set, value must be &gt;= 250.
+
+- `excludePreexistingTasks` — _boolean · optional_ — Optional flag to only include tasks created or updated after the stream is initiated, and not any previous preexisting tasks. If unset or false, the stream will include any new tasks and task updates, as well as all preexisting tasks.
+
+- `taskType` — _object · optional_ — Optional filter that only returns tasks with specific types. If not provided, all task types will be streamed.
+
+- `updateStartTime` — _string · optional_ — If provided, returns tasks which have been updated since the given time.
+
+- `parentTaskId` — _string · optional_ — A filter for tasks with a specific parent task ID. Note: This filter is mutually exclusive with all other filter fields (`updateStartTime`, `assignee`, `statusFilter`, `taskType`). Either provide `parentTaskId` or any combination of the other filters, but not both.
+
+- `assignee` — _object · optional_ — A filter for tasks assigned to a specific principal.
+
+- `statusFilter` — _object · optional_ — A filter for task statuses (inclusive or exclusive).
+
+### Response
+
+Returns a stream of task updates as they occur.
+
+- `heartbeat` — _object_
+
+OR
+
+- `task_event` — _object_ — Contains information about a task event.
+
+### Errors
+
+400
+
+Bad Request Error
+
+401
+
+Unauthorized Error

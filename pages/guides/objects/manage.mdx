@@ -1,7 +1,446 @@
 ---
-title: Manage
+title: "Manage objects"
 ---
 
-# Manage
+# Manage objects
 
-占位页：后续补充对象管理说明。
+In Lattice, an **object** is a data model that represents a single file or a piece of data. This page explains how to manage objects in Lattice, including retrieving metadata, setting expiration times, and deleting objects.
+
+## Before you begin
+
+- To configure your app to manage objects, set up your Lattice environment.
+- See an overview of the Object schema and the Object Store API in Lattice.
+- If you haven’t already, learn how to upload and download objects.
+
+gRPC authentication
+
+If you are using gRPC with client credentials, [set up the token refresh module](/guides/getting-started/authenticate#using-grpc) before running the examples on this page.
+
+## Get object metadata
+
+To retrieve metadata about an object without downloading its contents, use the `getObjectMetadata` method, which performs a HEAD request to the server.
+
+This operation returns metadata such as the object size in bytes, the SHA-256 checksum, and timestamps indicating when the object was last modified, and when it expires.
+
+1
+
+### Specify the object path
+
+When using the [GetObjectMetadata](/reference/rest/objects/get-object-metadata) API, you must specify the object path of the object for which you want to retrieve metadata.
+
+For example, if you previously uploaded an image at `/api/v1/objects/image.jpg`, you would use this path to request its metadata.
+
+2
+
+### Get the object metadata
+
+Run the following code to retrieve the object’s metadata. Replace `objectPath` with the path of the object.
+
+```
+// Example code for getting object metadata
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+
+	// Remove sandboxesToken from the following statements if you are not developing on Sandboxes
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := make(map[string][]string)
+	headers["Anduril-Sandbox-Authorization"] = []string{fmt.Sprintf("Bearer %s", sandboxesToken)}
+
+	// Create the client
+	c := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+	// Set object path
+	objectPath := "<OBJECT_PATH>"
+
+	// Create context for the request
+	ctx := context.Background()
+
+	// Get the object metadata using HEAD request
+	response, err := c.Objects.WithRawResponse.GetObjectMetadata(ctx, &Lattice.GetObjectMetadataRequest{ObjectPath: objectPath})
+	if err != nil {
+		fmt.Printf("Error getting object metadata: %v\n", err)
+		os.Exit(1)
+	}
+
+	// The response contains headers with metadata information
+	fmt.Println("Object Metadata:")
+	fmt.Printf("Status Code: %d\n", response.StatusCode)
+	fmt.Printf("Path: %s\n", response.Header.Get("Path"))
+	fmt.Printf("Content-Length: %s bytes\n", response.Header.Get("Content-Length"))
+	fmt.Printf("Checksum: %s\n", response.Header.Get("Checksum"))
+	fmt.Printf("Last-Modified: %s\n", response.Header.Get("Last-Modified"))
+	fmt.Printf("Expires: %s\n", response.Header.Get("Expires"))
+	fmt.Println("Object metadata retrieved successfully")
+}
+```
+
+3
+
+### Inspect the metadata
+
+If successful, the response will include headers with valuable information:
+
+```
+Object metadata:
+- Path: your_object_path.jpg
+- Content-Length: 2000000 bytes
+- Checksum: 4191337226643912nbab1784de94c4f58bb78bf98bfb9916474b2fe5decbbaa6
+- Last-Modified: Thu, 30 Oct 2025 00:30:41 UTC
+- Expires: Thu, 30 Oct 2025 01:30:41 UTC
+```
+
+You can use this information to verify the object size before downloading, confirm the object hasn’t been modified using the checksum, and check when the object expires and is removed from your environment.
+
+## Set object time-to-live
+
+In Lattice, an **object** is a data model that represents a single file or a piece of data. When uploading objects, you can control how long they will be stored in Lattice by setting a Time-To-Live (TTL) value. This is useful for temporary files or for implementing storage policies.
+
+1
+
+### Prepare the file and TTL value
+
+Before uploading, you need to:
+
+1. Have a file ready to upload
+2. Determine the desired time-to-live in nanoseconds
+
+For example, to keep an object for 24 hours, you would set the TTL to: `24 * 60 * 60 * 1,000,000,000` nanoseconds (86,400,000,000,000 ns)
+
+2
+
+### Upload with TTL header
+
+Use the Lattice SDK to upload the object, adding the `Time-To-Live` request header to specify the TTL:
+
+```
+package main
+
+import (
+	"bytes"
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+
+	// Remove sandboxesToken from the following statements if you are not developing on Sandboxes
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	c := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// File path of the object to upload
+	filePath := "<FILE_PATH_TTL>"
+
+	// Set TTL to 1 hour in nanoseconds
+	ttlInNanoseconds := int64(1 * 60 * 60 * 1000000000) // 1 hour in nanoseconds
+
+	// Create context for the request
+	ctx := context.Background()
+
+	// Read the file contents into a byte slice.
+	fileContent, err := os.ReadFile(filePath)
+	if err != nil {
+		fmt.Printf("Error reading file: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Get file name for object path
+	objectPath := filepath.Base(filePath)
+
+	// Create TTL header
+	ttlHeaders := http.Header{}
+	ttlHeaders.Add("Time-To-Live", strconv.FormatInt(ttlInNanoseconds, 10))
+
+	// Upload object with TTL header
+	response, err := c.Objects.UploadObject(
+		ctx,
+		objectPath,
+		bytes.NewReader(fileContent),
+		option.WithHTTPHeader(ttlHeaders),
+	)
+	if err != nil {
+		fmt.Printf("Error uploading object: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Object uploaded successfully. Object path: %s\n", response.ContentIdentifier.Path)
+	fmt.Printf("Object will expire after %d seconds\n", ttlInNanoseconds/1000000000)
+
+	// Verify the expiry time by getting object metadata
+	metadataResponse, err := c.Objects.WithRawResponse.GetObjectMetadata(ctx, &Lattice.GetObjectMetadataRequest{ObjectPath: objectPath})
+	if err != nil {
+		fmt.Printf("Error getting object metadata: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Expiry time confirmed: %s\n", metadataResponse.Header.Get("Expires"))
+}
+```
+
+3
+
+### Verify the expiry time
+
+If successful, Lattice sets an expiry time based on the value you specify in the `Time-To-Live` header. The example from the previous steps confirms the result by fetching the object’s metadata and checking the `Expires` header:
+
+```
+Object expires on Mon, 01 Jan 2026 00:00:00 UTC
+```
+
+If you don’t set a TTL, Lattice will use a default typically set to 90 days. This default TTL policy might vary, based on your environment’s configurations.
+
+## Delete an object
+
+In Lattice, an **object** is a data model that represents a single file or a piece of data. When you no longer need an object, you can delete it from Lattice to free up storage space. Deleting an object is a permanent operation that cannot be undone.
+
+1
+
+### Delete the object
+
+When using the [DeleteObject](/reference/rest/objects/delete-object) API, you must specify the object path of the object you want to delete.
+
+Replace the object path with your information, then run the following code to delete the object:
+
+```
+// Example code for deleting an object
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+
+	// Remove sandboxesToken from the following statements if you are not developing on Sandboxes
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := make(map[string][]string)
+	headers["Anduril-Sandbox-Authorization"] = []string{fmt.Sprintf("Bearer %s", sandboxesToken)}
+
+	// Create the client
+	c := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+	// Set object path to delete
+	objectPath := "<DELETE_OBJECT_PATH>"
+
+	// Create context for the request
+	ctx := context.Background()
+
+	// Delete the object
+	err := c.Objects.DeleteObject(ctx, &Lattice.DeleteObjectRequest{ObjectPath: objectPath})
+	if err != nil {
+		fmt.Printf("Error deleting object: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Object deleted successfully: %s\n", objectPath)
+
+	// Try to access the object to verify it's deleted
+	_, err = c.Objects.WithRawResponse.GetObjectMetadata(ctx, &Lattice.GetObjectMetadataRequest{ObjectPath: objectPath})
+	if err != nil {
+		fmt.Println("Verification successful: Object no longer exists.")
+		fmt.Printf("Expected error: %v\n", err)
+	} else {
+		fmt.Println("Warning: Object still exists after deletion attempt.")
+	}
+}
+```
+
+If successful, this produces an error with the following output: the object no longer exists”
+
+```
+Object deleted successfully: test.jpg
+Status: 404
+```
+
+2
+
+### (Optional) Unlink entity
+
+When you delete an object, you must clean up any references to the object path in your environment.
+
+For example, if the object is linked to an entity, using the entity’s `Media` component, your app must submit an `Override` to remove the object path from the list. Run the following example:
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Make sure your Lattice URL and bearer token have been set as system environment variables.")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Set the entity ID
+	entityID := "<ENTITY_ID>"
+
+	// Create context for the request
+	ctx := context.Background()
+
+	// Create empty media array
+	media := Lattice.Media{
+		Media: []*Lattice.MediaItem{},
+	}
+
+	// Create a provenance object
+	latestTimestamp := time.Now().UTC()
+
+	// Create an entity with empty media
+	entityOverride := Lattice.EntityOverride{
+		EntityID:  entityID,
+		FieldPath: "media.media",
+		Entity: &Lattice.Entity{
+			EntityID: &entityID,
+			Media:    &media,
+		},
+		Provenance: &Lattice.Provenance{
+			IntegrationName:  Lattice.String("<your_integration_name>"),
+			DataType:         Lattice.String("<your_data_type>"),
+			SourceUpdateTime: Lattice.Time(latestTimestamp),
+		},
+	}
+
+	// Override the entity's media field
+	_, err := LatticeClient.Entities.OverrideEntity(
+		ctx,
+		&entityOverride,
+	)
+
+	if err != nil {
+		fmt.Printf("Exception: %v\n", err)
+		return
+	}
+
+	// Get the entity to verify the media was cleared
+	entity, err := LatticeClient.Entities.GetEntity(
+		ctx,
+		&Lattice.GetEntityRequest{EntityID: entityID},
+	)
+
+	if err != nil {
+		fmt.Printf("Failed to get entity: %v\n", err)
+		return
+	}
+
+	fmt.Printf("Entity: %s\n", *entity.EntityID)
+	if entity.Media != nil && entity.Media.Media != nil {
+		fmt.Printf("Media: %v\n", entity.Media.Media)
+	} else {
+		fmt.Printf("Media: None\n")
+	}
+}
+```
+
+If successful, you’ll see an output similar to the following, confirming that the entity’s `Media` component is empty
+
+```
+Entity: <your_entity_id>
+Media: None
+```
+
+## What’s next?
+
+- Learn more about the Objects API .
+- Explore how to use objects with Entities to associate binary data with your Lattice entities.

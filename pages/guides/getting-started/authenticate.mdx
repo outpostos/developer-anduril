@@ -1,7 +1,475 @@
 ---
-title: Authenticate
+title: "Authenticate"
 ---
 
 # Authenticate
 
-占位页：后续补充认证流程说明。
+Lattice supports two authentication methods: OAuth 2.0 **client credentials** using short-lived access token, **environment token** authentication, using long-lived, static access tokens.
+
+Environment token
+
+Client credentials
+
+The environment token is a long-lived, static bearer token you use the token to authenticate with Lattice. You must rotate the token before it expires:
+
+The following steps show how to authenticate using both client credentials and long-lived environment tokens with both REST and gRPC SDKs.
+
+## Before you begin
+
+- Set up the Lattice SDK.
+- If you are using Lattice Sandboxes, see the Sandboxes set up guide . If you are using a Lattice deployment other than Sandboxes, obtain your Lattice endpoint and access credentials from your Anduril representative.
+
+## Get the Lattice endpoint
+
+To store the Lattice endpoint as a system environment variable, do the following:
+
+1
+
+Add a system variable for your Lattice environment endpoint (hostname only):
+
+```bash
+export LATTICE_ENDPOINT=<YOUR_LATTICE_ENDPOINT>
+```
+
+2
+
+To verify, run the following command to print the system environment variables to your terminal:
+
+```
+echo $LATTICE_ENDPOINT
+<environment_id>.env.sandboxes.developer.anduril.com
+```
+
+## Get your credentials
+
+To store your credentials as system environment variables, do the following:
+
+1
+
+### Client credentials
+
+If you’re using client credentials:
+
+```bash
+export LATTICE_CLIENT_ID=<YOUR_LATTICE_CLIENT_ID>
+export LATTICE_CLIENT_SECRET=<YOUR_LATTICE_CLIENT_SECRET>
+```
+
+2
+
+### Environment token
+
+If you’re using a long-lived environment token:
+
+```bash
+export ENVIRONMENT_TOKEN=<YOUR_ENVIRONMENT_TOKEN>
+```
+
+3
+
+### Sandboxes token
+
+If you’re connecting to Sandboxes:
+
+```bash
+export SANDBOXES_TOKEN=<YOUR_SANDBOXES_TOKEN>
+```
+
+This is required for Sandboxes whether you use client credentials, or an environment token. If you do not have a Sandboxes token, [create a new token](/guides/developer-tools/sandboxes#set-up-credentials).
+
+## Environment token
+
+Bearer token authentication uses a long-lived, static token to authenticate requests. Use this method when your deployment provides a static access token rather than OAuth 2.0 client credentials.
+
+### Using REST
+
+Pass the token directly to the client constructor using the `token` parameter:
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	environmentToken := os.Getenv("ENVIRONMENT_TOKEN")
+	// Remove sandboxesToken from the following statements if you are not developing on Sandboxes.
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	if latticeEndpoint == "" || environmentToken == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	LatticeClient := client.NewClient(
+		option.WithToken(environmentToken),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	for {
+		ctx := context.Background()
+		entity, err := LatticeClient.Entities.GetEntity(ctx, &Lattice.GetEntityRequest{EntityID: "<ENTITY_ID>"})
+		if err != nil {
+			fmt.Printf("Error fetching entity: %v\n", err)
+		} else {
+			fmt.Printf("Asset name     | %s\n", *entity.GetAliases().GetName())
+			fmt.Printf("Asset location | %f, %f\n", *entity.GetLocation().GetPosition().GetLatitudeDegrees(),
+				*entity.GetLocation().GetPosition().GetLongitudeDegrees())
+		}
+		time.Sleep(5 * time.Second)
+	}
+}
+```
+
+### Using gRPC
+
+For gRPC, attach the bearer token as metadata on every outgoing request. Most gRPC client libraries provide a credentials or interceptor mechanism for this purpose:
+
+```
+// This Go example is compatible with artifacts generated using
+// the following grpc/go plugin: https://buf.build/anduril/lattice-sdk/sdks/main:grpc/go
+package main
+
+import (
+	"context"
+	"log"
+	"os"
+	"time"
+
+	"schema-registry.developer.anduril.com/gen/go/anduril/lattice-sdk/grpc/go/anduril/entitymanager/v1/entitymanagerv1grpc"
+	entitymanagerv1 "schema-registry.developer.anduril.com/gen/go/anduril/lattice-sdk/protocolbuffers/go/anduril/entitymanager/v1"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+)
+
+type BearerTokenAuth struct {
+	Token          string
+	SandboxesToken string
+}
+
+func (b *BearerTokenAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
+	return map[string]string{
+		"authorization":                 "Bearer " + b.Token,
+		"anduril-sandbox-authorization": "Bearer " + b.SandboxesToken,
+	}, nil
+}
+
+func (b *BearerTokenAuth) RequireTransportSecurity() bool {
+	return true
+}
+
+func main() {
+	ctx := context.Background()
+
+	environmentToken := os.Getenv("ENVIRONMENT_TOKEN")
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	// Remove sandboxesToken from the following statements if you are not developing on Sandboxes.
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	if latticeEndpoint == "" || environmentToken == "" || sandboxesToken == "" {
+		log.Fatalf("Missing required environment variables")
+	}
+	auth := &BearerTokenAuth{
+		Token:          environmentToken,
+		SandboxesToken: sandboxesToken,
+	}
+
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")),
+		grpc.WithPerRPCCredentials(auth),
+	}
+	conn, err := grpc.NewClient(latticeEndpoint, opts...)
+
+	if err != nil {
+		log.Fatalf("Did not connect: %v", err)
+	}
+	defer conn.Close()
+
+	client := entitymanagerv1grpc.NewEntityManagerAPIClient(conn)
+
+	// Periodically get the latest entity state
+	for {
+		entity, err := client.GetEntity(ctx, &entitymanagerv1.GetEntityRequest{
+			EntityId: "Demo-Sim-Asset1",
+		})
+		if err != nil {
+			log.Fatalf("Error getting entity: %v", err)
+		}
+
+		// Process each entity.
+		log.Printf("Fetching entity at location: %f %f", entity.GetEntity().GetLocation().GetPosition().LatitudeDegrees, entity.GetEntity().GetLocation().GetPosition().LongitudeDegrees)
+
+		time.Sleep(5 * time.Second)
+	}
+}
+```
+
+## Client credentials
+
+[OAuth 2.0](/reference/rest/oauth/get-token) client credentials is in `beta` and not widely deployed in production. If you’re developing an integration in a production Lattice environment, check with your Anduril representative if OAuth 2.0 is available.
+
+When you use OAuth, Lattice exchanges your credentials for a short-lived access token using the [Lattice OAuth](/reference/rest/oauth/get-token) REST endpoint:
+
+### Using REST
+
+The REST SDK handles fetching a new access token automatically. Pass your client ID and secret when you initialize the client:
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+
+	// Remove sandboxesToken from the following statements if you are not developing on Sandboxes.
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Continuously get the entity
+	for {
+		// Create context for the request
+		ctx := context.Background()
+
+		entity, err := LatticeClient.Entities.GetEntity(
+			ctx,
+			&Lattice.GetEntityRequest{
+				EntityID: "<ENTITY_ID>",
+			},
+		)
+
+		if err != nil {
+			fmt.Printf("Error fetching entity: %v\n", err)
+		} else {
+			fmt.Printf("Asset name     | %s\n", *entity.GetAliases().GetName())
+			fmt.Printf("Asset location | %f, %f\n", *entity.GetLocation().GetPosition().GetLatitudeDegrees(),
+				*entity.GetLocation().GetPosition().GetLongitudeDegrees())
+		}
+
+		// Wait before next request
+		time.Sleep(5 * time.Second)
+	}
+}
+```
+
+### Using gRPC
+
+Since gRPC does not provide built-in OAuth token management, implement a `ClientCredentialsAuth` module that fetches an access token, caches it, and refreshes it before it expires:
+
+```
+// This Go example is compatible with artifacts generated using
+// the following grpc/go plugin: https://buf.build/anduril/lattice-sdk/sdks/main:grpc/go
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+)
+
+type ClientCredentialsAuth struct {
+	ClientID       string
+	ClientSecret   string
+	SandboxesToken string
+	Endpoint       string
+}
+
+type TokenResponse struct {
+	AccessToken string `json:"access_token"`
+	ExpiresIn   int    `json:"expires_in"`
+	TokenType   string `json:"token_type"`
+}
+
+var (
+	tokenCache      TokenResponse
+	tokenExpiryTime time.Time
+)
+
+func GetToken(credentials *ClientCredentialsAuth) (*TokenResponse, error) {
+	// If the token is initialized and doesn't expire within the next 5 minutes, return it.
+	if tokenCache.AccessToken != "" && time.Now().Add(time.Minute*5).Before(tokenExpiryTime) {
+		return &tokenCache, nil
+	}
+
+	// Otherwise, refresh the token
+
+	formData := url.Values{}
+	formData.Add("grant_type", "client_credentials")
+	formData.Add("client_id", credentials.ClientID)
+	formData.Add("client_secret", credentials.ClientSecret)
+
+	req, err := http.NewRequest("POST", credentials.Endpoint, strings.NewReader(formData.Encode()))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create token request: %w", err)
+	}
+	req.Header.Add("Anduril-Sandbox-Authorization", "Bearer "+credentials.SandboxesToken)
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	client := &http.Client{
+		Timeout: 10 * time.Second, // Set a timeout for the HTTP request
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to make token request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("token request failed with status %d: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	var tokenResp TokenResponse
+	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
+		return nil, fmt.Errorf("failed to decode token response: %w", err)
+	}
+
+	// Cache the token and set its expiry time
+	tokenCache = tokenResp
+	tokenExpiryTime = time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)
+
+	return &tokenCache, nil
+}
+
+func (a *ClientCredentialsAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
+	_, err := GetToken(a)
+	if err != nil {
+		fmt.Printf("Token refresh failed: %v\n", err)
+		return nil, err
+	}
+	headers := map[string]string{
+		"authorization":                 "Bearer " + tokenCache.AccessToken,
+		"anduril-sandbox-authorization": "Bearer " + a.SandboxesToken,
+	}
+	return headers, nil
+}
+
+func (b *ClientCredentialsAuth) RequireTransportSecurity() bool {
+	return true
+}
+```
+
+Then, use this module to handle fetching new tokens when you interact with Lattice:
+
+```
+// This Go example is compatible with artifacts generated using
+// the following grpc/go plugin: https://buf.build/anduril/lattice-sdk/sdks/main:grpc/go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+	"time"
+
+	"schema-registry.developer.anduril.com/gen/go/anduril/lattice-sdk/grpc/go/anduril/entitymanager/v1/entitymanagerv1grpc"
+	entitymanagerv1 "schema-registry.developer.anduril.com/gen/go/anduril/lattice-sdk/protocolbuffers/go/anduril/entitymanager/v1"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+)
+
+func main() {
+	ctx := context.Background()
+
+	clientID := os.Getenv("LATTICE_CLIENT_ID")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	if latticeEndpoint == "" || clientSecret == "" || clientID == "" || sandboxesToken == "" {
+		log.Fatalf("Missing required environment variables")
+	}
+	auth := &ClientCredentialsAuth{
+		ClientID:       clientID,
+		ClientSecret:   clientSecret,
+		SandboxesToken: sandboxesToken,
+		Endpoint:       fmt.Sprintf("https://%s/api/v1/oauth/token", latticeEndpoint),
+	}
+
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")),
+		grpc.WithPerRPCCredentials(auth),
+	}
+	conn, err := grpc.NewClient(latticeEndpoint, opts...)
+
+	if err != nil {
+		log.Fatalf("Did not connect: %v", err)
+	}
+	defer conn.Close()
+
+	client := entitymanagerv1grpc.NewEntityManagerAPIClient(conn)
+
+	// Periodically get the latest entity state
+	for {
+		entity, err := client.GetEntity(ctx, &entitymanagerv1.GetEntityRequest{
+			EntityId: "Demo-Sim-Asset1",
+		})
+		if err != nil {
+			log.Fatalf("Error getting entity: %v", err)
+		}
+
+		// Process each entity.
+		log.Printf("Fetching entity at location: %f %f", entity.GetEntity().GetLocation().GetPosition().LatitudeDegrees, entity.GetEntity().GetLocation().GetPosition().LongitudeDegrees)
+
+		time.Sleep(5 * time.Second)
+	}
+}
+```
+
+These examples refresh the access token before it expires (with a buffer of approximately five minutes). Each gRPC call invokes the helper function, which checks the cache and refreshes the token if needed.
+
+## What’s next?
+
+- See Connect to offline environments to configure a trusted CA certificate for air-gapped environments.
+- Learn how to publish entities to Lattice.
+- Explore tasking to learn how to task an agent in Lattice.

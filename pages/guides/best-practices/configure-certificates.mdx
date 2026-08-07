@@ -1,7 +1,654 @@
 ---
-title: Configure Certificates
+title: "Connect to offline environments"
 ---
 
-# Configure Certificates
+# Connect to offline environments
 
-占位页：后续补充证书配置最佳实践。
+By default, the Lattice SDK validates TLS certificates against your operating system’s trusted Certificate Authority (CA) store.
+
+When your Lattice environment is offline or air-gapped, it’s deployed on a local network without access to a public CA infrastructure. The environment presents a certificate signed by a private Anduril CA that isn’t in your system’s trust store, so your SDK client can’t validate it and the connection fails.
+
+This guide describes two ways to connect:
+
+1. Use an Anduril-issued certificate : This method lets the SDK trust your environment while keeping full TLS verification enabled. This is the recommended approach in production.
+2. Skip TLS verification with self-signed certificates : This method lets you connect when an Anduril representative can’t issue a certificate. Use this approach only in development environments.
+
+## Before you begin
+
+- Complete the steps in Set up to configure your environment variables: LATTICE_ENDPOINT , LATTICE_CLIENT_ID , and LATTICE_CLIENT_SECRET .
+
+gRPC authentication
+
+If you are using gRPC with client credentials, [set up the token refresh module](/guides/getting-started/authenticate#using-grpc) before running the examples on this page.
+
+## Use an Anduril-issued certificate
+
+This is the recommended approach because it keeps full TLS verification enabled. You obtain a CA certificate from Anduril, add it to your trust store, and configure the SDK to trust it as a root CA. The SDK still validates the certificate chain, hostname, and expiry date.
+
+To obtain the certificate, add it to your trust store, and configure the SDK to trust it, follow these steps:
+
+1
+
+### Get the Anduril-issued certificate
+
+Contact your Anduril representative to obtain the CA certificate for your Lattice environment. The certificate is delivered as a PEM-encoded file. Because delivery mechanisms vary, follow the instructions your Anduril representative provides to retrieve it.
+
+2
+
+### Add the certificate to the system's trust store
+
+Add the certificate to your operating system’s trust store so that clients on your machine trust it:
+
+```
+sudo security add-trusted-cert -d -r trustRoot \
+  -k /Library/Keychains/System.keychain /path/to/anduril-ca.pem
+```
+
+3
+
+### Set an environment variable with the certificate path
+
+Set a `LATTICE_CA_CERT_PATH` environment variable that points to the certificate file. The examples in the following steps load the CA certificate from `LATTICE_CA_CERT_PATH` and configure the Lattice client to trust it as a root CA:
+
+```bash
+export LATTICE_CA_CERT_PATH=/path/to/anduril-ca.pem
+```
+
+4
+
+### Initialize the client
+
+Import your environment variables and initialize the client. `LATTICE_CA_CERT_PATH` is the file path to the PEM certificate you received from your Anduril representative. You can achieve the same result using a local `.env` file:
+
+```
+package main
+
+import (
+	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"fmt"
+	"net/http"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientID := os.Getenv("LATTICE_CLIENT_ID")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Path to the Anduril-issued CA certificate in PEM format
+	caCertPath := os.Getenv("LATTICE_CA_CERT_PATH")
+
+	// Initialize the client
+	LatticeClient, err := createLatticeClient(latticeEndpoint, clientID, clientSecret,
+		sandboxesToken,
+		caCertPath,
+	)
+	if err != nil {
+		fmt.Printf("Error creating Lattice client: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Use the client
+	ctx := context.Background()
+	entity, err := LatticeClient.Entities.GetEntity(
+		ctx,
+		&Lattice.GetEntityRequest{
+			EntityID: "Demo-Sim-Asset1",
+		},
+	)
+
+	if err != nil {
+		fmt.Printf("Error fetching entity: %v\n", err)
+	} else {
+		fmt.Printf("Asset name     | %s\n", *entity.GetAliases().GetName())
+		fmt.Printf("Asset location | %f, %f\n", *entity.GetLocation().GetPosition().GetLatitudeDegrees(),
+			*entity.GetLocation().GetPosition().GetLongitudeDegrees())
+	}
+}
+
+func createLatticeClient(endpoint string, clientID string, clientSecret string,
+	sandboxesToken string,
+	caCertPath string,
+) (*client.Client, error) {
+
+	headers := http.Header{}
+	if sandboxesToken != "" {
+		headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+	}
+
+	// Load the Anduril-issued CA certificate and add it to the trust pool
+	certPool, err := x509.SystemCertPool()
+	if err != nil {
+		certPool = x509.NewCertPool()
+	}
+	if caCertPath != "" {
+		pemBytes, err := os.ReadFile(caCertPath)
+		if err != nil {
+			return nil, fmt.Errorf("reading CA certificate: %w", err)
+		}
+		if !certPool.AppendCertsFromPEM(pemBytes) {
+			return nil, fmt.Errorf("failed to append CA certificate from %s", caCertPath)
+		}
+	}
+
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs: certPool,
+			},
+		},
+	}
+
+	latticeClient := client.NewClient(
+		option.WithClientCredentials(clientID, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", endpoint)),
+		option.WithHTTPHeader(headers),
+		option.WithHTTPClient(httpClient),
+	)
+
+	return latticeClient, nil
+}
+```
+
+5
+
+### Load the CA certificate
+
+Configure the HTTP or gRPC client to trust the Anduril-issued certificate. The client loads the certificate from the PEM file and adds it to the trust pool, so the client verifies the server’s certificate against the Anduril CA during every TLS handshake:
+
+```
+package main
+
+import (
+	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"fmt"
+	"net/http"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientID := os.Getenv("LATTICE_CLIENT_ID")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Path to the Anduril-issued CA certificate in PEM format
+	caCertPath := os.Getenv("LATTICE_CA_CERT_PATH")
+
+	// Initialize the client
+	LatticeClient, err := createLatticeClient(latticeEndpoint, clientID, clientSecret,
+		sandboxesToken,
+		caCertPath,
+	)
+	if err != nil {
+		fmt.Printf("Error creating Lattice client: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Use the client
+	ctx := context.Background()
+	entity, err := LatticeClient.Entities.GetEntity(
+		ctx,
+		&Lattice.GetEntityRequest{
+			EntityID: "Demo-Sim-Asset1",
+		},
+	)
+
+	if err != nil {
+		fmt.Printf("Error fetching entity: %v\n", err)
+	} else {
+		fmt.Printf("Asset name     | %s\n", *entity.GetAliases().GetName())
+		fmt.Printf("Asset location | %f, %f\n", *entity.GetLocation().GetPosition().GetLatitudeDegrees(),
+			*entity.GetLocation().GetPosition().GetLongitudeDegrees())
+	}
+}
+
+func createLatticeClient(endpoint string, clientID string, clientSecret string,
+	sandboxesToken string,
+	caCertPath string,
+) (*client.Client, error) {
+
+	headers := http.Header{}
+	if sandboxesToken != "" {
+		headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+	}
+
+	// Load the Anduril-issued CA certificate and add it to the trust pool
+	certPool, err := x509.SystemCertPool()
+	if err != nil {
+		certPool = x509.NewCertPool()
+	}
+	if caCertPath != "" {
+		pemBytes, err := os.ReadFile(caCertPath)
+		if err != nil {
+			return nil, fmt.Errorf("reading CA certificate: %w", err)
+		}
+		if !certPool.AppendCertsFromPEM(pemBytes) {
+			return nil, fmt.Errorf("failed to append CA certificate from %s", caCertPath)
+		}
+	}
+
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs: certPool,
+			},
+		},
+	}
+
+	latticeClient := client.NewClient(
+		option.WithClientCredentials(clientID, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", endpoint)),
+		option.WithHTTPHeader(headers),
+		option.WithHTTPClient(httpClient),
+	)
+
+	return latticeClient, nil
+}
+```
+
+6
+
+### Use the client
+
+Use the client to call the Lattice API. This example uses [`GetEntity`](/reference/rest/entities/get-entity) to fetch an entity by its `entityId`:
+
+```
+package main
+
+import (
+	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"fmt"
+	"net/http"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientID := os.Getenv("LATTICE_CLIENT_ID")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Path to the Anduril-issued CA certificate in PEM format
+	caCertPath := os.Getenv("LATTICE_CA_CERT_PATH")
+
+	// Initialize the client
+	LatticeClient, err := createLatticeClient(latticeEndpoint, clientID, clientSecret,
+		sandboxesToken,
+		caCertPath,
+	)
+	if err != nil {
+		fmt.Printf("Error creating Lattice client: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Use the client
+	ctx := context.Background()
+	entity, err := LatticeClient.Entities.GetEntity(
+		ctx,
+		&Lattice.GetEntityRequest{
+			EntityID: "Demo-Sim-Asset1",
+		},
+	)
+
+	if err != nil {
+		fmt.Printf("Error fetching entity: %v\n", err)
+	} else {
+		fmt.Printf("Asset name     | %s\n", *entity.GetAliases().GetName())
+		fmt.Printf("Asset location | %f, %f\n", *entity.GetLocation().GetPosition().GetLatitudeDegrees(),
+			*entity.GetLocation().GetPosition().GetLongitudeDegrees())
+	}
+}
+
+func createLatticeClient(endpoint string, clientID string, clientSecret string,
+	sandboxesToken string,
+	caCertPath string,
+) (*client.Client, error) {
+
+	headers := http.Header{}
+	if sandboxesToken != "" {
+		headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+	}
+
+	// Load the Anduril-issued CA certificate and add it to the trust pool
+	certPool, err := x509.SystemCertPool()
+	if err != nil {
+		certPool = x509.NewCertPool()
+	}
+	if caCertPath != "" {
+		pemBytes, err := os.ReadFile(caCertPath)
+		if err != nil {
+			return nil, fmt.Errorf("reading CA certificate: %w", err)
+		}
+		if !certPool.AppendCertsFromPEM(pemBytes) {
+			return nil, fmt.Errorf("failed to append CA certificate from %s", caCertPath)
+		}
+	}
+
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs: certPool,
+			},
+		},
+	}
+
+	latticeClient := client.NewClient(
+		option.WithClientCredentials(clientID, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", endpoint)),
+		option.WithHTTPHeader(headers),
+		option.WithHTTPClient(httpClient),
+	)
+
+	return latticeClient, nil
+}
+```
+
+After you add the CA certificate to your trust store and load it in your client, your integration can connect to an offline environment with full TLS verification enabled.
+
+## Skip TLS verification with self-signed certificates
+
+If you can’t obtain an Anduril-issued certificate for a development environment, you can configure the SDK to skip TLS verification. The SDK then connects without validating the server’s certificate.
+
+Skipping TLS verification disables certificate validation, which exposes your connection to interception and tampering. Use this approach only in development environments where an Anduril representative can’t issue an Anduril-issued certificate. In production, use an [Anduril-issued certificate](#use-an-anduril-issued-certificate) instead.
+
+To skip TLS verification and configure your client, follow these steps:
+
+1
+
+### Set an environment variable
+
+Set a `SKIP_TLS_VERIFY` environment variable so the client knows to skip certificate validation. The examples in the following steps read `SKIP_TLS_VERIFY` and configure a custom Lattice client that skips TLS verification:
+
+```bash
+export SKIP_TLS_VERIFY=true
+```
+
+2
+
+### Initialize the client
+
+Import your environment variables and initialize the client. `SKIP_TLS_VERIFY` controls whether the client validates the server’s certificate. You can achieve the same result using a local `.env` file:
+
+```
+package main
+
+import (
+	"context"
+	"crypto/tls"
+	"fmt"
+	"net/http"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientID := os.Getenv("LATTICE_CLIENT_ID")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Load the SKIP_TLS_VERIFY variable
+	skipTLSVerify := os.Getenv("SKIP_TLS_VERIFY") == "true"
+
+	// Initialize the client
+	LatticeClient, err := createLatticeClient(latticeEndpoint, clientID, clientSecret,
+		sandboxesToken,
+		skipTLSVerify,
+	)
+	if err != nil {
+		fmt.Printf("Error creating Lattice client: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Use the client
+	ctx := context.Background()
+	entity, err := LatticeClient.Entities.GetEntity(
+		ctx,
+		&Lattice.GetEntityRequest{
+			EntityID: "Demo-Sim-Asset1",
+		},
+	)
+
+	if err != nil {
+		fmt.Printf("Error fetching entity: %v\n", err)
+	} else {
+		fmt.Printf("Asset name     | %s\n", *entity.GetAliases().GetName())
+		fmt.Printf("Asset location | %f, %f\n", *entity.GetLocation().GetPosition().GetLatitudeDegrees(),
+			*entity.GetLocation().GetPosition().GetLongitudeDegrees())
+	}
+}
+
+func createLatticeClient(endpoint string, clientID string, clientSecret string,
+	sandboxesToken string,
+	skipTLSVerify bool,
+) (*client.Client, error) {
+
+	headers := http.Header{}
+	if sandboxesToken != "" {
+		headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+	}
+
+	// Configure the InsecureSkipVerify option
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: skipTLSVerify,
+			},
+		},
+	}
+
+	latticeClient := client.NewClient(
+		option.WithClientCredentials(clientID, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", endpoint)),
+		option.WithHTTPHeader(headers),
+		option.WithHTTPClient(httpClient),
+	)
+
+	return latticeClient, nil
+}
+```
+
+3
+
+### Create a custom client
+
+Configure a custom client that skips TLS verification. In Go, this uses the `InsecureSkipVerify` option; the other languages provide an equivalent:
+
+```
+package main
+
+import (
+	"context"
+	"crypto/tls"
+	"fmt"
+	"net/http"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientID := os.Getenv("LATTICE_CLIENT_ID")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Load the SKIP_TLS_VERIFY variable
+	skipTLSVerify := os.Getenv("SKIP_TLS_VERIFY") == "true"
+
+	// Initialize the client
+	LatticeClient, err := createLatticeClient(latticeEndpoint, clientID, clientSecret,
+		sandboxesToken,
+		skipTLSVerify,
+	)
+	if err != nil {
+		fmt.Printf("Error creating Lattice client: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Use the client
+	ctx := context.Background()
+	entity, err := LatticeClient.Entities.GetEntity(
+		ctx,
+		&Lattice.GetEntityRequest{
+			EntityID: "Demo-Sim-Asset1",
+		},
+	)
+
+	if err != nil {
+		fmt.Printf("Error fetching entity: %v\n", err)
+	} else {
+		fmt.Printf("Asset name     | %s\n", *entity.GetAliases().GetName())
+		fmt.Printf("Asset location | %f, %f\n", *entity.GetLocation().GetPosition().GetLatitudeDegrees(),
+			*entity.GetLocation().GetPosition().GetLongitudeDegrees())
+	}
+}
+
+func createLatticeClient(endpoint string, clientID string, clientSecret string,
+	sandboxesToken string,
+	skipTLSVerify bool,
+) (*client.Client, error) {
+
+	headers := http.Header{}
+	if sandboxesToken != "" {
+		headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+	}
+
+	// Configure the InsecureSkipVerify option
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: skipTLSVerify,
+			},
+		},
+	}
+
+	latticeClient := client.NewClient(
+		option.WithClientCredentials(clientID, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", endpoint)),
+		option.WithHTTPHeader(headers),
+		option.WithHTTPClient(httpClient),
+	)
+
+	return latticeClient, nil
+}
+```
+
+4
+
+### Use the client
+
+Use the client to call the Lattice API. This example uses [`GetEntity`](/reference/rest/entities/get-entity) to fetch an entity by its `entityId`:
+
+```
+package main
+
+import (
+	"context"
+	"crypto/tls"
+	"fmt"
+	"net/http"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientID := os.Getenv("LATTICE_CLIENT_ID")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Load the SKIP_TLS_VERIFY variable
+	skipTLSVerify := os.Getenv("SKIP_TLS_VERIFY") == "true"
+
+	// Initialize the client
+	LatticeClient, err := createLatticeClient(latticeEndpoint, clientID, clientSecret,
+		sandboxesToken,
+		skipTLSVerify,
+	)
+	if err != nil {
+		fmt.Printf("Error creating Lattice client: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Use the client
+	ctx := context.Background()
+	entity, err := LatticeClient.Entities.GetEntity(
+		ctx,
+		&Lattice.GetEntityRequest{
+			EntityID: "Demo-Sim-Asset1",
+		},
+	)
+
+	if err != nil {
+		fmt.Printf("Error fetching entity: %v\n", err)
+	} else {
+		fmt.Printf("Asset name     | %s\n", *entity.GetAliases().GetName())
+		fmt.Printf("Asset location | %f, %f\n", *entity.GetLocation().GetPosition().GetLatitudeDegrees(),
+			*entity.GetLocation().GetPosition().GetLongitudeDegrees())
+	}
+}
+
+func createLatticeClient(endpoint string, clientID string, clientSecret string,
+	sandboxesToken string,
+	skipTLSVerify bool,
+) (*client.Client, error) {
+
+	headers := http.Header{}
+	if sandboxesToken != "" {
+		headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+	}
+
+	// Configure the InsecureSkipVerify option
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: skipTLSVerify,
+			},
+		},
+	}
+
+	latticeClient := client.NewClient(
+		option.WithClientCredentials(clientID, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", endpoint)),
+		option.WithHTTPHeader(headers),
+		option.WithHTTPClient(httpClient),
+	)
+
+	return latticeClient, nil
+}
+```
+
+## What’s next
+
+- Learn how to publish entities to Lattice.
+- Explore tasking to learn how you can task an agent in Lattice.
+- Learn more about the Lattice OAuth 2.0 endpoint.

@@ -1,5 +1,5 @@
 export default {
-  sandboxes: 'Sandboxes',
-  skills: 'Skills',
-  registry: 'Registry'
+  registry: 'Lattice Schema Registry',
+  sandboxes: 'Lattice Sandboxes',
+  skills: 'Lattice SDK skills'
 }

@@ -1,7 +1,961 @@
 ---
-title: Command and Operate
+title: "Command agents and operate on tasks"
 ---
 
-# Command and Operate
+# Command agents and operate on tasks
 
-占位页：后续补充指挥与操作说明。
+Operators use the Tasks API to create, monitor, and manage tasks across their operational domain.
+
+The specific tasks you command, and monitor, in Lattice depend on the mission requirements, and the environment you’re integrating with. This page shows you how to use the Lattice Sandboxes to create, monitor, and cancel tasks.
+
+The `CreateTask` ([REST](/reference/rest/tasks/create-task)) API lets you create tasks in Lattice using custom task definitions published to the Lattice Schema Registry. The `StreamTasks` ([REST](/reference/rest/tasks/stream-tasks) | [gRPC](/reference/grpc/taskmanager-v1/stream-tasks)) API provides centralized visibility into task creation, updates, and status changes for all tasks in your environment. The `CancelTask` ([REST](/reference/rest/tasks/cancel-task) | [gRPC](/reference/grpc/taskmanager-v1/cancel-task)) API allows you to request cancellation of tasks that are no longer needed.
+
+## Before you begin
+
+- To create, monitor, or cancel tasks, set up your Lattice environment.
+- Familiarize yourself with tasks and the task lifecycle.
+- To create custom tasks, publish your schemas to the Lattice Schema Registry (LSR).
+
+## Create tasks using REST
+
+When working with custom tasks using REST:
+
+1. First, you retrieve your JSON Schema definitions from the Schema Registry.
+2. Then you validate your task data against these schema definitions.
+3. Finally, you use the validated data to create tasks in Lattice using the CreateTask API.
+
+The Lattice Schema Registry (LSR) lets you validate your task data using JSON schema:
+
+1
+
+Log in to the [LSR](https://schema-registry.developer.anduril.com/) using your credentials.
+
+2
+
+Navigate to your organization’s repositories.
+
+3
+
+Select the repository that contains your custom task definitions.
+
+4
+
+Browse to the specific protobuf definition you want to use for your task.
+
+5
+
+Select the plugin dropdown and choose JSON Schema to view the available JSON Schema files.
+
+6
+
+Download the JSON schema files:
+
+```bash
+curl -H "Authorization: Bearer $BUF_TOKEN" \
+     -o myschema.jsonschema.bundle.json \
+     https://schema-registry.developer.anduril.com/plugins/<your-organization>/<your-repository>/<your-schema>/jsonschema/bundle
+```
+
+This command downloads the bundled JSON Schema file that includes all referenced schemas. For example: Example JSON Schema structure for a custom task:
+
+```json
+{
+  "$id": "org.example.reconnaissance.v1beta.Objective.jsonschema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "entityId": {
+      "type": "string"
+    },
+    "lla": {
+      "$ref": "org.example.reconnaissance.v1beta.LLA.jsonschema.json"
+    }
+  },
+  "type": "object"
+}
+```
+
+To create a task using a custom task definition, do the following:
+
+1
+
+### Prepare your task data
+
+Define the data for your custom task that matches your schema structure. This data will be encapsulated in the [`specification`](/reference/rest/tasks/create-task#request.body.specification) field of the [`CreateTaskRequest`](/reference/rest/tasks/create-task#request) message.
+
+```
+task_data = {
+    "lla": {
+        "latitudeDegrees": 37.7749,
+        "longitudeDegrees": -122.4194,
+        "altitudeHaeM": 100.0
+    }
+}
+```
+
+2
+
+### Validate task data using the schema
+
+Before sending data to Lattice, validate it against the JSON Schema to ensure it matches your custom task definition. This prevents issues when submitting invalid task data to the API.
+
+```
+#!/usr/bin/env python3
+import asyncio
+import json
+import os
+import sys
+from anduril import Lattice
+from anduril import (
+    GoogleProtobufAny,
+    Principal,
+    Relations,
+    System,
+    TaskEntity
+)
+from jsonschema import validate  # type: ignore[import-untyped]
+
+# Load environment variables
+lattice_endpoint = os.getenv('LATTICE_ENDPOINT')
+environment_token = os.getenv('ENVIRONMENT_TOKEN')
+sandboxes_token = os.getenv('SANDBOXES_TOKEN')  # Remove if not using Sandboxes
+
+if not environment_token or not lattice_endpoint:
+    print("Missing required environment variables.")
+    sys.exit(1)
+
+# Initialize Lattice client
+client = Lattice(
+    base_url=f"https://{lattice_endpoint}",
+    token=lambda: environment_token,  # type: ignore[arg-type]
+    # Remove the following header if not developing on Sandboxes
+    headers={"anduril-sandbox-authorization": f"Bearer {sandboxes_token}"} if sandboxes_token else None
+)
+
+def load_schema(schema_file):
+    """Load a JSON schema from file."""
+    with open(schema_file, 'r') as f:
+        return json.load(f)
+
+def validate_task_data(task_data, schema_file):
+    """Validate task data against a JSON schema."""
+    schema = load_schema(schema_file)
+
+    try:
+        validate(instance=task_data, schema=schema)
+        print("Task data validation successful")
+        return True
+    except Exception as e:
+        print(f"Validation error: {str(e)}")
+        return False
+
+async def create_task(task_data, agent_id, entity_id=None):
+    """
+    Create a new task using the Lattice SDK.
+
+    Args:
+        task_data: The validated task data
+        agent_id: The entity ID of the agent to route the task to for execution
+        entity_id: Optional entity ID to use as the initial entity
+    """
+    description = "Custom Task Definition"
+    specification_type = "type.googleapis.com/org.example.reconnaissance.v1beta.Objective"
+    specification = GoogleProtobufAny(
+        type=specification_type,
+        **task_data
+    )
+    author = Principal(system=System(service_name="example-service"))
+    # Route the task to the agent by setting it as the assignee.
+    relations = Relations(assignee=Principal(system=System(entity_id=agent_id)))
+
+    try:
+        # Set up initial entities if an entity ID was provided
+        initial_entities = None
+        if entity_id:
+            try:
+                print(f"Fetching entity with ID: {entity_id}")
+                entity = client.entities.get_entity(entity_id)
+
+                if entity:
+                    task_entity = TaskEntity(entity=entity)
+                    initial_entities = [task_entity]
+                    print(f"Using entity {entity_id} as initial entity for task")
+            except Exception as e:
+                print(f"Error fetching entity {entity_id}: {str(e)}")
+
+        # Create the task with the validated data
+        print("Creating task...")
+        response = client.tasks.create_task(
+            description=description,
+            specification=specification,
+            author=author,
+            relations=relations,
+            is_executed_elsewhere=False,
+            initial_entities=initial_entities
+        )
+
+        if response.version:
+            print(f"Task created successfully with ID: {response.version.task_id}")
+        return response
+    except Exception as e:
+        print(f"Error creating task: {str(e)}")
+        return None
+
+async def main():
+    # Example task data for a reconnaissance objective: a fixed geodetic point.
+    task_data = {
+        "lla": {
+            "latitudeDegrees": 37.7749,
+            "longitudeDegrees": -122.4194,
+            "altitudeHaeM": 100.0
+        }
+    }
+
+    # Path to the JSON schema file (downloaded from Schema Registry)
+    schema_file = 'org.example.reconnaissance.v1beta.Objective.jsonschema.bundle.json'
+
+    # Validate the task data (skip if schema file not found)
+    if os.path.isfile(schema_file):
+        if not validate_task_data(task_data, schema_file):
+            print("Task creation aborted due to validation errors.")
+            return
+    else:
+        print("Schema file not found, skipping validation")
+
+    # Create the task with validated data
+    # Replace with the entity ID of the agent to route the task to.
+    agent_id = "<AGENT_ID>"
+    # You can pass an entity_id here if you want to associate the task with an entity
+    entity_id = None  # Replace with an actual entity ID if needed
+    result = await create_task(task_data, agent_id, entity_id)
+    if result:
+        print(f"Task created with status: {result.status}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+3
+
+### Create the task using validated data
+
+Use the [`CreateTask`](/reference/rest/tasks/create-task) API to submit your task to Lattice. This API expects the following key fields:
+
+- description : A human-readable description of the task (up to 4096 characters).
+- specification : Your validated task data wrapped in a Google Protocol Buffer Any message.
+- author : Information about who or what created the task.
+- relations : Relationships for the task, such as a parent task or an assignee. Set relations.assignee to the agent’s Principal to route the task to that agent for execution.
+
+```
+#!/usr/bin/env python3
+import asyncio
+import json
+import os
+import sys
+from anduril import Lattice
+from anduril import (
+    GoogleProtobufAny,
+    Principal,
+    Relations,
+    System,
+    TaskEntity
+)
+from jsonschema import validate  # type: ignore[import-untyped]
+
+# Load environment variables
+lattice_endpoint = os.getenv('LATTICE_ENDPOINT')
+environment_token = os.getenv('ENVIRONMENT_TOKEN')
+sandboxes_token = os.getenv('SANDBOXES_TOKEN')  # Remove if not using Sandboxes
+
+if not environment_token or not lattice_endpoint:
+    print("Missing required environment variables.")
+    sys.exit(1)
+
+# Initialize Lattice client
+client = Lattice(
+    base_url=f"https://{lattice_endpoint}",
+    token=lambda: environment_token,  # type: ignore[arg-type]
+    # Remove the following header if not developing on Sandboxes
+    headers={"anduril-sandbox-authorization": f"Bearer {sandboxes_token}"} if sandboxes_token else None
+)
+
+def load_schema(schema_file):
+    """Load a JSON schema from file."""
+    with open(schema_file, 'r') as f:
+        return json.load(f)
+
+def validate_task_data(task_data, schema_file):
+    """Validate task data against a JSON schema."""
+    schema = load_schema(schema_file)
+
+    try:
+        validate(instance=task_data, schema=schema)
+        print("Task data validation successful")
+        return True
+    except Exception as e:
+        print(f"Validation error: {str(e)}")
+        return False
+
+async def create_task(task_data, agent_id, entity_id=None):
+    """
+    Create a new task using the Lattice SDK.
+
+    Args:
+        task_data: The validated task data
+        agent_id: The entity ID of the agent to route the task to for execution
+        entity_id: Optional entity ID to use as the initial entity
+    """
+    description = "Custom Task Definition"
+    specification_type = "type.googleapis.com/org.example.reconnaissance.v1beta.Objective"
+    specification = GoogleProtobufAny(
+        type=specification_type,
+        **task_data
+    )
+    author = Principal(system=System(service_name="example-service"))
+    # Route the task to the agent by setting it as the assignee.
+    relations = Relations(assignee=Principal(system=System(entity_id=agent_id)))
+
+    try:
+        # Set up initial entities if an entity ID was provided
+        initial_entities = None
+        if entity_id:
+            try:
+                print(f"Fetching entity with ID: {entity_id}")
+                entity = client.entities.get_entity(entity_id)
+
+                if entity:
+                    task_entity = TaskEntity(entity=entity)
+                    initial_entities = [task_entity]
+                    print(f"Using entity {entity_id} as initial entity for task")
+            except Exception as e:
+                print(f"Error fetching entity {entity_id}: {str(e)}")
+
+        # Create the task with the validated data
+        print("Creating task...")
+        response = client.tasks.create_task(
+            description=description,
+            specification=specification,
+            author=author,
+            relations=relations,
+            is_executed_elsewhere=False,
+            initial_entities=initial_entities
+        )
+
+        if response.version:
+            print(f"Task created successfully with ID: {response.version.task_id}")
+        return response
+    except Exception as e:
+        print(f"Error creating task: {str(e)}")
+        return None
+
+async def main():
+    # Example task data for a reconnaissance objective: a fixed geodetic point.
+    task_data = {
+        "lla": {
+            "latitudeDegrees": 37.7749,
+            "longitudeDegrees": -122.4194,
+            "altitudeHaeM": 100.0
+        }
+    }
+
+    # Path to the JSON schema file (downloaded from Schema Registry)
+    schema_file = 'org.example.reconnaissance.v1beta.Objective.jsonschema.bundle.json'
+
+    # Validate the task data (skip if schema file not found)
+    if os.path.isfile(schema_file):
+        if not validate_task_data(task_data, schema_file):
+            print("Task creation aborted due to validation errors.")
+            return
+    else:
+        print("Schema file not found, skipping validation")
+
+    # Create the task with validated data
+    # Replace with the entity ID of the agent to route the task to.
+    agent_id = "<AGENT_ID>"
+    # You can pass an entity_id here if you want to associate the task with an entity
+    entity_id = None  # Replace with an actual entity ID if needed
+    result = await create_task(task_data, agent_id, entity_id)
+    if result:
+        print(f"Task created with status: {result.status}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+The response contains a [`Task`](/reference/rest/tasks/create-task#response.body.task) object with details including the assigned task ID and initial status, which starts as `STATUS_CREATED` in the task lifecycle.
+
+## Create tasks using gRPC
+
+When you use gRPC, the Protobuf types are generated from your task definition directly, so there’s no separate JSON schema validation step. Instead, the compiler enforces the task’s shape. You build your custom task message, pack it into the [`specification`](/reference/grpc/taskmanager-v1/create-task) `Any` field, and call `CreateTask`.
+
+1
+
+### Build and pack the task specification
+
+Construct your `Objective` message from the bindings generated from your [task definition](/guides/tasks/define-a-task), then pack it into a `google.protobuf.Any`. The type URL on the `Any` is what lets the receiving agent identify and unpack the task:
+
+```
+# This Python example is compatible with artifacts generated using
+# the following grpc/python plugin: https://buf.build/anduril/lattice-sdk/sdks/main:grpc/python
+
+import os
+import sys
+import grpc
+from auth import ClientCredentialsAuth
+
+from google.protobuf.any_pb2 import Any
+
+from anduril.taskmanager.v1.task.pub_pb2 import (
+    Principal,
+    Relations,
+    System,
+    User,
+)
+from anduril.taskmanager.v1.task_manager_api.pub_pb2 import CreateTaskRequest
+from anduril.taskmanager.v1.task_manager_api.pub_pb2_grpc import TaskManagerAPIStub
+
+# Your custom task from schema-registry.developer.anduril.com
+from org.example.reconnaissance.v1beta.objective_pb2 import (
+    LLA,
+    Objective,
+)
+
+def create_task(client, agent_entity_id):
+    """Create an Objective task and route it to an agent."""
+    # Build the custom task message. Objective is a oneof; here we set an LLA point.
+    objective = Objective(
+        lla=LLA(
+            latitude_degrees=37.7749,
+            longitude_degrees=-122.4194,
+            altitude_hae_m=100.0,
+        ),
+    )
+
+    # Pack the task into a google.protobuf.Any for the specification field.
+    specification = Any()
+    specification.Pack(objective)
+
+    request = CreateTaskRequest(
+        description="Reconnaissance objective",
+        specification=specification,
+        # The service creating the task.
+        author=Principal(user=User(user_id="operator@example.com")),
+        # Route the task to the agent by setting it as the assignee.
+        relations=Relations(assignee=Principal(system=System(entity_id=agent_entity_id))),
+    )
+
+    response = client.CreateTask(request)
+    return response.task
+
+def main():
+    client_id = os.getenv("LATTICE_CLIENT_ID")
+    client_secret = os.getenv("LATTICE_CLIENT_SECRET")
+    lattice_endpoint = os.getenv("LATTICE_ENDPOINT")
+    sandboxes_token = os.getenv("SANDBOXES_TOKEN")
+
+    if not client_id or not client_secret or not lattice_endpoint or not sandboxes_token:
+        print("Missing required environment variables", file=sys.stderr)
+        sys.exit(1)
+
+    auth = ClientCredentialsAuth(
+        client_id=client_id,
+        client_secret=client_secret,
+        sandboxes_token=sandboxes_token,
+        endpoint=f"https://{lattice_endpoint}/api/v1/oauth/token",
+    )
+
+    credentials = grpc.ssl_channel_credentials()
+    channel = grpc.intercept_channel(
+        grpc.secure_channel(lattice_endpoint, credentials),
+        auth.create_metadata_interceptor(),
+    )
+
+    client = TaskManagerAPIStub(channel)
+
+    # Replace with the entity ID of the agent to route the task to.
+    agent_entity_id = "<AGENT_ID>"
+
+    task = create_task(client, agent_entity_id)
+    print(f"Created task with ID: {task.version.task_id}")
+
+if __name__ == "__main__":
+    main()
+```
+
+2
+
+### Create the task
+
+Call the [`CreateTask`](/reference/grpc/taskmanager-v1/create-task) RPC with the packed specification. Set the following key fields on the [`CreateTaskRequest`](/reference/grpc/taskmanager-v1/create-task):
+
+- specification : Your custom task message packed into a google.protobuf.Any .
+- author : The Principal — a user or system — creating the task.
+- relations.assignee : The agent’s Principal . Set this to route the task to that agent for execution.
+- description : A human-readable description of the task.
+
+```
+# This Python example is compatible with artifacts generated using
+# the following grpc/python plugin: https://buf.build/anduril/lattice-sdk/sdks/main:grpc/python
+
+import os
+import sys
+import grpc
+from auth import ClientCredentialsAuth
+
+from google.protobuf.any_pb2 import Any
+
+from anduril.taskmanager.v1.task.pub_pb2 import (
+    Principal,
+    Relations,
+    System,
+    User,
+)
+from anduril.taskmanager.v1.task_manager_api.pub_pb2 import CreateTaskRequest
+from anduril.taskmanager.v1.task_manager_api.pub_pb2_grpc import TaskManagerAPIStub
+
+# Your custom task from schema-registry.developer.anduril.com
+from org.example.reconnaissance.v1beta.objective_pb2 import (
+    LLA,
+    Objective,
+)
+
+def create_task(client, agent_entity_id):
+    """Create an Objective task and route it to an agent."""
+    # Build the custom task message. Objective is a oneof; here we set an LLA point.
+    objective = Objective(
+        lla=LLA(
+            latitude_degrees=37.7749,
+            longitude_degrees=-122.4194,
+            altitude_hae_m=100.0,
+        ),
+    )
+
+    # Pack the task into a google.protobuf.Any for the specification field.
+    specification = Any()
+    specification.Pack(objective)
+
+    request = CreateTaskRequest(
+        description="Reconnaissance objective",
+        specification=specification,
+        # The service creating the task.
+        author=Principal(user=User(user_id="operator@example.com")),
+        # Route the task to the agent by setting it as the assignee.
+        relations=Relations(assignee=Principal(system=System(entity_id=agent_entity_id))),
+    )
+
+    response = client.CreateTask(request)
+    return response.task
+
+def main():
+    client_id = os.getenv("LATTICE_CLIENT_ID")
+    client_secret = os.getenv("LATTICE_CLIENT_SECRET")
+    lattice_endpoint = os.getenv("LATTICE_ENDPOINT")
+    sandboxes_token = os.getenv("SANDBOXES_TOKEN")
+
+    if not client_id or not client_secret or not lattice_endpoint or not sandboxes_token:
+        print("Missing required environment variables", file=sys.stderr)
+        sys.exit(1)
+
+    auth = ClientCredentialsAuth(
+        client_id=client_id,
+        client_secret=client_secret,
+        sandboxes_token=sandboxes_token,
+        endpoint=f"https://{lattice_endpoint}/api/v1/oauth/token",
+    )
+
+    credentials = grpc.ssl_channel_credentials()
+    channel = grpc.intercept_channel(
+        grpc.secure_channel(lattice_endpoint, credentials),
+        auth.create_metadata_interceptor(),
+    )
+
+    client = TaskManagerAPIStub(channel)
+
+    # Replace with the entity ID of the agent to route the task to.
+    agent_entity_id = "<AGENT_ID>"
+
+    task = create_task(client, agent_entity_id)
+    print(f"Created task with ID: {task.version.task_id}")
+
+if __name__ == "__main__":
+    main()
+```
+
+The response contains the created [`Task`](/reference/grpc/taskmanager-v1/create-task), including its assigned task ID.
+
+## Monitor tasks
+
+The `StreamTasks` ([REST](/reference/rest/tasks/stream-tasks) | [gRPC](/reference/grpc/taskmanager-v1/stream-tasks)) API establishes a server-sent events (SSE) stream that lets you monitor tasks in Lattice:
+
+1
+
+### Initialize the task stream
+
+In the following example, we specify a prefix to filter the task stream with:
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	fmt.Println("Starting task stream...")
+
+	ctx := context.Background()
+
+	// Create task stream request
+	request := &Lattice.TaskStreamRequest{
+		HeartbeatIntervalMs:     Lattice.Int(10000),
+		ExcludePreexistingTasks: Lattice.Bool(false),
+		TaskType: &Lattice.TaskStreamRequestTaskType{
+			TaskStreamRequestTaskTypeTaskTypePrefix: &Lattice.TaskStreamRequestTaskTypeTaskTypePrefix{
+				// Define a prefix filter for tasks that belong to your organization
+				TaskTypePrefix: "type.googleapis.com/<your-organization>.tasks",
+			},
+		},
+	}
+
+	// Start the task stream
+	stream, err := LatticeClient.Tasks.StreamTasks(ctx, request)
+	if err != nil {
+		fmt.Printf("Failed to start task stream: %v\n", err)
+		return
+	}
+	defer stream.Close()
+
+	// Process the stream events as they arrive
+	for {
+		event, err := stream.Recv()
+		if err != nil {
+			fmt.Printf("Error receiving task stream event: %v\n", err)
+			return
+		}
+
+		if event.Event == "heartbeat" {
+			// Process heartbeat events
+			timestamp := *event.GetHeartbeat().GetTimestamp()
+			fmt.Printf("Heartbeat: %v\n", timestamp)
+		} else {
+			task := event.GetTaskEvent().GetTaskEvent().GetTask()
+			taskId := task.GetVersion().GetTaskID()
+			status := task.GetStatus().GetStatus()
+
+			fmt.Printf("  TaskID: %v\n", *taskId)
+			fmt.Printf("  Status: %v\n", *status)
+		}
+	}
+}
+```
+
+The `StreamTasks` method accepts the following parameters:
+
+- `heartbeatIntervalMs` _Number_
+  The interval in milliseconds at which the server sends heartbeat events (default: 30000 ms). Use heartbeats to verify the connection is still active. The minimum is 1000 ms; smaller values are raised to 1000 ms.
+
+- `excludePreexistingTasks` _Boolean_
+  When set to `true`, the stream will only include tasks created after the stream starts. When `false` (default), existing tasks will also be included in the stream.
+
+- `taskType` _Object_
+  Specifies which task types to include in the stream. Can filter by exact match or by prefix.taskTypePrefixStringOnly include tasks whose type starts with the specified prefix. For example, `type.googleapis.com/<your-organization.tasks>`.taskTypeUrlsListOnly include tasks specified in the list. You must list the full URL of the task definition for each of the tasks you want to filter from the stream.
+
+2
+
+### Process stream events
+
+Process the different types of events that arrive through the stream:
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	fmt.Println("Starting task stream...")
+
+	ctx := context.Background()
+
+	// Create task stream request
+	request := &Lattice.TaskStreamRequest{
+		HeartbeatIntervalMs:     Lattice.Int(10000),
+		ExcludePreexistingTasks: Lattice.Bool(false),
+		TaskType: &Lattice.TaskStreamRequestTaskType{
+			TaskStreamRequestTaskTypeTaskTypePrefix: &Lattice.TaskStreamRequestTaskTypeTaskTypePrefix{
+				// Define a prefix filter for tasks that belong to your organization
+				TaskTypePrefix: "type.googleapis.com/<your-organization>.tasks",
+			},
+		},
+	}
+
+	// Start the task stream
+	stream, err := LatticeClient.Tasks.StreamTasks(ctx, request)
+	if err != nil {
+		fmt.Printf("Failed to start task stream: %v\n", err)
+		return
+	}
+	defer stream.Close()
+
+	// Process the stream events as they arrive
+	for {
+		event, err := stream.Recv()
+		if err != nil {
+			fmt.Printf("Error receiving task stream event: %v\n", err)
+			return
+		}
+
+		if event.Event == "heartbeat" {
+			// Process heartbeat events
+			timestamp := *event.GetHeartbeat().GetTimestamp()
+			fmt.Printf("Heartbeat: %v\n", timestamp)
+		} else {
+			task := event.GetTaskEvent().GetTaskEvent().GetTask()
+			taskId := task.GetVersion().GetTaskID()
+			status := task.GetStatus().GetStatus()
+
+			fmt.Printf("  TaskID: %v\n", *taskId)
+			fmt.Printf("  Status: %v\n", *status)
+		}
+	}
+}
+```
+
+The stream produces two main event types:
+
+- heartbeat : Regular server heartbeats that confirm the connection is active.
+- task_event : Notifications about task creation, updates, or status changes.
+
+3
+
+### Verify the results
+
+When successfully running the `StreamTasks` code, you’ll see output similar to the following:
+
+```
+Starting task stream
+Heartbeat: 2025-01-29T12:34:56.789Z
+Task Event: TASK_CREATED
+  TaskID: task-123456
+  Status: STATUS_SENT
+Task Event: TASK_UPDATED
+  TaskID: task-123456
+  Status: STATUS_MACHINE_RECEIPT
+Heartbeat: 2025-01-29T12:35:06.789Z
+Task Event: TASK_UPDATED
+  TaskID: task-123456
+  Status: STATUS_EXECUTING
+```
+
+## Cancel tasks
+
+The [`CancelTask`](/reference/rest/tasks/cancel-task) API cancels a task by marking it for cancellation in the system. The behavior depends on the task’s current state:
+
+- If the task has not been sent to an agent, it cancels immediately and transitions to a terminal state ( STATUS_DONE_NOT_OK with ERROR_CODE_CANCELLED ).
+- If the task has been sent to an agent, the cancellation request is routed to the agent, which decides whether to accept or reject the cancellation.
+
+This section covers the operator’s side of cancellation: sending the request and reading the result. The agent that receives the routed request must set up a task processor and handle cancellation requests — see [Handle task cancellation](/guides/tasks/integrate-an-agent#handle-task-cancellation) in the agent integration guide.
+
+1
+
+### Request task cancellation
+
+Send a task cancellation request to Lattice. If the task has already been sent to an agent, Lattice routes the request to the agent:
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables.")
+		os.Exit(1)
+	}
+
+	// Check for required command-line arguments
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go run cancel_task.go <task_id> [entity_id]")
+		os.Exit(1)
+	}
+
+	taskId := os.Args[1]
+	var entityId *string
+	if len(os.Args) > 2 {
+		entityId = &os.Args[2]
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Create context for the request
+	ctx := context.Background()
+
+	// Build author based on whether entity_id is provided
+	var author *Lattice.Principal
+	if entityId != nil {
+		author = &Lattice.Principal{
+			System: &Lattice.System{
+				EntityID: entityId,
+			},
+		}
+		fmt.Printf("Cancelling task: %s\n", taskId)
+		fmt.Printf("Author entity: %s\n", *entityId)
+	} else {
+		userId := "operator_1"
+		author = &Lattice.Principal{
+			User: &Lattice.User{
+				UserID: &userId,
+			},
+		}
+		fmt.Printf("Cancelling task: %s\n", taskId)
+	}
+
+	// Create cancel task request
+	cancelRequest := Lattice.TaskCancellation{
+		TaskID: taskId,
+		Author: author,
+	}
+
+	// Call the CancelTask API
+	_, err := LatticeClient.Tasks.CancelTask(ctx, &cancelRequest)
+	if err != nil {
+		fmt.Printf("Error cancelling task: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Cancel task response: {}\n")
+}
+```
+
+The `CancelTask` API accepts the following parameters:
+
+- `taskId` _StringRequired_
+  The unique identifier of the task to cancel.
+
+- `author` _PrincipalRequired_
+  Who or what is requesting the cancellation. Can be a user [`Principal`](/reference/rest/tasks/cancel-task#request.body.author) with a [`userId`](/reference/rest/tasks/cancel-task#request.body.author.user.userId) or a system `Principal` with an [`entityId`](/reference/rest/tasks/cancel-task#request.body.author.system.entityId).
+
+Run the cancellation request with the ID of the task you want to cancel:
+
+```
+python cancel_task.py <task_id>
+```
+
+2
+
+### Verify the results
+
+After requesting cancellation, the task will transition to one of two outcomes:
+
+**Successful cancellation:**
+
+When the agent accepts the cancellation, the task transitions to `STATUS_DONE_NOT_OK` with `ERROR_CODE_CANCELLED`:
+
+```
+Cancelling task: task-123456
+Task has been cancelled.
+Task Status: STATUS_DONE_NOT_OK
+Error Code: ERROR_CODE_CANCELLED
+Error Message: Task cancelled by agent.
+```
+
+**Rejected cancellation:**
+
+When the agent rejects the cancellation, the task retains its current status but includes a `TaskError` with `ERROR_CODE_REJECTED`:
+
+```
+Cancelling task: task-123456
+Task could not be cancelled.
+Task Status: STATUS_EXECUTING
+Error Code: ERROR_CODE_REJECTED
+Error Message: Task is already active, and cannot be cancelled.
+```
+
+For more information, see `CancelTask` in the *Lattice API Reference*.
+
+## What’s next
+
+- Learn how to integrate an agent to listen for, and process, tasks using the Lattice SDK.

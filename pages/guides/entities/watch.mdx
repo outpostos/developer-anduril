@@ -1,7 +1,331 @@
 ---
-title: Watch
+title: "Watch entities"
 ---
 
-# Watch
+# Watch entities
 
-占位页：后续补充监听 Entity 的说明。
+This shows how to use the SDK to fetch entities from Lattice and stream real-time information about entity components.
+
+Complete the steps to learn how to use the following APIs:
+
+- GetEntity — Retrieves a single entity from Lattice.
+- StreamEntities — Establishes a persistent connection to stream entity events.
+
+## Before you begin
+
+- To configure your app to watch entities, set up the Lattice SDK .
+- Learn about required components and various entity shapes in Lattice.
+
+gRPC authentication
+
+If you are using gRPC with client credentials, [set up the token refresh module](/guides/getting-started/authenticate#using-grpc) before running the examples on this page.
+
+## Get an entity
+
+Get details of a specific entity using [`entity_ID`](/reference/rest/entities/publish-entity#request.body.entityId) and the [`GetEntity`](/reference/rest/entities/get-entity) API:
+
+1
+
+### Get the entity ID
+
+Open the Lattice UI and find the entity in the Entity Explorer. Copy its ID from the **Entity ID** column:
+
+![Shows the Entity Explorer in the Lattice Developer Console.](/img/anduril.docs.buildwithfern.com/72c242c7f0277f5a308bd2efb784cfcd9675f4dab9d1790bd9b195c6df74c7d0/assets/images/screenshots/developer-console-entity-explorer.png)
+
+2
+
+### Get the entity object
+
+Use the `GetEntity` API action to retrieve a single entity object from Lattice. Replace `$ENTITY_ID` in the following example with the entity ID you copied in the previous step:
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+
+	// Remove sandboxesToken from the following statements if you are not developing on Sandboxes.
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Continuously get the entity
+	for {
+		// Create context for the request
+		ctx := context.Background()
+
+		entity, err := LatticeClient.Entities.GetEntity(
+			ctx,
+			&Lattice.GetEntityRequest{
+				EntityID: "<ENTITY_ID>",
+			},
+		)
+
+		if err != nil {
+			fmt.Printf("Error fetching entity: %v\n", err)
+		} else {
+			fmt.Printf("Asset name     | %s\n", *entity.GetAliases().GetName())
+			fmt.Printf("Asset location | %f, %f\n", *entity.GetLocation().GetPosition().GetLatitudeDegrees(),
+				*entity.GetLocation().GetPosition().GetLongitudeDegrees())
+		}
+
+		// Wait before next request
+		time.Sleep(5 * time.Second)
+	}
+}
+```
+
+3
+
+### Verify the response
+
+If successful, you’ll see the entity’s`aliases.name` and its real-time location logged in the console:
+
+```
+Asset name     | Demo-Sim-Asset1
+Asset location | 37.7749, -122.4194
+```
+
+## Stream entities
+
+The [`StreamEntities`](/reference/rest/entities/stream-entities) API establishes a persistent connection to stream entity events as they occur. The stream sends two types of events: [`entity`](/reference/rest/entities/stream-entities#response.body.entity) and [`heartbeat`](/reference/rest/entities/stream-entities#response.body.heartbeat).
+
+Use the following optional parameters to control the frequency and type of data fetched from your environment: [`heartbeatIntervalMS`](/reference/rest/entities/stream-entities#request.body.heartbeatIntervalMS), [`preExistingOnly`](/reference/rest/entities/stream-entities#request.body.preExistingOnly), and [`componentsToInclude`](/reference/rest/entities/stream-entities#request.body.componentsToInclude).
+
+To stream entities from Lattice, do the following:
+
+1
+
+### Stream all components
+
+To get stream of all entity components from your environment, including new entities as they are updated, use the default options.
+
+By default, the `preExistingOnly` option is set to `false`, instructing Lattice to establish a persistent, real-time connection with the client:
+
+```
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		log.Fatal("Required environment variables not set.")
+	}
+
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	latticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Create the entity stream.
+	stream, err := latticeClient.Entities.StreamEntities(ctx, &Lattice.EntityStreamRequest{
+		PreExistingOnly: Lattice.Bool(false),
+	})
+	if err != nil {
+		log.Fatalf("Failed to create entity stream: %v", err)
+	}
+	defer stream.Close()
+
+	for {
+		select {
+		case <-ctx.Done():
+			log.Printf("Context canceled: %v", ctx.Err())
+			return
+		default:
+			// Continue processing
+		}
+		message, err := stream.Recv()
+
+		if errors.Is(err, io.EOF) {
+			log.Println("Stream completed successfully.")
+			return
+		}
+
+		if err != nil {
+			log.Printf("Error receiving message: %v", err)
+			continue
+		}
+
+		// Process the message based on its type
+		switch message.Event {
+		case "heartbeat":
+			timestamp := *message.Heartbeat.Timestamp
+			log.Printf("Heartbeat: %s", timestamp)
+		case "entity":
+			log.Printf("Entity: %s", *message.Entity.Entity.EntityID)
+		default:
+			log.Printf("Unknown event type: %s", message.Event)
+		}
+	}
+}
+```
+
+If successful, you get a stream of all entities as they are updated in Lattice:
+
+```
+Entity: Demo-Sim-Asset2
+Entity: adsbEntity
+Entity: esim.adsb.aus-4005
+```
+
+2
+
+### Stream specific components
+
+Use `componentsToInclude` and provide a list of components in `snake_case`. For example, `aliases`, and `location_uncertainty`:
+
+```
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		log.Fatal("Required environment variables not set.")
+	}
+
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	latticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Create the entity stream.
+	stream, err := latticeClient.Entities.StreamEntities(ctx, &Lattice.EntityStreamRequest{
+		PreExistingOnly: Lattice.Bool(false),
+		// Define a list of components to control which entities are fetched.
+		// If set, Lattice streams only entities with the components you provide.
+		ComponentsToInclude: []string{"aliases", "location_uncertainty"},
+	})
+	if err != nil {
+		log.Fatalf("Failed to create entity stream: %v", err)
+	}
+	defer stream.Close()
+
+	for {
+		select {
+		case <-ctx.Done():
+			log.Printf("Context canceled: %v", ctx.Err())
+			return
+		default:
+			// Continue processing
+		}
+		message, err := stream.Recv()
+
+		// Handle stream completion
+		if errors.Is(err, io.EOF) {
+			log.Println("Stream completed successfully.")
+			return
+		}
+
+		if err != nil {
+			log.Printf("Error receiving message: %v", err)
+			continue
+		}
+
+		// Process the event based whether it is a heartbeat or entity event.
+		switch message.Event {
+		case "heartbeat":
+			timestamp := *message.Heartbeat.Timestamp
+			log.Printf("Heartbeat: %s", timestamp)
+		case "entity":
+			log.Printf("Entity: %s", *message.Entity.Entity.Aliases.Name)
+		default:
+			log.Printf("Unknown event type: %s", message.Event)
+		}
+	}
+}
+```
+
+If you’re directly invoking the [`streamEntities`](/reference/rest/entities/stream-entities) REST API using `curl` or another similar tool, you must list the components using `camelCase`: `locationUncertainty`.
+
+If successful, you receive a real-time stream of entities with `aliases` populated:
+
+```
+Entity: ADS-B: N113PF
+Entity: DIVE
+Entity: FISHING VESSEL (37958)
+```
+
+## What’s next?
+
+- Learn more about the Entities API in REST and gRPC .
+- Learn how to Publish entities to Lattice .
+- Check out the Lattice sample apps .

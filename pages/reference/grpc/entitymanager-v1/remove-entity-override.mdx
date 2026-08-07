@@ -1,0 +1,30 @@
+---
+title: "RemoveEntityOverride"
+---
+
+# RemoveEntityOverride
+
+```json
+{
+  "entity_id": "example",
+  "field_path": [
+    "example"
+  ]
+}
+```
+
+```json
+{}
+```
+
+Remove an override for an Entity component.
+
+### Request
+
+**RemoveEntityOverrideRequest**
+
+This endpoint expects an object.
+
+- `entity_id` — _string_ — The entity ID that the override will be removed from.
+
+- `field_path` — _list of strings_ — The field paths to remove from the override store for the provided entityId.
