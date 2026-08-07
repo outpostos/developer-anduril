@@ -1,0 +1,8 @@
+developer.anduril.com/
+node_modules/
+.next/
+out/
+.scratch/
+
+npm-debug.log*
+.env*

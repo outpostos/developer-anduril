@@ -1,0 +1,66 @@
+---
+title: Building with Lattice
+description: Lattice 平台与 Lattice SDK
+---
+
+# Building with Lattice
+
+<span className="anduril-badge">中文薄切片</span>
+
+Lattice 平台与 Lattice SDK
+
+**Lattice SDK** 让开发者能够构建应用、数据服务和硬件集成，用于创建、利用并增强 Lattice 数据。[**Lattice Developer Program**](https://www.anduril.com/lattice-sdk/) 是本文档的配套计划，会向符合条件的开发者提供运行 Lattice 服务的开发环境，其中包含有代表性的名义数据，并提供 Anduril 解决方案架构指导与开发者支持。
+
+## 快速入口
+
+- **Get started**: 将一艘水面舰艇发布到 Lattice。
+- **API Reference**: 了解 Lattice API。
+- **Sample apps**: 在本地机器运行示例应用。
+
+## Data flow
+
+与 Lattice 的一次*集成*可以是单向的，也可以是双向的，支持下列一项或两项功能：
+
+- 将数据推入 Lattice，例如发布数据源或集成新的机器人。
+- 从 Lattice 拉取数据，例如获取由塔台生成、随后用于任务分配的航迹。
+
+这些集成的主要入口是 [`Entities`](/reference/rest/entities)、[`Tasks`](/reference/rest/tasks) 和 [`Objects`](/reference/rest/objects) API。下图展示了你的集成如何嵌入 Lattice 生态系统：
+
+> 图示：集成位于外部应用、机器人、传感器与 Lattice 服务之间，通过 Entities、Tasks 和 Objects API 与 Lattice 交换数据。
+
+## Protocols
+
+Lattice 同时支持 **REST** 和 **gRPC** 协议，二者分别针对不同的集成模式做了优化。REST 提供开发者熟悉的 HTTP/JSON 工作流，适合 Web 应用和快速开发。gRPC 使用二进制 Protocol Buffers 编码，适合对带宽效率有要求的硬件集成。
+
+协议选择会影响认证模式、载荷大小以及可用 API。[Objects API](/guides/objects/overview) 用于文件操作，只能通过 REST 使用；Entities 和 Tasks API 则同时通过两种协议提供完整能力。
+
+<div className="anduril-callout">
+  <strong>架构洞察</strong>
+  <p>Lattice 在内部使用 gRPC 和 Protobuf，在 Lattice 节点之间高效传输数据。与 JSON 相比，Protobuf 的二进制编码可降低 30-50% 带宽占用，同时在分布式 Lattice 部署中保持数据完整性。</p>
+</div>
+
+- **gRPC**: 适合从无人机、机器人和传感器发布高频遥测的硬件集成。二进制编码可在受限网络中降低带宽占用。
+- **REST**: 适合 Web 应用、仪表盘和管理工具。熟悉的 HTTP 模式可配合标准调试工具加快开发。
+
+更多信息见 [Choose a protocol](/guides/best-practices/choose-a-protocol)。
+
+## Use cases
+
+Lattice API 及其背后的服务被设计为灵活可组合，能够支持多种工作流。下面是一些常见用例：
+
+**Apps**:
+
+Lattice 应用是面向用户的软件解决方案，会消费并生成 Lattice 数据。一个 Lattice 应用会为最终用户提供专门能力，例如指挥与控制、态势感知、任务分配或规划。
+
+**Integrations**:
+
+Lattice 集成负责在 Lattice 与独立外部系统之间传输数据，这些外部系统包括传感器、数据源生产者、机器人，以及其他硬件和软件能力。通过与 Lattice 集成，你可以利用 Anduril 已被广泛采用的框架来放大集成的影响力。
+
+**Data services**:
+
+Lattice 数据服务是在 Lattice 内部丰富或修改数据的软件模块，通常不会直接向最终用户呈现前端工作流。例如，Lattice 数据服务可以提供语言翻译服务、航迹关联、航迹图像的生成式 AI 综合等能力。Lattice 允许你连续处理数据，也允许按需处理数据。
+
+## What's next?
+
+- 使用 [Lattice Sandboxes](/guides/developer-tools/sandboxes) 开始开发 Lattice。
+- 了解如何[设置开发环境](/guides/getting-started/set-up)。

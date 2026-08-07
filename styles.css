@@ -1,0 +1,81 @@
+:root {
+  --anduril-accent: #008700;
+  --anduril-link: #0090ff;
+  --anduril-background: #ffffff;
+  --anduril-body-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --anduril-code-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+html.dark {
+  --anduril-accent: #70e155;
+  --anduril-background: #111113;
+}
+
+html,
+body {
+  background: var(--anduril-background);
+  font-family: var(--anduril-body-font);
+}
+
+html.dark,
+html.dark body {
+  background: #111113;
+  color-scheme: dark;
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--anduril-code-font);
+}
+
+html body a,
+main a,
+.nx-prose a {
+  color: #0090ff !important;
+}
+
+.nextra-sidebar a[aria-current],
+.nextra-toc a[aria-current],
+.nx-text-primary-600,
+.nx-text-primary-500,
+.nx-text-primary-400,
+.dark .dark\:nx-text-primary-600,
+.dark .dark\:nx-text-primary-500,
+.dark .dark\:nx-text-primary-400 {
+  color: var(--anduril-accent) !important;
+}
+
+.nx-bg-primary-600,
+.nx-bg-primary-500,
+.dark .dark\:nx-bg-primary-600,
+.dark .dark\:nx-bg-primary-500 {
+  background-color: var(--anduril-accent) !important;
+}
+
+.nx-border-primary-500,
+.nx-border-primary-600,
+.dark .dark\:nx-border-primary-500,
+.dark .dark\:nx-border-primary-600 {
+  border-color: var(--anduril-accent) !important;
+}
+
+.anduril-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--anduril-accent);
+  border-radius: 6px;
+  color: var(--anduril-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  padding: 0.125rem 0.5rem;
+}
+
+.anduril-callout {
+  border-left: 3px solid var(--anduril-accent);
+  margin: 1.5rem 0;
+  padding: 0.75rem 1rem;
+  background: color-mix(in srgb, var(--anduril-accent) 10%, transparent);
+}
