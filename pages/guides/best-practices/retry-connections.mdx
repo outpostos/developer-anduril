@@ -1,41 +1,41 @@
 ---
-title: "Retry connections"
+title: "重试连接"
 ---
 
-# Retry connections
+# 重试连接
 
-Production integrations send thousands of requests over networks that can drop connections, throttle traffic, or return transient errors. A reusable retry utility lets you apply one consistent backoff policy across every API interaction instead of duplicating retry logic per call.
+生产集成会通过可能断开连接、限制流量或返回瞬时错误的网络发送数千个请求。可复用的重试工具让你能在每次 API 交互中应用一致的退避策略，而不是为每个调用重复编写重试逻辑。
 
-## Before you begin
+## 开始之前
 
-- Complete the steps in Set up to configure your environment and install the SDK.
-- Decide which protocol you are using, REST or gRPC, as the error types and retry-eligible codes differ between protocols.
+- 完成设置中的步骤，配置环境并安装 SDK。
+- 决定使用 REST 还是 gRPC，因为错误类型和可重试代码会因协议而异。
 
-gRPC authentication
+gRPC 认证
 
-If you are using gRPC with client credentials, [set up the token refresh module](/guides/getting-started/authenticate#using-grpc) before running the examples on this page.
+如果你将 gRPC 与客户端凭证一起使用，请在运行本页示例前[设置令牌刷新模块](/guides/getting-started/authenticate#using-grpc)。
 
-## What the SDK retries
+## SDK 会重试什么
 
-Before building your own utility, understand what the SDK already handles so you do not retry the same error twice.
+构建自己的工具前，请先了解 SDK 已经处理了什么，避免对同一错误重试两次。
 
-The **Lattice REST SDKs** retry automatically on HTTP `5xx`, `408`, `409`, and `429` responses. The SDK retry mechanism applies exponential backoff starting at 1 second, with a maximum of 60 seconds, with ±20% jitter, and honors `Retry-After`, `retry-after-ms`, and `X-RateLimit-Reset` headers. The default is 2 retries per call. You can override this per call with `request_options={"max_retries": N}`.
+**Lattice REST SDK** 会在 HTTP `5xx`、`408`、`409` 和 `429` 响应上自动重试。SDK 重试机制使用从 1 秒开始、最大 60 秒且带 ±20% 抖动的指数退避，并遵循 `Retry-After`、`retry-after-ms` 和 `X-RateLimit-Reset` header。默认每次调用重试 2 次。可以通过 `request_options={"max_retries": N}` 按调用覆盖。
 
-The **gRPC SDKs** do not implement retries automatically. You must implement retries for your Lattice integrations.
+**gRPC SDK** 不会自动实现重试。你必须为 Lattice 集成自行实现重试。
 
-Avoid double retries
+避免双重重试
 
-If you build a retry utility on top of the Lattice REST SDKs, set `request_options={"max_retries": 0}` on each SDK call to delegate the entire retry policy to your utility. Without this, both layers retry independently, and a single transient error can trigger up to `(sdk_retries + 1) x utility_retries` total attempts.
+如果在 Lattice REST SDK 之上构建重试工具，请在每个 SDK 调用上设置 `request_options={"max_retries": 0}`，将整个重试策略委托给你的工具。否则，两层会独立重试，一个瞬时错误最多可能触发 `(sdk_retries + 1) x utility_retries` 次总尝试。
 
-## Build a retry utility
+## 构建重试工具
 
-A single helper function that wraps any API call gives you one place to tune backoff parameters, adjust error classification, and add observability across your integration:
+用单个辅助函数包装任何 API 调用，可以集中调整退避参数、调整错误分类，并为整个集成添加可观测性：
 
 1
 
-### Define the retry function
+### 定义重试函数
 
-The following utility loops up to `max_retries` times, sleeping for an exponentially increasing backoff between attempts. It re-raises immediately on errors that retrying will not fix.
+下列工具最多循环 `max_retries` 次，并在两次尝试之间按指数增长的退避时间休眠。对于重试无法修复的错误，它会立即重新抛出。
 
 ```
 from anduril import Lattice, \
@@ -152,59 +152,59 @@ if __name__ == "__main__":
 
 2
 
-### Classify which errors to retry
+### 对要重试的错误分类
 
-Not all errors benefit from a retry. Retrying a malformed request or an unauthorized call wastes time and can obscure bugs. Classify errors into two buckets, **retryable** and **terminal**, before deciding whether to back off or re-raise immediately.
+并非所有错误都能从重试中受益。重试格式错误的请求或未授权调用会浪费时间，并可能掩盖 bug。决定退避或立即重新抛出前，请将错误分为两类：**可重试**和**终止**。
 
-**The REST SDKs**
+**REST SDK**
 
-This utility catches two broad error categories:
+该工具会捕获两大类错误：
 
-- anduril.ApiError with a status_code — Inspect the code to decide.
-- httpx.ConnectError and httpx.RemoteProtocolError — Low-level transport failures that are always retryable.
+- 带有 status_code 的 anduril.ApiError - 检查代码以决定。
+- httpx.ConnectError 和 httpx.RemoteProtocolError - 底层传输失败，始终可重试。
 
-Retryable status codes that should be retried:
+应重试的可重试状态码：
 
-- 404 Not Found — The resource might not yet be visible due to eventual consistency.
-- 408 Request Timeout — The server did not receive the complete request in time, often due to transient network latency.
-- 409 Conflict — A concurrent write contended with this request, so retrying after a short backoff often succeeds.
-- 429 Too Many Requests — The client has been rate-limited, so back off before retrying.
-- 5xx Server Error — The server encountered a transient failure that might clear on a subsequent attempt.
+- 404 Not Found - 资源可能因最终一致性尚不可见。
+- 408 Request Timeout - 服务器未及时收到完整请求，通常由瞬时网络延迟导致。
+- 409 Conflict - 并发写入与该请求竞争，因此短暂退避后重试通常会成功。
+- 429 Too Many Requests - 客户端被限流，因此应先退避再重试。
+- 5xx Server Error - 服务器遇到瞬时故障，后续尝试可能恢复。
 
-Terminal status codes that should **not** be retried:
+**不应**重试的终止状态码：
 
-- 400 Bad Request — The payload is malformed.
-- 401 Unauthorized — Refresh credentials before retrying.
-- 403 Forbidden — Retrying will not change permissions.
-- 413 Payload Too Large — Reduce the payload size.
+- 400 Bad Request - 载荷格式错误。
+- 401 Unauthorized - 重试前刷新凭证。
+- 403 Forbidden - 重试不会改变权限。
+- 413 Payload Too Large - 减小载荷大小。
 
-**The gRPC SDKs**
+**gRPC SDK**
 
-Extract the gRPC status code with `status.Code(err)` and check it against a `map[codes.Code]bool`.
+使用 `status.Code(err)` 提取 gRPC 状态码，并根据 `map[codes.Code]bool` 检查。
 
-Retryable codes that should be retried:
+应重试的可重试代码：
 
-- UNAVAILABLE — The server is temporarily unreachable.
-- DEADLINE_EXCEEDED — The call timed out before a response was received.
-- RESOURCE_EXHAUSTED — The client has been rate-limited or has exceeded a quota.
-- INTERNAL — The server encountered an unspecified failure that may be transient.
-- ABORTED — A concurrency conflict occurred, so retrying after a short backoff often succeeds.
-- UNKNOWN — An unrecognized error was returned, so treat it as transient.
-- NOT_FOUND — The resource might not yet be visible due to eventual consistency.
+- UNAVAILABLE - 服务器暂时不可达。
+- DEADLINE_EXCEEDED - 调用在收到响应前超时。
+- RESOURCE_EXHAUSTED - 客户端被限流或超出配额。
+- INTERNAL - 服务器遇到未指定故障，可能是瞬时故障。
+- ABORTED - 发生并发冲突，因此短暂退避后重试通常会成功。
+- UNKNOWN - 返回了无法识别的错误，因此按瞬时错误处理。
+- NOT_FOUND - 资源可能因最终一致性尚不可见。
 
-Terminal codes that should **not** be retried:
+**不应**重试的终止代码：
 
-- INVALID_ARGUMENT — Fix the request before retrying.
-- PERMISSION_DENIED — Retrying will not grant access.
-- UNAUTHENTICATED — Refresh the token before retrying.
-- FAILED_PRECONDITION — A required precondition is not met.
-- ALREADY_EXISTS — The resource already exists.
+- INVALID_ARGUMENT - 重试前修复请求。
+- PERMISSION_DENIED - 重试不会授予访问权限。
+- UNAUTHENTICATED - 重试前刷新令牌。
+- FAILED_PRECONDITION - 必需前置条件未满足。
+- ALREADY_EXISTS - 资源已存在。
 
 3
 
-### Apply the utility to any API call
+### 将工具应用到任何 API 调用
 
-Wrap the API call in a zero-argument, callable function, and pass it to the utility. The utility handles timing and error classification.
+将 API 调用包装在一个无参数可调用函数中，并传给该工具。该工具会处理时序和错误分类。
 
 ```
 from anduril import Lattice, \
@@ -319,10 +319,10 @@ if __name__ == "__main__":
     asyncio.run(app())
 ```
 
-A single utility keeps retry behavior consistent across your integration, so tuning the backoff policy or adding logging requires only a change in one place.
+单个工具可以让整个集成中的重试行为保持一致，因此调整退避策略或添加日志只需在一个地方修改。
 
-## What’s next
+## 接下来
 
-- Learn how to publish entities to Lattice.
-- Review Authentication to understand how credentials are refreshed.
-- Check Choose a protocol to decide between REST and gRPC for your integration.
+- 了解如何将实体发布到 Lattice。
+- 查看认证，了解凭证如何刷新。
+- 查看选择协议，为你的集成决定使用 REST 还是 gRPC。

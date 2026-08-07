@@ -1,65 +1,65 @@
 ---
-title: "Entities overview"
+title: "实体概览"
 ---
 
-# Entities overview
+# 实体概览
 
-An **entity** is an interoperable data structure that powers the Lattice common operational picture (COP).
+**实体**是支撑 Lattice 通用作战图 (COP) 的可互操作数据结构。
 
-An entity consists of **components**. The presence or absence of components, rather than a strict type hierarchy, determines what an entity is and how it should be interacted with. Think of an entity as a bag of components that you can mix and match as needed. Entities might be incomplete at various points in time, reflecting the real-time state of the COP. Partial states are valuable for situational awareness, so your code must handle missing components robustly.
+实体由**组件**组成。决定实体是什么以及应如何与其交互的，是组件是否存在，而不是严格的类型层级。可以把实体理解为一袋可按需混合搭配的组件。实体在不同时间点可能不完整，这反映了 COP 的实时状态。局部状态对态势感知很有价值，因此你的代码必须稳健处理缺失组件。
 
-Composition principles
+组合原则
 
-- Components must not be duplicative — Avoid modeling the same underlying data on two different components.
-- Components are non-hierarchical — The data model is composable and not an inheritance tree.
+- 组件不得重复 - 避免在两个不同组件上建模同一底层数据。
+- 组件是非层级化的 - 数据模型是可组合的，而不是继承树。
 
-## Entity model
+## 实体模型
 
-An entity requires the following components:
+实体需要下列组件：
 
 - `entity_id` _StringRequired_
-  Unique string identifier. Can be a Globally Unique Identifier (GUID).
+  唯一字符串标识符。可以是全局唯一标识符 (GUID)。
 
 - `is_live` _BooleanRequired_
-  A boolean that when set to `true`, creates, or updates the entity. If set to `false`, while the entity is still live, it triggers a `DELETE` event.
+  布尔值。设为 `true` 时创建或更新实体。如果实体仍处于 live 状态时将其设为 `false`，则会触发 `DELETE` 事件。
 
 - `expiry_time` _DatetimeRequired_
-  The future time, less than 30 days, at which the entity expires. When the `expiry_time` has passed, Lattice deletes the entity.
+  实体过期的未来时间，必须小于 30 天。当 `expiry_time` 已过，Lattice 会删除该实体。
 
 - `provenance.integration_name` _stringRequired_
-  The name of the integration that created this entity.
+  创建该实体的集成名称。
 
 - `aliases.name` _string_
-  Human-readable string that represents the name of an entity.
+  表示实体名称的人类可读字符串。
 
-For more information, see [Entities](/reference/rest/entities/publish-entity#request) in the *Lattice API Reference*.
+更多信息请参阅 *Lattice API Reference* 中的 [Entities](/reference/rest/entities/publish-entity#request)。
 
-## Entity templates
+## 实体模板
 
-Although there is no strict type hierarchy, a user interface could group entities according to its [ontology](/reference/rest/entities/publish-entity#ontology.template) component. Lattice supports the following three top-level entity shapes:
+虽然没有严格的类型层级，用户界面仍可以根据实体的[本体](/reference/rest/entities/publish-entity#ontology.template)组件对实体分组。Lattice 支持下列三种顶层实体形态：
 
-Asset
+资产
 
-Track
+航迹
 
-Geo-entity
+地理实体
 
-### Asset
+### 资产
 
-An *asset* is an entity under your control, or under the control of another operator or system. Assets may accept tasks such as search or tracking. To create an asset, add the following components in addition to the required components:
+*资产*是由你控制，或由其他操作员或系统控制的实体。资产可以接受搜索或跟踪等任务。要创建资产，除必需组件外，还需要添加下列组件：
 
 - `ontology` _OntologyRequired_
-  Add the ontology component and set [`template`](/reference/rest/entities/publish-entity#request.body.ontolog.template) to `TEMPLATE_ASSET` to render an asset in Lattice.
+  添加本体组件，并将 [`template`](/reference/rest/entities/publish-entity#request.body.ontolog.template) 设置为 `TEMPLATE_ASSET`，以在 Lattice 中渲染资产。
 
 - `location` _LocationRequired_
-  Add the [location](/reference/rest/entities/publish-entity#request.body.location) component and set the asset’s position using its latitude and longitude details.
+  添加 [location](/reference/rest/entities/publish-entity#request.body.location) 组件，并使用纬度和经度详情设置资产位置。
 
 - `milView` _MilViewRequired_
-  Add the [milView](/reference/rest/entities/publish-entity#request.body.milView) component and set the disposition, environment, and nationality of the asset.
+  添加 [milView](/reference/rest/entities/publish-entity#request.body.milView) 组件，并设置资产的敌我属性、环境域和国籍。
 
-**Example entity models**:
+**示例实体模型**：
 
-Submarine
+潜艇
 
 ```json
 {
@@ -95,7 +95,7 @@ Submarine
 }
 ```
 
-Radar
+雷达
 
 ```json
 {
@@ -129,7 +129,7 @@ Radar
 }
 ```
 
-UAV
+无人机
 
 ```json
 {
@@ -165,30 +165,30 @@ UAV
 }
 ```
 
-### Track
+### 航迹
 
-A *track* represents any entity tracked by an asset or integration connected to Lattice. Tracks are not directly under the control of friendly forces. This includes aircraft tracks from radar or sensors, signal detections, vehicles, people, or animals detected through cameras.
+*航迹*表示由连接到 Lattice 的资产或集成跟踪的任何实体。航迹不直接受友方力量控制。这包括来自雷达或传感器的飞机航迹、信号探测，以及通过摄像头探测到的车辆、人员或动物。
 
-Lattice supports the following track types:
+Lattice 支持下列航迹类型：
 
-Track
+航迹
 
-Sensor point-of-interest (SPI)
+传感器关注点 (SPI)
 
-Signal of interest (SOI)
+关注信号 (SOI)
 
 - `ontology` _Required_
-  Add the ontology component and set [`template`](/reference/rest/entities/publish-entity#request.body.ontolog.template) to `TEMPLATE_TRACK` to render a generic track.
+  添加本体组件，并将 [`template`](/reference/rest/entities/publish-entity#request.body.ontolog.template) 设置为 `TEMPLATE_TRACK`，以渲染通用航迹。
 
 - `location` _Required_
-  Add the [`location`](/reference/rest/entities/publish-entity#request.body.position) component to set the latitude and longitude of the track.
+  添加 [`location`](/reference/rest/entities/publish-entity#request.body.position) 组件，以设置航迹的纬度和经度。
 
 - `milView` _Required_
-  Add the [`milView`](/reference/rest/entities/publish-entity#request.body.milView) component to set the disposition, environment, and nationality of the track.
+  添加 [`milView`](/reference/rest/entities/publish-entity#request.body.milView) 组件，以设置航迹的敌我属性、环境域和国籍。
 
-**Example entity models**:
+**示例实体模型**：
 
-Airplane
+飞机
 
 ```json
 {
@@ -223,7 +223,7 @@ Airplane
 }
 ```
 
-Bird
+鸟
 
 ```json
 {
@@ -258,25 +258,25 @@ Bird
 }
 ```
 
-### Geo-entity
+### 地理实体
 
-A *geo-entity* is a shape, region, or point of interest drawn on the map. Use geo-entities to represent any geographical areas of interest, such as airfields or a control zones, for autonomous vehicles to operate in.
+*地理实体*是在地图上绘制的形状、区域或关注点。使用地理实体表示任何感兴趣的地理区域，例如供自主车辆运行的机场或控制区。
 
 - `ontology.template` _Required_
-  Add the ontology component and set [`template`](/reference/rest/entities/publish-entity#request.body.ontolog.template) to `TEMPLATE_GEO` to render a geo-entity shape.
+  添加本体组件，并将 [`template`](/reference/rest/entities/publish-entity#request.body.ontolog.template) 设置为 `TEMPLATE_GEO`，以渲染地理实体形状。
 
 - `geo_details` _Required_
-  Add the [`geo_details`](/reference/rest/entities/publish-entity#request.body.geoDetails) component.
+  添加 [`geo_details`](/reference/rest/entities/publish-entity#request.body.geoDetails) 组件。
 
 - `geo_shape` _Required_
-  Add the [`geo_shape`](/reference/rest/entities/publish-entity#request.body.geoShape) component.
+  添加 [`geo_shape`](/reference/rest/entities/publish-entity#request.body.geoShape) 组件。
 
 - `location`
-  Add the [`location`](/reference/rest/entities/publish-entity#request.body.location) component, if `geo_shape` is set to [ellipse](/reference/rest/entities/publish-entity#request.body.geoShape.ellipse).
+  如果 `geo_shape` 设置为 [ellipse](/reference/rest/entities/publish-entity#request.body.geoShape.ellipse)，请添加 [`location`](/reference/rest/entities/publish-entity#request.body.location) 组件。
 
-**Example entity models**
+**示例实体模型**
 
-Point
+点
 
 ```json
 {
@@ -312,7 +312,7 @@ Point
 }
 ```
 
-Polygon
+多边形
 
 ```json
 {
@@ -372,7 +372,7 @@ Polygon
 }
 ```
 
-Ellipse
+椭圆
 
 ```json
 {
@@ -411,7 +411,7 @@ Ellipse
 }
 ```
 
-Line
+线
 
 ```json
 {
@@ -451,37 +451,37 @@ Line
 }
 ```
 
-## Entity lifecycle
+## 实体生命周期
 
-Entities have a well-defined lifecycle of **create**, **update**, and **delete**. On each lifecycle update, Entity Manager emits the state change event back to Lattice:
+实体具有明确定义的**创建**、**更新**和**删除**生命周期。每次生命周期更新时，Entity Manager 都会向 Lattice 发出状态变更事件：
 
 1
 
-### Create
+### 创建
 
-When an app or integration publishes an entity, Lattice emits a state change event, setting the entity state to `CREATE`.
+当应用或集成发布实体时，Lattice 会发出状态变更事件，将实体状态设置为 `CREATE`。
 
 2
 
-### Update
+### 更新
 
-When data in the entity changes, Lattice emits the state change as an **update** event. To optimize performance, Lattice relies on changes to `provenance.source_update_time` to trigger an update. It does *not* compare the full proto definitions to set the state change.
+当实体中的数据变化时，Lattice 会将状态变更作为**更新**事件发出。为了优化性能，Lattice 依赖 `provenance.source_update_time` 的变化来触发更新。它*不会*比较完整 proto 定义来设置状态变更。
 
 3
 
-### Delete
+### 删除
 
-An entity is deleted when its `expiry_time` has lapsed, or an update is sent with the `is_live` component set to `false`. Alternatively, you can use the `noExpiry` flag to create entities that persist indefinitely. Use `noExpiry` only when the entity contains information that should be available to other tasks or integrations beyond its immediate operational context, such as long-living geographical entities.
+当实体的 `expiry_time` 已过，或发送了将 `is_live` 组件设为 `false` 的更新时，实体会被删除。或者，你可以使用 `noExpiry` 标志创建无限期持久存在的实体。只有当实体包含应在其即时作战上下文之外供其他任务或集成使用的信息时，才使用 `noExpiry`，例如长生命周期地理实体。
 
-Persistence
+持久性
 
-- If both `noExpiry` and `expiryTime` are set, Lattice ignores `expiryTime`.
-- If a service restart occurs and an entity hasn’t been republished within the previous 5 minutes, the entity will not be restored, regardless of the `noExpiry` setting.
+- 如果同时设置了 `noExpiry` 和 `expiryTime`，Lattice 会忽略 `expiryTime`。
+- 如果发生服务重启，且实体在此前 5 分钟内未被重新发布，则无论 `noExpiry` 如何设置，该实体都不会被恢复。
 
-You should handle a delete event by removing all references to it in memory or discarding it from your user interface.
+你应通过移除内存中对该实体的所有引用，或从用户界面中丢弃它，来处理删除事件。
 
-## What’s next?
+## 接下来
 
-- Learn more about the Entities API in REST and gRPC .
-- Learn how to publish entities to Lattice .
-- Check out the Lattice sample apps .
+- 进一步了解 REST 和 gRPC 中的 Entities API。
+- 了解如何将实体发布到 Lattice。
+- 查看 Lattice 示例应用。

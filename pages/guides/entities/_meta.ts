@@ -2,7 +2,7 @@ export default {
   index: {
     display: 'hidden'
   },
-  overview: 'Overview',
-  publish: 'Publish',
-  watch: 'Watch'
+  overview: '概览',
+  publish: '发布',
+  watch: '监听'
 }

@@ -2,11 +2,11 @@ export default {
   index: {
     display: 'hidden'
   },
-  concepts: 'Concepts',
-  'getting-started': 'Getting started',
-  'best-practices': 'Best practices',
-  'developer-tools': 'Developer tools',
-  entities: 'Entities',
-  tasks: 'Tasks',
-  objects: 'Objects'
+  concepts: '概念',
+  'getting-started': '快速开始',
+  'best-practices': '最佳实践',
+  'developer-tools': '开发者工具',
+  entities: '实体',
+  tasks: '任务',
+  objects: '对象'
 }

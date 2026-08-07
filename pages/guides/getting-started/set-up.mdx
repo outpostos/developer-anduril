@@ -1,14 +1,14 @@
 ---
-title: "Install"
+title: "安装"
 ---
 
-# Install
+# 安装
 
-To integrate with Lattice using the Lattice SDK, set up your credentials and environment endpoint as system variables, then install the SDK in a language, and protocol, of your choice. Lattice supports both gRPC and REST as first-class protocols:
+要使用 Lattice SDK 与 Lattice 集成，请先把凭证和环境端点设置为系统变量，然后按你选择的语言和协议安装 SDK。Lattice 将 gRPC 和 REST 都作为一等协议支持：
 
-Choosing a protocol
+选择协议
 
-For more information on selecting the right protocol for your integration, see [Choose a protocol](/guides/best-practices/choose-a-protocol).
+有关如何为你的集成选择合适协议的更多信息，请参阅[选择协议](/guides/best-practices/choose-a-protocol)。
 
 Go
 
@@ -32,19 +32,19 @@ TypeScript
 
 gRPC
 
-If you do not have access to the Lattice Schema Registry yet [schema-registry.developer.anduril.com](https://schema-registry.developer.anduril.com/), the SDKs and schemas are mirrored publicly at [buf.build/anduril/lattice-sdk](https://buf.build/anduril/lattice-sdk)
+如果你还无法访问 Lattice Schema Registry [schema-registry.developer.anduril.com](https://schema-registry.developer.anduril.com/)，SDK 和 schema 会公开镜像到 [buf.build/anduril/lattice-sdk](https://buf.build/anduril/lattice-sdk)。
 
-The gRPC examples in Lattice SDK documentation use Go, Python, and Rust.
+Lattice SDK 文档中的 gRPC 示例使用 Go、Python 和 Rust。
 
-If you’re using another language, you can choose from up to 16 languages and various plugins to get your [Lattice SDK artifacts for gRPC](https://schema-registry.developer.anduril.com/anduril/lattice-sdk/sdks/main:grpc).
+如果你使用其他语言，可以从最多 16 种语言和多种插件中选择，以获取用于 gRPC 的 [Lattice SDK 构件](https://schema-registry.developer.anduril.com/anduril/lattice-sdk/sdks/main:grpc)。
 
-## Before you begin
+## 开始之前
 
-- If you are using Lattice Sandboxes, complete the steps in Developing with Lattice Sandboxes to create an environment and generate your credentials.
+- 如果你使用 Lattice Sandboxes，请完成 Lattice Sandboxes 开发指南中的步骤，创建环境并生成凭证。
 
-## Get the SDK for gRPC
+## 获取 gRPC SDK
 
-Lattice provides a gRPC SDK in a variety of languages and plugins using the [Lattice Schema Registry](https://schema-registry.developer.anduril.com/anduril/lattice-sdk/sdks). The following steps show how to get the Lattice SDK for gRPC in Go, Python, and Rust:
+Lattice 通过 [Lattice Schema Registry](https://schema-registry.developer.anduril.com/anduril/lattice-sdk/sdks) 提供多种语言和插件形式的 gRPC SDK。下列步骤展示如何在 Go、Python 和 Rust 中获取用于 gRPC 的 Lattice SDK：
 
 Go
 
@@ -54,31 +54,31 @@ Rust
 
 1
 
-Install the [latest version](https://go.dev/) of Go.
+安装[最新版本](https://go.dev/)的 Go。
 
 2
 
-Create a new folder and initialize your project:
+创建新文件夹并初始化项目：
 
 ```
 go mod init lattice-sdk-go-example
 ```
 
-This generates a `go.mod` file in the project directory.
+这会在项目目录中生成 `go.mod` 文件。
 
 3
 
-Install the generated Lattice SDK gRPC stubs using the [`grpc/go`](https://buf.build/anduril/lattice-sdk/sdks/main:grpc/go) plugin:
+使用 [`grpc/go`](https://buf.build/anduril/lattice-sdk/sdks/main:grpc/go) 插件安装生成的 Lattice SDK gRPC stub：
 
 ```
 go get schema-registry.developer.anduril.com/gen/go/anduril/lattice-sdk/grpc/go@v<latest-supported-version>
 ```
 
-This installs the generated Lattice SDK gRPC stubs along with the required gRPC runtime dependencies and creates a `go.sum` file in the project directory.
+这会安装生成的 Lattice SDK gRPC stub 以及所需的 gRPC 运行时依赖，并在项目目录中创建 `go.sum` 文件。
 
 4
 
-Import Lattice and use the client:
+导入 Lattice 并使用客户端：
 
 ```
 package main
@@ -96,11 +96,11 @@ func main() {
 }
 ```
 
-For additional information on using the Buf Schema Registry, refer to the Buf [documentation](https://buf.build/docs/bsr/generated-sdks/tutorial/).
+有关使用 Buf Schema Registry 的更多信息，请参阅 Buf [文档](https://buf.build/docs/bsr/generated-sdks/tutorial/)。
 
-## Get the SDK for REST
+## 获取 REST SDK
 
-Lattice provides a REST SDK in the following languages:
+Lattice 提供下列语言的 REST SDK：
 
 Go
 
@@ -112,11 +112,11 @@ TypeScript
 
 1
 
-Download the [latest version](https://go.dev/learn/) of Go.
+下载[最新版本](https://go.dev/learn/)的 Go。
 
 2
 
-Verify your installation:
+验证安装：
 
 ```
 go version
@@ -124,7 +124,7 @@ go version
 
 3
 
-Install the latest version of the Lattice SDK:
+安装最新版本的 Lattice SDK：
 
 ```
 go get github.com/anduril/lattice-sdk-go/v3
@@ -132,7 +132,7 @@ go get github.com/anduril/lattice-sdk-go/v3
 
 4
 
-Import Lattice and use the client:
+导入 Lattice 并使用客户端：
 
 ```
 package main
@@ -160,8 +160,8 @@ func main() {
 }
 ```
 
-## What’s next?
+## 接下来
 
-- Start building and publishing entities into Lattice.
-- Learn how to watch entities, stream specific components, and apply filters .
-- See the Lattice sample applications .
+- 开始构建实体并发布到 Lattice。
+- 了解如何监听实体、流式传输特定组件以及应用过滤器。
+- 查看 Lattice 示例应用。

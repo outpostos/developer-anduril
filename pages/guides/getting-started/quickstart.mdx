@@ -1,25 +1,25 @@
 ---
-title: "Quickstart"
+title: "快速入门"
 ---
 
-# Quickstart
+# 快速入门
 
-Try the Lattice SDK by connecting Lattice environment and publishing a surface vessel entity.
+通过连接 Lattice 环境并发布一个水面舰艇实体来试用 Lattice SDK。
 
-## Before you begin
+## 开始之前
 
-- Complete the set up steps to log in to the Sandbox and create an environment. If you do not have access to a Lattice Sandbox, request to join the Lattice SDK developer program .
-- Confirm you have the curl command-line tool, or install it from the curl website: ```bash curl --version ```
+- 完成设置步骤，登录 Sandbox 并创建环境。如果你无法访问 Lattice Sandbox，请申请加入 Lattice SDK developer program。
+- 确认你已有 curl 命令行工具，或从 curl 网站安装它：```bash curl --version ```
 
-## Publish a track
+## 发布航迹
 
-To get started with Lattice, consider this scenario: a friendly drone with access to Lattice has picked up a new track that appears to be a surface vessel. To configure this drone to publish a track to Lattice as a new entity, do the following:
+要开始使用 Lattice，请考虑这个场景：一架可访问 Lattice 的友方无人机发现了一条新航迹，看起来像是一艘水面舰艇。要配置这架无人机将该航迹作为新实体发布到 Lattice，请执行以下操作：
 
 1
 
-### Retrieve an Authentication Token
+### 获取认证令牌
 
-Use your **Lattice Client ID** and **Lattice Client Secret** to get an access token from the server. This token has a lifetime of 30 minutes.
+使用你的 **Lattice Client ID** 和 **Lattice Client Secret** 从服务器获取访问令牌。该令牌的生命周期为 30 分钟。
 
 ```bash
 export ENVIRONMENT_TOKEN=$(
@@ -34,9 +34,9 @@ export ENVIRONMENT_TOKEN=$(
 
 2
 
-### Define the entity
+### 定义实体
 
-Copy the following entity JSON object and save it in a new file named `entity.json`. Replace the timestamp for `expiryTime` with a time in the future, and `sourceUpdateTime` with the current time:
+复制下面的实体 JSON 对象，并将其保存到名为 `entity.json` 的新文件中。将 `expiryTime` 的时间戳替换为未来时间，并将 `sourceUpdateTime` 替换为当前时间：
 
 ```json
 {
@@ -73,9 +73,9 @@ Copy the following entity JSON object and save it in a new file named `entity.js
 
 3
 
-### Publish the entity to Lattice
+### 将实体发布到 Lattice
 
-From the same folder where you saved `entity.json`, use curl to publish the entity to Lattice:
+在保存 `entity.json` 的同一文件夹中，使用 curl 将实体发布到 Lattice：
 
 ```bash
 curl --location \
@@ -89,32 +89,32 @@ curl --location \
 
 4
 
-### Verify the response
+### 验证响应
 
-If the request is successful, you get a `200` status response with an empty body: `{}`.
+如果请求成功，你会收到状态码为 `200` 且正文为空的响应：`{}`。
 
-## Find the vessel in Lattice
+## 在 Lattice 中查找舰艇
 
-To verify that your surface vessel was successfully published to Lattice, do the following:
+要验证你的水面舰艇是否已成功发布到 Lattice，请执行以下操作：
 
 1
 
-Open the Lattice UI.
+打开 Lattice UI。
 
 2
 
-Find the vessel in the Entity Explorer. Search by the vessel’s `aliases.name` to narrow the list:
+在 Entity Explorer 中查找该舰艇。按舰艇的 `aliases.name` 搜索以缩小列表范围：
 
-![Shows the Entity Explorer in the Lattice Developer Console.](/img/anduril.docs.buildwithfern.com/72c242c7f0277f5a308bd2efb784cfcd9675f4dab9d1790bd9b195c6df74c7d0/assets/images/screenshots/developer-console-entity-explorer.png)
+![显示 Lattice Developer Console 中的 Entity Explorer。](/img/anduril.docs.buildwithfern.com/72c242c7f0277f5a308bd2efb784cfcd9675f4dab9d1790bd9b195c6df74c7d0/assets/images/screenshots/developer-console-entity-explorer.png)
 
 3
 
-Open the vessel to view its detail page, and confirm its location, name, and other components match the entity you published:
+打开该舰艇以查看详情页，并确认它的位置、名称和其他组件与你发布的实体一致：
 
-![Shows the Simulated Surface Vessel's detail page in the Lattice Developer Console.](/img/anduril.docs.buildwithfern.com/f4a1cc6ad39c631b2b40aba648adf11805f4168f9e5be4005d1ec8ffe8aa5a55/assets/images/screenshots/developer-console-surface-vessel-detail.png)
+![显示 Lattice Developer Console 中 Simulated Surface Vessel 的详情页。](/img/anduril.docs.buildwithfern.com/f4a1cc6ad39c631b2b40aba648adf11805f4168f9e5be4005d1ec8ffe8aa5a55/assets/images/screenshots/developer-console-surface-vessel-detail.png)
 
-## What’s next?
+## 接下来
 
-- Explore the different Lattice entity shapes .
-- Learn how to task an asset in Lattice
-- Check out our sample apps in GitHub.
+- 探索不同的 Lattice 实体形态。
+- 了解如何在 Lattice 中为资产分配任务。
+- 查看 GitHub 中的示例应用。

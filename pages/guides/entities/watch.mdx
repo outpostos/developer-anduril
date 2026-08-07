@@ -1,42 +1,42 @@
 ---
-title: "Watch entities"
+title: "监听实体"
 ---
 
-# Watch entities
+# 监听实体
 
-This shows how to use the SDK to fetch entities from Lattice and stream real-time information about entity components.
+本页展示如何使用 SDK 从 Lattice 获取实体，并流式传输实体组件的实时信息。
 
-Complete the steps to learn how to use the following APIs:
+完成这些步骤，了解如何使用下列 API：
 
-- GetEntity — Retrieves a single entity from Lattice.
-- StreamEntities — Establishes a persistent connection to stream entity events.
+- GetEntity - 从 Lattice 检索单个实体。
+- StreamEntities - 建立持久连接以流式传输实体事件。
 
-## Before you begin
+## 开始之前
 
-- To configure your app to watch entities, set up the Lattice SDK .
-- Learn about required components and various entity shapes in Lattice.
+- 要配置应用监听实体，请设置 Lattice SDK。
+- 了解 Lattice 中的必需组件和各种实体形态。
 
-gRPC authentication
+gRPC 认证
 
-If you are using gRPC with client credentials, [set up the token refresh module](/guides/getting-started/authenticate#using-grpc) before running the examples on this page.
+如果你将 gRPC 与客户端凭证一起使用，请在运行本页示例前[设置令牌刷新模块](/guides/getting-started/authenticate#using-grpc)。
 
-## Get an entity
+## 获取实体
 
-Get details of a specific entity using [`entity_ID`](/reference/rest/entities/publish-entity#request.body.entityId) and the [`GetEntity`](/reference/rest/entities/get-entity) API:
+使用 [`entity_ID`](/reference/rest/entities/publish-entity#request.body.entityId) 和 [`GetEntity`](/reference/rest/entities/get-entity) API 获取特定实体的详情：
 
 1
 
-### Get the entity ID
+### 获取实体 ID
 
-Open the Lattice UI and find the entity in the Entity Explorer. Copy its ID from the **Entity ID** column:
+打开 Lattice UI，并在 Entity Explorer 中查找实体。从 **Entity ID** 列复制其 ID：
 
-![Shows the Entity Explorer in the Lattice Developer Console.](/img/anduril.docs.buildwithfern.com/72c242c7f0277f5a308bd2efb784cfcd9675f4dab9d1790bd9b195c6df74c7d0/assets/images/screenshots/developer-console-entity-explorer.png)
+![显示 Lattice Developer Console 中的 Entity Explorer。](/img/anduril.docs.buildwithfern.com/72c242c7f0277f5a308bd2efb784cfcd9675f4dab9d1790bd9b195c6df74c7d0/assets/images/screenshots/developer-console-entity-explorer.png)
 
 2
 
-### Get the entity object
+### 获取实体对象
 
-Use the `GetEntity` API action to retrieve a single entity object from Lattice. Replace `$ENTITY_ID` in the following example with the entity ID you copied in the previous step:
+使用 `GetEntity` API action 从 Lattice 检索单个实体对象。将下列示例中的 `$ENTITY_ID` 替换为上一步复制的实体 ID：
 
 ```
 package main
@@ -107,30 +107,30 @@ func main() {
 
 3
 
-### Verify the response
+### 验证响应
 
-If successful, you’ll see the entity’s`aliases.name` and its real-time location logged in the console:
+如果成功，你会在控制台日志中看到实体的 `aliases.name` 及其实时位置：
 
 ```
 Asset name     | Demo-Sim-Asset1
 Asset location | 37.7749, -122.4194
 ```
 
-## Stream entities
+## 流式传输实体
 
-The [`StreamEntities`](/reference/rest/entities/stream-entities) API establishes a persistent connection to stream entity events as they occur. The stream sends two types of events: [`entity`](/reference/rest/entities/stream-entities#response.body.entity) and [`heartbeat`](/reference/rest/entities/stream-entities#response.body.heartbeat).
+[`StreamEntities`](/reference/rest/entities/stream-entities) API 会建立持久连接，在实体事件发生时流式传输这些事件。该流会发送两类事件：[`entity`](/reference/rest/entities/stream-entities#response.body.entity) 和 [`heartbeat`](/reference/rest/entities/stream-entities#response.body.heartbeat)。
 
-Use the following optional parameters to control the frequency and type of data fetched from your environment: [`heartbeatIntervalMS`](/reference/rest/entities/stream-entities#request.body.heartbeatIntervalMS), [`preExistingOnly`](/reference/rest/entities/stream-entities#request.body.preExistingOnly), and [`componentsToInclude`](/reference/rest/entities/stream-entities#request.body.componentsToInclude).
+使用下列可选参数控制从环境获取数据的频率和类型：[`heartbeatIntervalMS`](/reference/rest/entities/stream-entities#request.body.heartbeatIntervalMS)、[`preExistingOnly`](/reference/rest/entities/stream-entities#request.body.preExistingOnly) 和 [`componentsToInclude`](/reference/rest/entities/stream-entities#request.body.componentsToInclude)。
 
-To stream entities from Lattice, do the following:
+要从 Lattice 流式传输实体，请执行以下操作：
 
 1
 
-### Stream all components
+### 流式传输所有组件
 
-To get stream of all entity components from your environment, including new entities as they are updated, use the default options.
+要从环境获取所有实体组件的流，包括更新时出现的新实体，请使用默认选项。
 
-By default, the `preExistingOnly` option is set to `false`, instructing Lattice to establish a persistent, real-time connection with the client:
+默认情况下，`preExistingOnly` 选项设置为 `false`，指示 Lattice 与客户端建立持久实时连接：
 
 ```
 package main
@@ -214,7 +214,7 @@ func main() {
 }
 ```
 
-If successful, you get a stream of all entities as they are updated in Lattice:
+如果成功，你会在 Lattice 中实体更新时获得所有实体的流：
 
 ```
 Entity: Demo-Sim-Asset2
@@ -224,9 +224,9 @@ Entity: esim.adsb.aus-4005
 
 2
 
-### Stream specific components
+### 流式传输特定组件
 
-Use `componentsToInclude` and provide a list of components in `snake_case`. For example, `aliases`, and `location_uncertainty`:
+使用 `componentsToInclude` 并提供 `snake_case` 格式的组件列表。例如 `aliases` 和 `location_uncertainty`：
 
 ```
 package main
@@ -314,9 +314,9 @@ func main() {
 }
 ```
 
-If you’re directly invoking the [`streamEntities`](/reference/rest/entities/stream-entities) REST API using `curl` or another similar tool, you must list the components using `camelCase`: `locationUncertainty`.
+如果你使用 `curl` 或其他类似工具直接调用 [`streamEntities`](/reference/rest/entities/stream-entities) REST API，必须使用 `camelCase` 列出组件：`locationUncertainty`。
 
-If successful, you receive a real-time stream of entities with `aliases` populated:
+如果成功，你会收到已填充 `aliases` 的实体实时流：
 
 ```
 Entity: ADS-B: N113PF
@@ -324,8 +324,8 @@ Entity: DIVE
 Entity: FISHING VESSEL (37958)
 ```
 
-## What’s next?
+## 接下来
 
-- Learn more about the Entities API in REST and gRPC .
-- Learn how to Publish entities to Lattice .
-- Check out the Lattice sample apps .
+- 进一步了解 REST 和 gRPC 中的 Entities API。
+- 了解如何将实体发布到 Lattice。
+- 查看 Lattice 示例应用。

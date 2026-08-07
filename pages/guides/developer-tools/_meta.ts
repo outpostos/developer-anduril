@@ -4,5 +4,5 @@ export default {
   },
   registry: 'Lattice Schema Registry',
   sandboxes: 'Lattice Sandboxes',
-  skills: 'Lattice SDK skills'
+  skills: 'Lattice SDK 技能'
 }

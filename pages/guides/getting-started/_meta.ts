@@ -2,7 +2,7 @@ export default {
   index: {
     display: 'hidden'
   },
-  'set-up': 'Set up',
-  authenticate: 'Authenticate',
-  quickstart: 'Quickstart'
+  'set-up': '安装',
+  authenticate: '认证',
+  quickstart: '快速入门'
 }

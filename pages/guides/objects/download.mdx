@@ -1,38 +1,38 @@
 ---
-title: "Download an object"
+title: "下载对象"
 ---
 
-# Download an object
+# 下载对象
 
-In Lattice, an **object** is a data model that represents a single file or a piece of data. This page explains how to retrieve objects from Lattice.
+在 Lattice 中，**对象**是表示单个文件或一段数据的数据模型。本页说明如何从 Lattice 检索对象。
 
-## Before you begin
+## 开始之前
 
-- To configure your app to upload objects, set up your Lattice environment.
-- See an overview of the Object schema and the Object Store API in Lattice.
+- 要配置应用上传对象，请设置 Lattice 环境。
+- 查看 Lattice 中对象 schema 和 Object Store API 的概览。
 
-## Download an object
+## 下载对象
 
-In Lattice, an **object** is a data model that represents a single file or a piece of data. To download a specific binary object from Lattice using its unique object path, do the following:
+在 Lattice 中，**对象**是表示单个文件或一段数据的数据模型。要使用唯一对象路径从 Lattice 下载特定二进制对象，请执行以下操作：
 
 1
 
-### Get the object path
+### 获取对象路径
 
-When using the [DownloadObject](/reference/rest/objects/get-object) API, you must specify the object path of the object you want to download at runtime.
+使用 [DownloadObject](/reference/rest/objects/get-object) API 时，必须在运行时指定要下载对象的对象路径。
 
-In the [previous](/guides/objects/upload) procedure, you uploaded the following objects:
+在[上一流程](/guides/objects/upload)中，你上传了下列对象：
 
-- Image: A .jpg image at the following path: /api/v1/objects/cessna.jpg . This image is a thumbnail of its associated track entity.
-- CSV: A .csv file at the following path: /api/v1/objects/manifest.csv . This serves as metadata, in this case, a vessel manifest for the associated entity. Choose one, and note the object path.
+- 图像：路径为 /api/v1/objects/cessna.jpg 的 .jpg 图像。该图像是其关联航迹实体的缩略图。
+- CSV：路径为 /api/v1/objects/manifest.csv 的 .csv 文件。它作为元数据使用，在本例中是关联实体的舰艇清单。选择其中一个，并记下对象路径。
 
 2
 
-### Download the object
+### 下载对象
 
-Run the following code in the directory where you’d like to download the object. To download, use the [`GetObject`](/reference/rest/objects/get-object) operation. Replace the following:
+在你想下载对象的目录中运行以下代码。下载时，请使用 [`GetObject`](/reference/rest/objects/get-object) 操作。替换以下内容：
 
-- object_path : the unique path of the object in Lattice.
+- object_path：对象在 Lattice 中的唯一路径。
 
 ```
 package main
@@ -107,14 +107,14 @@ func main() {
 
 3
 
-### Verify the response
+### 验证响应
 
-If successful, you’ll see the following output:
+如果成功，你会看到以下输出：
 
 ```http
 INFO - HTTP Request: GET https://lattice-50802.env.sandboxes.developer.anduril.com/api/v1/objects/your_object_name "HTTP/1.1 200 OK"
 ```
 
-## What’s next?
+## 接下来
 
-- Learn more about the Objects API .
+- 进一步了解 Objects API。

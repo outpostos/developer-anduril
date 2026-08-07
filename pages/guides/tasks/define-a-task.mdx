@@ -1,28 +1,28 @@
 ---
-title: "Define a task"
+title: "定义任务"
 ---
 
-# Define a task
+# 定义任务
 
-This guide describes best practices for authoring custom task definitions for use in Lattice. Custom task definitions allow you to extend Lattice’s tasking capabilities with your own specialized workflows.
+本指南介绍编写自定义任务定义并在 Lattice 中使用的最佳实践。自定义任务定义允许你用自己的专门工作流扩展 Lattice 的任务能力。
 
-## Before you begin
+## 开始之前
 
-- Familiarize yourself with tasks in Lattice.
-- To create tasks, set up your Lattice environment.
-- Review the Protobuf files and packages guide to understand Protobuf fundamentals.
+- 熟悉 Lattice 中的任务。
+- 要创建任务，请设置 Lattice 环境。
+- 复习 Protobuf files and packages 指南，了解 Protobuf 基础。
 
-## Authoring tasks
+## 编写任务
 
-A custom task is a Protobuf message type that contains the information your asset requires to execute a task autonomously. The complexity of your task definition depends on your integration’s requirements. For example:
+自定义任务是一个 Protobuf 消息类型，包含资产自主执行任务所需的信息。任务定义的复杂度取决于集成需求。例如：
 
-- Simple tasks : A sensor may define an on/off toggle message
-- Entity-targeted tasks : A tracking system may define a message containing an entity_id to track
-- Complex tasks : An autonomous vehicle may define multiple parameters including waypoints, speed limits, sensor configurations, and priority levels
+- 简单任务：传感器可以定义开/关切换消息
+- 面向实体的任务：跟踪系统可以定义包含要跟踪的 entity_id 的消息
+- 复杂任务：自主车辆可以定义多个参数，包括航点、速度限制、传感器配置和优先级
 
-Custom tasks give you the flexibility to model domain-specific workflows while maintaining type safety and compatibility across your Lattice deployment.
+自定义任务让你能够灵活建模特定领域工作流，同时在 Lattice 部署中保持类型安全和兼容性。
 
-At its simplest, a task definition is a single Protobuf message. For example, the following schema defines a task that turns a sensor on:
+最简单的任务定义是单个 Protobuf 消息。例如，下面的 schema 定义了一个打开传感器的任务：
 
 ```proto
 syntax = "proto3";
@@ -33,38 +33,38 @@ package org.example.sensor.v1;
 message SensorOn {}
 ```
 
-Next, you’ll learn how to organize definitions into [packages](#create-a-package), how Lattice [identifies them](#fully-qualified-names), and how to model [richer task parameters](#define-a-custom-schema).
+接下来，你将了解如何将定义组织到 [package](#create-a-package) 中、Lattice 如何[识别它们](#fully-qualified-names)，以及如何建模[更丰富的任务参数](#define-a-custom-schema)。
 
-## Create a package
+## 创建 package
 
-Define your tasks as Protobuf messages as part of a package. A package should contain all relevant message types to compose tasks that express an integration’s capabilities. Naming your package clearly and precisely is crucial to avoid potential naming conflicts.
+将任务定义为 package 中的 Protobuf 消息。package 应包含所有相关消息类型，用于组合表达集成能力的任务。清晰、准确地命名 package 对避免潜在命名冲突至关重要。
 
-Use a consistent package naming pattern: `org.repository.package.version`
+使用一致的 package 命名模式：`org.repository.package.version`
 
-Where:
+其中：
 
-- org : Your organization name in the Schema Registry.
-- repository : Your repository name in the Schema Registry.
-- package : A descriptive name for your task domain, for example, reconnaissance , navigation , or sensor .
-- version : The API version, for example, v1 , v2 v1alpha or v2test .
+- org：你在 Schema Registry 中的组织名称。
+- repository：你在 Schema Registry 中的仓库名称。
+- package：任务领域的描述性名称，例如 reconnaissance、navigation 或 sensor。
+- version：API 版本，例如 v1、v2、v1alpha 或 v2test。
 
 ```
 // Example
 package company.isr.imaging.v1test;
 ```
 
-During early development, mark your package as unstable by appending a stability marker (`alpha`, `beta`, or `test`) to the version.
+在早期开发期间，请在版本后追加稳定性标记（`alpha`、`beta` 或 `test`），将 package 标记为不稳定。
 
 ```
 package org.example.reconnaissance.v1beta;
 package org.example.navigation.v2beta;
 ```
 
-The Schema Registry enforces breaking change detection on all packages, regardless of the stability marker. If you need to make a breaking change, you must create a new version.
+Schema Registry 会对所有 package 强制执行破坏性变更检测，无论是否有稳定性标记。如果需要进行破坏性变更，必须创建新版本。
 
-### Fully qualified names
+### 完全限定名
 
-The fully qualified name of a message consists of its package and message name:
+消息的完全限定名由 package 和消息名组成：
 
 ```proto
 package org.example.reconnaissance.v1beta;
@@ -74,15 +74,15 @@ message Objective {
 }
 ```
 
-The above message yields the name: `org.example.reconnaissance.v1beta.Objective`.
+上述消息生成的名称为：`org.example.reconnaissance.v1beta.Objective`。
 
-All protobuf type URLs are prefixed with `type.googleapis.com`. You will always reference your task definition by its type URL, for example: `type.googleapis.com/org.example.reconnaissance.v1beta.Objective`.
+所有 protobuf 类型 URL 都以 `type.googleapis.com` 为前缀。你始终会通过类型 URL 引用任务定义，例如：`type.googleapis.com/org.example.reconnaissance.v1beta.Objective`。
 
-Globally unique names
+全局唯一名称
 
-Each fully qualified message name must be globally unique within the Schema Registry. This prevents naming conflicts when multiple organizations publish schemas.
+每个完全限定消息名在 Schema Registry 中都必须全局唯一。这可防止多个组织发布 schema 时发生命名冲突。
 
-This type URL is also how you advertise a task on an asset. The Entity model’s [`taskCatalog`](/reference/rest/entities/publish-entity#request.body.taskCatalog) lists the tasks an asset can perform, and each entry’s `taskSpecificationUrl` is the type URL of a task definition:
+这个类型 URL 也是你在资产上公开任务的方式。Entity 模型的 [`taskCatalog`](/reference/rest/entities/publish-entity#request.body.taskCatalog) 会列出资产可以执行的任务，每个条目的 `taskSpecificationUrl` 都是某个任务定义的类型 URL：
 
 ```
 "taskCatalog": {
@@ -94,26 +94,26 @@ This type URL is also how you advertise a task on an asset. The Entity model’s
 }
 ```
 
-An operator can only assign a task to an asset if the asset’s `taskCatalog` advertises that task’s type URL. To learn how to publish an asset with a `taskCatalog` and process the tasks it receives, see [Integrate an agent](/guides/tasks/integrate-an-agent).
+只有当资产的 `taskCatalog` 公开了某个任务的类型 URL 时，操作员才能将该任务分配给该资产。要了解如何发布带有 `taskCatalog` 的资产并处理其收到的任务，请参阅[集成 agent](/guides/tasks/integrate-an-agent)。
 
-For more information about Protobuf packages and naming, see [Protobuf files and packages](https://buf.build/docs/reference/protobuf-files-and-packages/) in the Buf documentation.
+有关 Protobuf package 和命名的更多信息，请参阅 Buf 文档中的 [Protobuf files and packages](https://buf.build/docs/reference/protobuf-files-and-packages/)。
 
-## Breaking change protection
+## 破坏性变更保护
 
-The Schema Registry enforces breaking change detection for all packages. This ensures backward compatibility for consumers of your schemas. You can deprecate old fields, or if necessary, release a new version of your package.
+Schema Registry 会对所有 package 强制执行破坏性变更检测。这可确保 schema 消费者的向后兼容性。你可以弃用旧字段，必要时也可以发布 package 的新版本。
 
-| Breaking changes (prevented) | Non-breaking changes (allowed) |
+| 破坏性变更（阻止） | 非破坏性变更（允许） |
 | --- | --- |
-| Removing or renaming fields | Adding new fields |
-| Changing field types | Adding new enumerated values |
-| Changing field numbers | Adding new messages |
-| Removing enumerated values | Deprecating fields (using the `deprecated` option) |
+| 移除或重命名字段 | 添加新字段 |
+| 更改字段类型 | 添加新的枚举值 |
+| 更改字段编号 | 添加新消息 |
+| 移除枚举值 | 弃用字段（使用 `deprecated` 选项） |
 
-For a complete guide on breaking changes, see the [Buf breaking change detector documentation](https://buf.build/docs/breaking/overview/).
+有关破坏性变更的完整指南，请参阅 [Buf breaking change detector documentation](https://buf.build/docs/breaking/overview/)。
 
-## Define a custom schema
+## 定义自定义 schema
 
-Every task in Lattice is represented by the `Task` message. Its `specification` field is a [`google.protobuf.Any`](https://protobuf.dev/reference/protobuf/google.protobuf/#any), which lets Lattice carry any custom task type without knowing its schema in advance:
+Lattice 中的每个任务都由 `Task` 消息表示。它的 `specification` 字段是 [`google.protobuf.Any`](https://protobuf.dev/reference/protobuf/google.protobuf/#any)，让 Lattice 可以承载任何自定义任务类型，而无需预先知道其 schema：
 
 ```proto
 message Task {
@@ -127,7 +127,7 @@ message Task {
 }
 ```
 
-Lattice packs the message you define into this `specification` field when a task is created. To author an example custom task, create a new `.proto` file. For example:
+创建任务时，Lattice 会将你定义的消息打包到这个 `specification` 字段中。要编写示例自定义任务，请创建新的 `.proto` 文件。例如：
 
 ```proto
 syntax = "proto3";
@@ -159,16 +159,16 @@ message Objective {
 }
 ```
 
-Best practices
+最佳实践
 
-- Use descriptive comments : Document each field and enum value to help other developers understand your schema.
-- Use wrapper types : For optional numeric fields, use google.protobuf.*Value wrapper types instead of primitive types.
-- Start with stability markers : Use v1alpha or v1beta during development to allow breaking changes.
-- Reserved field 0 : Always reserve enum value 0 for an INVALID or UNSPECIFIED variant. In proto3, an unset enum field defaults to 0 , so reserving it keeps an intentional value from being indistinguishable from an unset one.
+- 使用描述性注释：为每个字段和枚举值编写文档，帮助其他开发者理解你的 schema。
+- 使用 wrapper 类型：对于可选数值字段，请使用 google.protobuf.*Value wrapper 类型，而不是原始类型。
+- 从稳定性标记开始：开发期间使用 v1alpha 或 v1beta，以允许破坏性变更。
+- 保留字段 0：始终将枚举值 0 保留给 INVALID 或 UNSPECIFIED 变体。在 proto3 中，未设置的枚举字段默认为 0，因此保留它可以避免有意设置的值与未设置状态无法区分。
 
-## Common patterns
+## 常见模式
 
-Track entity
+航迹实体
 
 ```proto
 syntax = "proto3";
@@ -181,7 +181,7 @@ message TrackEntity {
 }
 ```
 
-Mission parameters
+任务参数
 
 ```proto
 syntax = "proto3";
@@ -223,8 +223,8 @@ message Survey {
 }
 ```
 
-## What’s next?
+## 接下来
 
-- Publish your schema to make it available for use.
-- Use your task definition to create tasks in Lattice.
-- Configure your agents to listen for tasks assigned to them.
+- 发布你的 schema，使其可供使用。
+- 使用你的任务定义在 Lattice 中创建任务。
+- 配置 agent 监听分配给它们的任务。

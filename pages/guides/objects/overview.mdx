@@ -1,75 +1,75 @@
 ---
-title: "Objects overview"
+title: "对象概览"
 ---
 
-# Objects overview
+# 对象概览
 
-In Lattice, an **object** is a data model that represents a single file or a piece of data. Implemented around Anduril’s resilient content-delivery network (CDN), the Objects API distributes objects around the [Lattice mesh](https://www.anduril.com/lattice/lattice-mesh).
+在 Lattice 中，**对象**是表示单个文件或一段数据的数据模型。Objects API 围绕 Anduril 的弹性内容分发网络 (CDN) 实现，会在 [Lattice mesh](https://www.anduril.com/lattice/lattice-mesh) 中分发对象。
 
-Use the Objects API together with Entities to implement use cases such as track thumbnails, and vessel manifests.
+将 Objects API 与 Entities 配合使用，可以实现航迹缩略图、舰艇清单等用例。
 
-Limits
+限制
 
-An object must be less than 1 GiB in size.
+对象大小必须小于 1 GiB。
 
-## Data distribution
+## 数据分发
 
-Each Lattice environment runs an instance of the CDN. In a Lattice mesh deployment, every node in the mesh runs a single instance of the CDN. This lets Lattice retrieve objects using a tiered lookup mechanism:
+每个 Lattice 环境都会运行一个 CDN 实例。在 Lattice mesh 部署中，网格中的每个节点都会运行一个 CDN 实例。这让 Lattice 可以使用分层查找机制检索对象：
 
-![Architectural diagram showing the content-delivery network used by Lattice.](/img/anduril.docs.buildwithfern.com/be83e074bce1b6d6be87c091b656fb4863e4a312bf172ffdefe9ff12e9cf4eef/assets/images/diagrams/objects-cdn.png)
+![显示 Lattice 使用的内容分发网络的架构图。](/img/anduril.docs.buildwithfern.com/be83e074bce1b6d6be87c091b656fb4863e4a312bf172ffdefe9ff12e9cf4eef/assets/images/diagrams/objects-cdn.png)
 
-If the requested data is not cached locally, Lattice queries peers at the same layer in the mesh. If a peer has the data, a request is issued to stream and cache the blob locally before sending it to the client. If no peers at the same layer have the requested data, the system queries nodes in the next highest layer, following a specific precedence order.
+如果请求的数据未在本地缓存，Lattice 会查询网格中同一层的对等节点。如果某个对等节点拥有数据，系统会发出请求，先将 blob 流式传输并缓存在本地，再发送给客户端。如果同一层没有对等节点拥有所请求的数据，系统会按照特定优先级顺序查询下一更高层的节点。
 
-## Object schema
+## 对象 schema
 
-The Objects API implements the `PathMetadata` and `ContentIdentifier` schemas to store and retrieve objects across the Lattice environment:
+Objects API 实现 `PathMetadata` 和 `ContentIdentifier` schema，用于在 Lattice 环境中存储和检索对象：
 
 **`PathMetadata`**:
 
 - `content_identifier` _ContentIdentifierRequired_
-  String that uniquely identifies the object path in your environment.
+  唯一标识环境中对象路径的字符串。
 
 - `size_bytes` _IntegerRequired_
-  The size of the object in bytes.
+  对象大小，单位为字节。
 
 - `last_updated_at` _DatetimeRequired_
-  The time when the object was last updated.
+  对象最后更新时间。
 
 - `expiry_time` _datetime_
-  The future time at which an object expires and is deleted from the environment.
+  对象过期并从环境中删除的未来时间。
 
 **`ContentIdentifier`**:
 
 - `path` _StringRequired_
-  The unique object path in your environment.
+  环境中的唯一对象路径。
 
 - `checksum` _String_
-  The SHA-256 checksum of the object used to verify the integrity of the data in Lattice.
+  对象的 SHA-256 校验和，用于验证 Lattice 中数据的完整性。
 
-## Object lifecycle
+## 对象生命周期
 
-An object in Lattice has the following lifecycle states:
+Lattice 中的对象具有下列生命周期状态：
 
 1
 
-### Create
+### 创建
 
-When you upload an object, Object Store updates the object’s [`last_updated_at`](/reference/rest/objects/upload-object#response.body.last_updated_at).
+上传对象时，Object Store 会更新对象的 [`last_updated_at`](/reference/rest/objects/upload-object#response.body.last_updated_at)。
 
 2
 
-### Expire
+### 过期
 
-When an object expires, Object Store automatically deletes it from Lattice. You can define an [`expiry_time`](/reference/rest/objects/upload-object#response.body.expiry_time%5D) by setting the optional `Time-to-Live` header when uploading the object. If you associate an object with an entity in Lattice, your app must handle resetting the entity’s [`media`](/reference/rest/entities/publish-entity#request.body.media) component accordingly.
+对象过期时，Object Store 会自动将其从 Lattice 删除。上传对象时，可以通过设置可选的 `Time-to-Live` header 来定义 [`expiry_time`](/reference/rest/objects/upload-object#response.body.expiry_time%5D)。如果你将对象与 Lattice 中的实体关联，应用必须相应地处理实体 [`media`](/reference/rest/entities/publish-entity#request.body.media) 组件的重置。
 
 3
 
-### Delete
+### 删除
 
-You can delete an object from Lattice before it expires by using the [`DeleteObject`](/reference/rest/objects/delete-object) API. Similar to when an object expires, you must handle resetting the entity’s `media` component if the object is associated with an entity in Lattice.
+可以使用 [`DeleteObject`](/reference/rest/objects/delete-object) API 在对象过期前将其从 Lattice 删除。与对象过期类似，如果对象与 Lattice 中的实体关联，你必须处理实体 `media` 组件的重置。
 
-## What’s next?
+## 接下来
 
-- To start uploading objects, see Upload objects to Lattice .
-- Check out our sample apps .
-- Learn more about the Objects API.
+- 要开始上传对象，请参阅将对象上传到 Lattice。
+- 查看示例应用。
+- 进一步了解 Objects API。

@@ -1,67 +1,67 @@
 ---
-title: "Choose a protocol"
+title: "选择协议"
 ---
 
-# Choose a protocol
+# 选择协议
 
-The Lattice SDK supports both **REST** and **gRPC** protocols. REST offers familiar HTTP/JSON workflows with automatic authentication and broad tooling support.
+Lattice SDK 同时支持 **REST** 和 **gRPC** 协议。REST 提供开发者熟悉的 HTTP/JSON 工作流，并带有自动认证和广泛工具支持。
 
-|  | REST | gRPC |
+| 对比项 | REST | gRPC |
 | --- | --- | --- |
-| Installation | Packages via [PyPi](https://pypi.org/project/anduril-lattice-sdk/), [Maven](https://central.sonatype.com/artifact/com.anduril/lattice-sdk), [npm](https://www.npmjs.com/package/@anduril-industries/lattice-sdk), source via [GitHub](https://github.com/anduril?q=lattice-sdk&type=all&language=&sort=) | Packages generated in [Lattice Schema Registry](https://schema-registry.developer.anduril.com/anduril/lattice-sdk) |
-| Language Support | Python, Typescript, Java, and Go | Auto-generated bindings for 16 languages |
-| Authentication | Includes built-in support for OAuth 2.0 | Requires manual token lifecycle management |
-| Streaming | Supported with basic filtering | Supported with advanced filtering |
-| API availability | `Entities`, `Tasks`, and `Objects` | `Entities` and `Tasks` |
-| Retries | Built-in retries for `5xx`, `408`, `409`, and `429` responses | No built-in retries, implement them in your integration |
-| On-the-wire size | Larger packets with JSON encoding | Smaller packets with binary encoding |
-| Browser support | Better browser support | Weaker browser support |
+| 安装 | 通过 [PyPi](https://pypi.org/project/anduril-lattice-sdk/)、[Maven](https://central.sonatype.com/artifact/com.anduril/lattice-sdk)、[npm](https://www.npmjs.com/package/@anduril-industries/lattice-sdk) 安装 package，源码见 [GitHub](https://github.com/anduril?q=lattice-sdk&type=all&language=&sort=) | 在 [Lattice Schema Registry](https://schema-registry.developer.anduril.com/anduril/lattice-sdk) 中生成的 package |
+| 语言支持 | Python、Typescript、Java 和 Go | 16 种语言的自动生成绑定 |
+| 认证 | 包含 OAuth 2.0 内置支持 | 需要手动管理令牌生命周期 |
+| 流式传输 | 支持基础过滤 | 支持高级过滤 |
+| API 可用性 | `Entities`、`Tasks` 和 `Objects` | `Entities` 和 `Tasks` |
+| 重试 | 对 `5xx`、`408`、`409` 和 `429` 响应内置重试 | 无内置重试，需要在集成中实现 |
+| 线上传输大小 | JSON 编码的数据包更大 | 二进制编码的数据包更小 |
+| 浏览器支持 | 浏览器支持更好 | 浏览器支持较弱 |
 
-gRPC provides binary Protocol Buffers encoding that reduces bandwidth in constrained networks. For high-frequency scenarios, the payload difference compounds quickly. Publishing 50 drone positions at 10 Hz requires ~2 Mbps with REST and JSON, compared to ~1.3 Mbps with gRPC and Protobuf:
+gRPC 提供二进制 Protocol Buffers 编码，可在受限网络中降低带宽占用。对于高频场景，载荷差异会迅速累积。以 10 Hz 发布 50 架无人机位置时，REST 和 JSON 约需 2 Mbps，而 gRPC 和 Protobuf 约需 1.3 Mbps：
 
 ```
 500 bytes × 10 updates/sec × 50 drones = 250 KB/sec = ~2 Mbps
 ```
 
-gRPC authentication
+gRPC 认证
 
-If you are using gRPC with client credentials, [set up the token refresh module](/guides/getting-started/authenticate#using-grpc) before running the examples on this page.
+如果你将 gRPC 与客户端凭证一起使用，请在运行本页示例前[设置令牌刷新模块](/guides/getting-started/authenticate#using-grpc)。
 
-## Authentication
+## 认证
 
-If you are using client credentials, your authentication set up differs between REST and gRPC. REST SDKs automatically manage OAuth token lifecycle, while gRPC requires manual token management with custom credential providers.
+如果使用客户端凭证，REST 和 gRPC 的认证设置不同。REST SDK 会自动管理 OAuth 令牌生命周期，而 gRPC 需要通过自定义凭证提供器手动管理令牌。
 
-For complete authentication details including OAuth client credentials, environment tokens, and code examples for both protocols, see the [Authenticate guide](/guides/getting-started/authenticate).
+有关 OAuth 客户端凭证、环境令牌以及两种协议代码示例等完整认证详情，请参阅[认证指南](/guides/getting-started/authenticate)。
 
-## Reliability and retries
+## 可靠性与重试
 
-Networks that carry Lattice traffic, such as tactical links, satellite relays, and congested cloud egress, drop connections, throttle traffic, and return transient errors. How much of that your integration has to handle manually depends on the protocol you choose.
+承载 Lattice 流量的网络，例如战术链路、卫星中继和拥塞的云出口，可能会断开连接、限制流量并返回瞬时错误。你的集成需要手动处理多少，取决于所选协议。
 
-**REST: Built-in retries for transient errors**
+**REST：内置瞬时错误重试**
 
-The Lattice REST SDKs retry automatically on HTTP `5xx`, `408`, `409`, and `429` responses, using exponential backoff starting at 1 second with a maximum of 60 seconds and ±20% jitter. The SDK also honors `Retry-After`, `retry-after-ms`, and `X-RateLimit-Reset` headers returned by the server. The default is 2 retries per call, and you can override this per call with `request_options={"max_retries": N}`.
+Lattice REST SDK 会在 HTTP `5xx`、`408`、`409` 和 `429` 响应上自动重试，使用从 1 秒开始、最大 60 秒且带 ±20% 抖动的指数退避。SDK 还会遵循服务器返回的 `Retry-After`、`retry-after-ms` 和 `X-RateLimit-Reset` header。默认每次调用重试 2 次，也可以通过 `request_options={"max_retries": N}` 按调用覆盖。
 
-For REST integrations, the baseline reliability story is already in the SDK. You only need a custom retry utility if you want to retry additional error classes (for example, `404` under eventual consistency) or centralize backoff policy across every call site.
+对于 REST 集成，基础可靠性能力已包含在 SDK 中。只有当你想重试其他错误类别（例如最终一致性下的 `404`），或想在所有调用点集中退避策略时，才需要自定义重试工具。
 
-**gRPC: No built-in retries**
+**gRPC：无内置重试**
 
-The Lattice gRPC SDKs do not retry anything automatically. Every call that returns a non-`OK` status surfaces the error to your code unchanged. For gRPC integrations, you must implement retry logic yourself: classify gRPC status codes as retryable or terminal, apply an exponential backoff, and honor context cancellation.
+Lattice gRPC SDK 不会自动重试任何内容。每个返回非 `OK` 状态的调用都会将错误原样暴露给你的代码。对于 gRPC 集成，必须自行实现重试逻辑：将 gRPC 状态码分类为可重试或终止，应用指数退避，并遵循 context 取消。
 
-For a modular, utility-driven pattern that works for both protocols, see [Retry connections](/guides/best-practices/retry-connections).
+有关适用于两种协议的模块化工具模式，请参阅[重试连接](/guides/best-practices/retry-connections)。
 
-## Managing objects
+## 管理对象
 
-The Objects API is a REST-only content delivery network (CDN) service for uploading and managing files and binary data in Lattice. This API is not available in gRPC. If your integration requires file operations alongside gRPC entity or task operations, you need to use both protocols.
+Objects API 是一个仅支持 REST 的内容分发网络 (CDN) 服务，用于在 Lattice 中上传和管理文件及二进制数据。该 API 不通过 gRPC 提供。如果你的集成除了 gRPC 实体或任务操作外还需要文件操作，就需要同时使用两种协议。
 
-For more information on managing files and binary data, see [Objects overview](/guides/objects/overview).
+有关管理文件和二进制数据的更多信息，请参阅[对象概览](/guides/objects/overview)。
 
-## Publishing entities
+## 发布实体
 
-The choice between REST and gRPC for publishing entities depends on your update frequency and data volume.
+发布实体时选择 REST 还是 gRPC，取决于更新频率和数据量。
 
-**gRPC: High-throughput streaming**
+**gRPC：高吞吐流式传输**
 
-Use the **PublishEntities** API when your integration produces high volumes of entity updates. This API creates a client-side stream that efficiently publishes batches of entities in a single connection. This approach is ideal for integrations that generate large quantities of track detections, such as passive sensors or radar systems tracking multiple targets simultaneously.
+当集成产生大量实体更新时，请使用 **PublishEntities** API。该 API 会创建客户端流，通过单个连接高效发布实体批次。该方法非常适合生成大量航迹探测的集成，例如同时跟踪多个目标的被动传感器或雷达系统。
 
 ```
 // This Go example is compatible with artifacts generated using
@@ -183,9 +183,9 @@ func main() {
 }
 ```
 
-**REST: Individual entity updates**
+**REST：单个实体更新**
 
-Use the **PublishEntity** API when your integration publishes entities individually or at lower frequencies. This unary API publishes one entity per request, making it well-suited for stateful entities like assets that update their position and status periodically rather than continuously.
+当集成逐个发布实体或以较低频率发布实体时，请使用 **PublishEntity** API。这个一元 API 每个请求发布一个实体，非常适合资产这类有状态实体，它们会周期性而非连续地更新位置和状态。
 
 ```
 package main
@@ -394,15 +394,15 @@ func main() {
 }
 ```
 
-For detailed guidance on entity publishing patterns and best practices, see [Publish entities](/guides/entities/publish).
+有关实体发布模式和最佳实践的详细指南，请参阅[发布实体](/guides/entities/publish)。
 
-## Streaming entities
+## 流式传输实体
 
-Both protocols support server-side streaming for consuming entity updates, with different filtering capabilities.
+两种协议都支持通过服务器端流消费实体更新，但过滤能力不同。
 
-**gRPC: Advanced filtering**
+**gRPC：高级过滤**
 
-Use **StreamEntityComponents** when you need complex filtering logic to receive only relevant entities. This API offers more robust filtering capabilities, letting you specify filter criteria for more fine-tuned streaming.
+当你需要复杂过滤逻辑以仅接收相关实体时，请使用 **StreamEntityComponents**。该 API 提供更稳健的过滤能力，让你可以指定过滤条件，实现更精细的流式传输。
 
 ```
 // This Go example is compatible with artifacts generated using
@@ -484,9 +484,9 @@ func main() {
 }
 ```
 
-**REST: Component-based filtering**
+**REST：基于组件的过滤**
 
-Use **StreamEntities** for server-side streaming over HTTP with component-based filtering. This API filters entities based on the presence of specific components, which is sufficient for most integration scenarios where you need entities with particular data.
+使用 **StreamEntities** 通过 HTTP 进行服务器端流式传输，并进行基于组件的过滤。该 API 会根据特定组件是否存在来过滤实体，这足以满足大多数需要带有特定数据实体的集成场景。
 
 ```
 package main
@@ -574,59 +574,59 @@ func main() {
 }
 ```
 
-For more information on streaming patterns and filtering strategies, see [Watch entities](/guides/entities/watch).
+有关流式传输模式和过滤策略的更多信息，请参阅[监听实体](/guides/entities/watch)。
 
-## Decision guide
+## 决策指南
 
-Use this three-step framework to guide your protocol choice:
+使用这个三步框架指导协议选择：
 
 1
 
-### When to use gRPC
+### 何时使用 gRPC
 
-Choose gRPC when your integration prioritizes performance and bandwidth efficiency:
+当集成优先考虑性能和带宽效率时，请选择 gRPC：
 
-- Bandwidth-constrained networks : Tactical networks, satellite links, or environments where data transmission costs matter use gRPC.
-- High-throughput scenarios : Integrations that publishing hundreds of entity updates rapidly use gRPC.
-- Specialized languages : Integrations written in Rust, C++, or other languages beyond the REST SDK use gRPC bindings.
-- Custom reliability logic : Integrations that need more control over retry classification, backoff, and error handling implement it directly in their integration, since the gRPC SDKs ship no retry layer of their own.
+- 带宽受限网络：战术网络、卫星链路，或数据传输成本重要的环境适合使用 gRPC。
+- 高吞吐场景：需要快速发布数百条实体更新的集成适合使用 gRPC。
+- 专门语言：使用 Rust、C++ 或 REST SDK 之外其他语言编写的集成，可使用 gRPC 绑定。
+- 自定义可靠性逻辑：由于 gRPC SDK 自身不带重试层，需要更细粒度控制重试分类、退避和错误处理的集成，应直接在集成中实现这些逻辑。
 
-Scenario
+场景
 
-An autonomous drone fleet publishes sensor data and location updates at 10 Hz per vehicle. With 50 drones, you’re sending 500 entity updates per second. gRPC’s binary encoding reduces each payload by 30-50% compared to JSON, significantly decreasing bandwidth requirements.
+一支自主无人机机队以每架 10 Hz 发布传感器数据和位置更新。50 架无人机意味着每秒发送 500 条实体更新。与 JSON 相比，gRPC 的二进制编码可将每个载荷减少 30-50%，显著降低带宽需求。
 
 2
 
-### When to use REST
+### 何时使用 REST
 
-Choose REST when your integration prioritizes development velocity and ecosystem compatibility:
+当集成优先考虑开发速度和生态兼容性时，请选择 REST：
 
-- Web applications : Dashboards, command and control interfaces, or browser-based tools use REST
-- Low-frequency operations : Periodic polling, manual workflows, or asynchronous task creation use REST
-- Objects API access : Services that manage files and binary data in Lattice use REST to integrate with the Objects API.
-- Built-in reliability : Integrations that want sensible retry defaults for transient server errors without writing a retry layer benefit from the REST SDK’s automatic retries on 5xx , 408 , 409 , and 429 responses.
+- Web 应用：仪表盘、指挥与控制界面或基于浏览器的工具适合使用 REST。
+- 低频操作：周期性轮询、人工工作流或异步任务创建适合使用 REST。
+- Objects API 访问：在 Lattice 中管理文件和二进制数据的服务使用 REST 与 Objects API 集成。
+- 内置可靠性：希望无需编写重试层即可获得针对瞬时服务器错误的合理默认重试行为的集成，可受益于 REST SDK 对 5xx、408、409 和 429 响应的自动重试。
 
-Scenario
+场景
 
-A command and control web dashboard queries Lattice every 5 seconds to display current entity positions. The interface creates tasks when operators interact with the UI. REST’s simplicity accelerates development, and browser compatibility is essential.
+一个指挥与控制 Web 仪表盘每 5 秒查询 Lattice，以显示当前实体位置。当操作员与 UI 交互时，界面会创建任务。REST 的简单性可加速开发，且浏览器兼容性至关重要。
 
 3
 
-### When to use both
+### 何时同时使用两者
 
-Many production systems combine both protocols to leverage their respective strengths:
+许多生产系统会组合两种协议，以利用各自优势：
 
-- Fleet management platforms : Hardware components use gRPC for telemetry, while web interfaces use REST for visualization.
-- Multi-component systems : Edge devices publish updates using gRPC, and cloud services consume the data using REST.
-- Objects integration : Core entity, and tasking operations use gRPC, and file management is implemented in REST.
+- 机队管理平台：硬件组件使用 gRPC 传输遥测，而 Web 界面使用 REST 进行可视化。
+- 多组件系统：边缘设备使用 gRPC 发布更新，云服务使用 REST 消费数据。
+- 对象集成：核心实体和任务操作使用 gRPC，文件管理使用 REST 实现。
 
-Scenario
+场景
 
-A robotics platform has autonomous ground vehicles publishing position and sensor data via gRPC at 5 Hz. A React web application consumes this data via REST polling at 1 Hz for operator display. Mission plans are uploaded as files through the REST Objects API, then referenced in tasks sent to the robots.
+一个机器人平台让自主地面车辆以 5 Hz 通过 gRPC 发布位置和传感器数据。React Web 应用以 1 Hz 通过 REST 轮询消费这些数据，用于操作员显示。任务计划通过 REST Objects API 作为文件上传，然后在发送给机器人的任务中引用。
 
-## What’s next
+## 接下来
 
-- Review Authentication patterns for both protocols.
-- Explore the REST API reference or gRPC API reference .
-- Check Connect to offline environments for trusted CA certificate configuration.
-- Learn how to Retry connections with a modular utility that applies to both REST and gRPC.
+- 查看两种协议的认证模式。
+- 探索 REST API 参考或 gRPC API 参考。
+- 查看连接离线环境，了解受信任 CA 证书配置。
+- 了解如何使用适用于 REST 和 gRPC 的模块化工具重试连接。

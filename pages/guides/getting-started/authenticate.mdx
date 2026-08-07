@@ -1,31 +1,31 @@
 ---
-title: "Authenticate"
+title: "认证"
 ---
 
-# Authenticate
+# 认证
 
-Lattice supports two authentication methods: OAuth 2.0 **client credentials** using short-lived access token, **environment token** authentication, using long-lived, static access tokens.
+Lattice 支持两种认证方式：OAuth 2.0 **客户端凭证**，使用短生命周期访问令牌；以及**环境令牌**认证，使用长生命周期的静态访问令牌。
 
-Environment token
+环境令牌
 
-Client credentials
+客户端凭证
 
-The environment token is a long-lived, static bearer token you use the token to authenticate with Lattice. You must rotate the token before it expires:
+环境令牌是一个长生命周期的静态 bearer token，你可以使用该令牌向 Lattice 认证。必须在令牌过期前轮换它：
 
-The following steps show how to authenticate using both client credentials and long-lived environment tokens with both REST and gRPC SDKs.
+下列步骤展示如何分别使用客户端凭证和长生命周期环境令牌，通过 REST 和 gRPC SDK 完成认证。
 
-## Before you begin
+## 开始之前
 
-- Set up the Lattice SDK.
-- If you are using Lattice Sandboxes, see the Sandboxes set up guide . If you are using a Lattice deployment other than Sandboxes, obtain your Lattice endpoint and access credentials from your Anduril representative.
+- 设置 Lattice SDK。
+- 如果你使用 Lattice Sandboxes，请参阅 Sandboxes 设置指南。如果你使用 Sandboxes 之外的 Lattice 部署，请从 Anduril 代表处获取 Lattice 端点和访问凭证。
 
-## Get the Lattice endpoint
+## 获取 Lattice 端点
 
-To store the Lattice endpoint as a system environment variable, do the following:
+要把 Lattice 端点存储为系统环境变量，请执行以下操作：
 
 1
 
-Add a system variable for your Lattice environment endpoint (hostname only):
+为你的 Lattice 环境端点添加系统变量（仅主机名）：
 
 ```bash
 export LATTICE_ENDPOINT=<YOUR_LATTICE_ENDPOINT>
@@ -33,22 +33,22 @@ export LATTICE_ENDPOINT=<YOUR_LATTICE_ENDPOINT>
 
 2
 
-To verify, run the following command to print the system environment variables to your terminal:
+要验证设置，请运行以下命令，在终端中打印系统环境变量：
 
 ```
 echo $LATTICE_ENDPOINT
 <environment_id>.env.sandboxes.developer.anduril.com
 ```
 
-## Get your credentials
+## 获取凭证
 
-To store your credentials as system environment variables, do the following:
+要把凭证存储为系统环境变量，请执行以下操作：
 
 1
 
-### Client credentials
+### 客户端凭证
 
-If you’re using client credentials:
+如果你使用客户端凭证：
 
 ```bash
 export LATTICE_CLIENT_ID=<YOUR_LATTICE_CLIENT_ID>
@@ -57,9 +57,9 @@ export LATTICE_CLIENT_SECRET=<YOUR_LATTICE_CLIENT_SECRET>
 
 2
 
-### Environment token
+### 环境令牌
 
-If you’re using a long-lived environment token:
+如果你使用长生命周期环境令牌：
 
 ```bash
 export ENVIRONMENT_TOKEN=<YOUR_ENVIRONMENT_TOKEN>
@@ -67,23 +67,23 @@ export ENVIRONMENT_TOKEN=<YOUR_ENVIRONMENT_TOKEN>
 
 3
 
-### Sandboxes token
+### Sandboxes 令牌
 
-If you’re connecting to Sandboxes:
+如果你正在连接 Sandboxes：
 
 ```bash
 export SANDBOXES_TOKEN=<YOUR_SANDBOXES_TOKEN>
 ```
 
-This is required for Sandboxes whether you use client credentials, or an environment token. If you do not have a Sandboxes token, [create a new token](/guides/developer-tools/sandboxes#set-up-credentials).
+无论使用客户端凭证还是环境令牌，连接 Sandboxes 都需要该令牌。如果你没有 Sandboxes 令牌，请[创建新令牌](/guides/developer-tools/sandboxes#set-up-credentials)。
 
-## Environment token
+## 环境令牌
 
-Bearer token authentication uses a long-lived, static token to authenticate requests. Use this method when your deployment provides a static access token rather than OAuth 2.0 client credentials.
+Bearer token 认证使用长生命周期的静态令牌来认证请求。当你的部署提供静态访问令牌而不是 OAuth 2.0 客户端凭证时，请使用此方法。
 
-### Using REST
+### 使用 REST
 
-Pass the token directly to the client constructor using the `token` parameter:
+使用 `token` 参数将令牌直接传给客户端构造函数：
 
 ```
 package main
@@ -135,9 +135,9 @@ func main() {
 }
 ```
 
-### Using gRPC
+### 使用 gRPC
 
-For gRPC, attach the bearer token as metadata on every outgoing request. Most gRPC client libraries provide a credentials or interceptor mechanism for this purpose:
+对于 gRPC，请在每个出站请求上把 bearer token 作为元数据附加。大多数 gRPC 客户端库都会为此提供凭证或拦截器机制：
 
 ```
 // This Go example is compatible with artifacts generated using
@@ -218,15 +218,15 @@ func main() {
 }
 ```
 
-## Client credentials
+## 客户端凭证
 
-[OAuth 2.0](/reference/rest/oauth/get-token) client credentials is in `beta` and not widely deployed in production. If you’re developing an integration in a production Lattice environment, check with your Anduril representative if OAuth 2.0 is available.
+[OAuth 2.0](/reference/rest/oauth/get-token) 客户端凭证目前处于 `beta`，尚未在生产环境中广泛部署。如果你正在生产 Lattice 环境中开发集成，请向 Anduril 代表确认 OAuth 2.0 是否可用。
 
-When you use OAuth, Lattice exchanges your credentials for a short-lived access token using the [Lattice OAuth](/reference/rest/oauth/get-token) REST endpoint:
+使用 OAuth 时，Lattice 会通过 [Lattice OAuth](/reference/rest/oauth/get-token) REST 端点，用你的凭证换取短生命周期访问令牌：
 
-### Using REST
+### 使用 REST
 
-The REST SDK handles fetching a new access token automatically. Pass your client ID and secret when you initialize the client:
+REST SDK 会自动获取新的访问令牌。初始化客户端时传入客户端 ID 和 secret：
 
 ```
 package main
@@ -295,9 +295,9 @@ func main() {
 }
 ```
 
-### Using gRPC
+### 使用 gRPC
 
-Since gRPC does not provide built-in OAuth token management, implement a `ClientCredentialsAuth` module that fetches an access token, caches it, and refreshes it before it expires:
+由于 gRPC 不提供内置 OAuth 令牌管理，请实现一个 `ClientCredentialsAuth` 模块，用于获取访问令牌、缓存令牌，并在过期前刷新：
 
 ```
 // This Go example is compatible with artifacts generated using
@@ -398,7 +398,7 @@ func (b *ClientCredentialsAuth) RequireTransportSecurity() bool {
 }
 ```
 
-Then, use this module to handle fetching new tokens when you interact with Lattice:
+然后，在与 Lattice 交互时使用该模块获取新令牌：
 
 ```
 // This Go example is compatible with artifacts generated using
@@ -466,10 +466,10 @@ func main() {
 }
 ```
 
-These examples refresh the access token before it expires (with a buffer of approximately five minutes). Each gRPC call invokes the helper function, which checks the cache and refreshes the token if needed.
+这些示例会在访问令牌过期前刷新它（预留约五分钟缓冲）。每次 gRPC 调用都会调用辅助函数，由它检查缓存，并在需要时刷新令牌。
 
-## What’s next?
+## 接下来
 
-- See Connect to offline environments to configure a trusted CA certificate for air-gapped environments.
-- Learn how to publish entities to Lattice.
-- Explore tasking to learn how to task an agent in Lattice.
+- 参阅连接离线环境，了解如何为隔离环境配置受信任 CA 证书。
+- 了解如何将实体发布到 Lattice。
+- 探索任务功能，了解如何在 Lattice 中为 agent 分配任务。
