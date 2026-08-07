@@ -1,31 +1,31 @@
 ---
-title: "Changelog"
+title: "更新日志"
 ---
 
-# Changelog
+# 更新日志
 
-January 15, 2026
+2026 年 1 月 15 日
 
-## OAuth 2.0 client credentials for Sandboxes
+## Sandboxes 的 OAuth 2.0 client credentials
 
-Lattice now supports machine-to-machine (M2M) authentication using the OAuth 2.0 client credentials flow. This gives you more control over permissions and improved security using short-lived tokens.
+Lattice 现在支持使用 OAuth 2.0 client credentials flow 进行机器到机器 (M2M) 认证。短期令牌让你可以更好地控制权限并提升安全性。
 
-Existing users
+现有用户
 
-We continue to support long-lived tokens for existing Lattice deployments while we roll out this new feature.
+在推出此新功能期间，我们会继续支持现有 Lattice 部署中的长期令牌。
 
-If you have a pre-existing integration deployed to a production Lattice environment, we encourage you to work with your Anduril representative to determine a timeline for migrating to the OAuth 2.0 client credentials flow.
+如果你已有部署到生产 Lattice 环境的集成，建议与 Anduril 代表协作，确定迁移到 OAuth 2.0 client credentials flow 的时间表。
 
-If you are building a new integration within Lattice Sandboxes, we encourage you to start using the OAuth 2.0 client credentials flow.
+如果你正在 Lattice Sandboxes 中构建新集成，建议开始使用 OAuth 2.0 client credentials flow。
 
-### Use OAuth 2.0 client credentials
+### 使用 OAuth 2.0 client credentials
 
-You can find your **Client ID** and **Client Secret** in the Sandboxes UI under the Resource Credentials section:
+你可以在 Sandboxes UI 的 Resource Credentials 区域找到 **Client ID** 和 **Client Secret**：
 
-- Lattice Client ID : This is a unique, public identifier associated with your integration.
-- Lattice Client Secret : This is the secure credential your integration will use to authenticate with the Lattice environment, proving its identity.
+- Lattice Client ID：这是与你的集成关联的唯一公开标识符。
+- Lattice Client Secret：这是你的集成用于向 Lattice 环境认证并证明自身身份的安全凭据。
 
-In your integration, use the **Lattice Client ID** and **Lattice Client Secret** to submit requests to the API.
+在你的集成中，使用 **Lattice Client ID** 和 **Lattice Client Secret** 向 API 提交请求。
 
 ```
 clientId := os.Getenv("LATTICE_CLIENT_ID")
@@ -38,6 +38,6 @@ LatticeClient := client.NewClient(
 )
 ```
 
-For more information about setting up your development environment, see [Set up](/guides/getting-started/set-up) in the *Lattice SDK guide*.
+有关设置开发环境的更多信息，请参阅 *Lattice SDK 指南* 中的 [Set up](/guides/getting-started/set-up)。
 
-Was this page helpful?
+此页面有帮助吗？

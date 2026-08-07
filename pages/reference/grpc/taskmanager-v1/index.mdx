@@ -2480,38 +2480,38 @@ title: "CreateTask"
 }
 ```
 
-Creates a new Task in the system with the specified parameters. This method initiates a new task with a unique ID, if one is not provided, sets the initial task state to STATUS_SENT, and establishes task ownership. The task must be assigned to a specific agent using the Relations field. Once created, a task enters the lifecycle workflow and can be tracked, updated, and managed through other Task Manager APIs.
+使用指定参数在系统中创建新任务。此方法会启动一个带唯一 ID 的新任务（如果未提供则生成），将初始任务状态设为 STATUS_SENT，并建立任务所有权。必须使用 Relations 字段将任务分配给特定 agent。创建后，任务进入生命周期工作流，并可通过其他 Task Manager API 跟踪、更新和管理。
 
-### Request
+### 请求
 
 **CreateTaskRequest**
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `specification` — _object_ — The path for the Protobuf task definition, and the complete task data.
+- `specification` — _object_ — Protobuf 任务定义的路径，以及完整任务数据。
 
-- `author` — _object_ — Who or what is creating this Task. For example, if a user created this Task via a UI, it would contain the "user" Principal type with the user ID of that user. Or if a service is calling the CreateTask endpoint, then a "service" Principal type is to be provided.
+- `author` — _object_ — 创建此任务的主体。例如，如果用户通过 UI 创建此任务，则其中会包含 "user" Principal 类型以及该用户的用户 ID。如果是服务调用 CreateTask 端点，则应提供 "service" Principal 类型。
 
-- `relations` — _object_ — Any relationships associated with this Task, such as a parent Task or an assignee this Task is designated to for execution.
+- `relations` — _object_ — 与此任务关联的任何关系，例如父任务或被指定执行此任务的 assignee。
 
-- `description` — _string_ — Longer, free-form, human-readable description of this Task.
+- `description` — _string_ — 此任务较长的自由形式人类可读描述。
 
-- `is_executed_elsewhere` — _boolean_ — If set, then task-manager will not trigger execution of this task on an agent. Useful for when ingesting tasks from an external system that is triggering execution of tasks on agents.
+- `is_executed_elsewhere` — _boolean_ — 如果设置，则 task-manager 不会在 agent 上触发此任务执行。适用于从外部系统摄取任务，且该外部系统负责在 agent 上触发任务执行的场景。
 
-- `task_id` — _string_ — If non-empty, will set the requested Task ID, otherwise will generate a new random GUID. Will reject if supplied Task ID does not match `[A-Za-z0-9_-.]{5,36}`.
+- `task_id` — _string_ — 如果非空，则设置请求的任务 ID；否则生成新的随机 GUID。如果提供的任务 ID 不匹配 `[A-Za-z0-9_-.]{5,36}`，则拒绝。
 
-- `initial_entities` — _list of objects_ — Indicates an initial set of entities that can be used to execute an entity aware task. For example, an entity Objective, an entity Keep In Zone, etc.
+- `initial_entities` — _list of objects_ — 表示可用于执行实体感知任务的一组初始实体。例如实体 Objective、实体 Keep In Zone 等。
 
-- `retry_strategy` — _object_ — Any retry strategy for task execution or update.
+- `retry_strategy` — _object_ — 任务执行或更新的任何重试策略。
 
-- `delivery_constraints` — _object_ — Any scheduling constraints for Lattice delivery of the task.
+- `delivery_constraints` — _object_ — Lattice 交付任务时的任何调度约束。
 
-- `display_name` — _string · deprecated_ — DEPRECATED: Human-readable display name for this Task, should be short (&lt;100 chars).
+- `display_name` — _string · deprecated_ — 已弃用：此任务的人类可读显示名称，应较短（&lt;100 个字符）。
 
-### Response
+### 响应
 
 **CreateTaskResponse**
 
-This endpoint returns an object.
+此端点返回一个对象。
 
-- `task` — _object_ — Task that was created.
+- `task` — _object_ — 已创建的任务。

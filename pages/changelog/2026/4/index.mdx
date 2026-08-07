@@ -1,22 +1,22 @@
 ---
-title: "Changelog"
+title: "更新日志"
 ---
 
-# Changelog
+# 更新日志
 
-April 14, 2026
+2026 年 4 月 14 日
 
-## Cancel tasks API
+## 取消任务s API
 
-The Lattice SDK now supports task cancellation through the [`CancelTask`](/reference/rest/tasks/cancel-task) API available in both REST and gRPC. This API lets an operator request to cancel, giving you greater control over task lifecycle management.
+Lattice SDK 现在支持通过 REST 和 gRPC 中均可用的 [`CancelTask`](/reference/rest/tasks/cancel-task) API 取消任务。该 API 允许操作员请求取消任务，使你能更好地控制任务生命周期管理。
 
-The cancellation behavior depends on the task’s current state:
+取消行为取决于任务当前状态：
 
-- Tasks not yet sent to an agent cancel immediately and transition to a terminal state.
-- Tasks already sent to an agent receive a cancellation request that the agent can accept or reject based on the task’s execution state.
+- 尚未发送给 agent 的任务会立即取消并转换为终止状态。
+- 已发送给 agent 的任务会收到取消请求，agent 可根据任务执行状态接受或拒绝。
 
-For more information on using the `CancelTask` API in your integration, see [Cancel tasks](/guides/tasks/command-and-operate#cancel-tasks) in the Lattice SDK guide.
+有关在集成中使用 `CancelTask` API 的更多信息，请参阅 Lattice SDK 指南中的 [Cancel tasks](/guides/tasks/command-and-operate#cancel-tasks)。
 
-For API reference details, see [`CancelTask` (REST)](/reference/rest/tasks/cancel-task) and [`CancelTask` (gRPC)](/reference/grpc/taskmanager-v1/cancel-task).
+API 参考详情请参阅 [`CancelTask` (REST)](/reference/rest/tasks/cancel-task) 和 [`CancelTask` (gRPC)](/reference/grpc/taskmanager-v1/cancel-task)。
 
-Was this page helpful?
+此页面有帮助吗？

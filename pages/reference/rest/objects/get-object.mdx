@@ -1,10 +1,10 @@
 ---
-title: "Get object"
+title: "获取对象"
 ---
 
-# Get object
+# 获取对象
 
-**Endpoint**: `GET /api/v1/objects/:objectPath`
+**端点**: `GET /api/v1/objects/:objectPath`
 
 **cURL**
 
@@ -13,48 +13,48 @@ curl https://example.developer.anduril.com/api/v1/objects/objectPath \
      -H "Authorization: Bearer <token>"
 ```
 
-Fetches an object from your environment using the objectPath path parameter.
+使用 objectPath 路径参数从你的环境中获取对象。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Path parameters
+### 路径参数
 
-- `objectPath` — _string · required_ — The path of the object to fetch.
+- `objectPath` — _string · required_ — 要获取的对象路径。
 
-### Headers
+### 标头
 
-If set, Lattice will compress the response using the specified compression method. If the header is not defined, or the compression method is set to `identity`, no compression will be applied to the response.
+如果设置该标头，Lattice 会使用指定压缩方法压缩响应。如果未定义该标头，或压缩方法设为 `identity`，则不会对响应应用压缩。
 
-Allowed values
+允许值
 
 :
 
-Indicates a client's preference for the priority of the response. The value is a structured header as defined in RFC 9218. If you do not set the header, Lattice uses the default priority set for the environment. Incremental delivery directives are not supported and will be ignored.
+表示客户端对响应优先级的偏好。该值是 RFC 9218 定义的结构化标头。如果未设置该标头，Lattice 会使用环境中设置的默认优先级。不支持增量交付指令，相关指令会被忽略。
 
-### Response headers
+### 响应标头
 
-The compression used on the response body.
+响应正文使用的压缩方式。
 
-### Response
+### 响应
 
-Successful operation
+操作成功
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误
 
 404
 
-Not Found Error
+Not Found 错误
 
 500
 
-Internal Server Error
+Internal Server 错误

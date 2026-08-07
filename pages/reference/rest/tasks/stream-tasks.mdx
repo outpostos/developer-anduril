@@ -1,10 +1,10 @@
 ---
-title: "Stream tasks"
+title: "流式传输任务"
 ---
 
-# Stream tasks
+# 流式传输任务
 
-**Endpoint**: `POST /api/v1/tasks/stream`
+**端点**: `POST /api/v1/tasks/stream`
 
 **cURL**
 
@@ -15,50 +15,50 @@ curl -X POST https://example.developer.anduril.com/api/v1/tasks/stream \
      -d '{}'
 ```
 
-Establishes a server streaming connection that delivers task updates in real-time using Server-Sent Events (SSE).
+使用 Server-Sent Events (SSE) 建立服务器流式连接，实时交付任务更新。
 
-The stream delivers all existing non-terminal tasks when first connected, followed by real-time updates for task creation and status changes. Additionally, heartbeat messages are sent periodically to maintain the connection.
+首次连接时，该流会交付所有现有的非终止任务，随后实时交付任务创建和状态变更更新。此外，会定期发送 heartbeat 消息以维持连接。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Request
+### 请求
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `heartbeatIntervalMs` — _integer · optional_ — The time interval, in milliseconds, that determines the frequency at which to send heartbeat events. Defaults to 30000 (30 seconds).
+- `heartbeatIntervalMs` — _integer · optional_ — 发送 heartbeat 事件的时间间隔，单位为毫秒。默认值为 30000（30 秒）。
 
-- `rateLimit` — _integer · optional_ — The time interval, in milliseconds, after an update for a given task before another one will be sent for the same task. If set, value must be &gt;= 250.
+- `rateLimit` — _integer · optional_ — 给定任务发生一次更新后，同一任务下一次更新发送前的时间间隔，单位为毫秒。如果设置，值必须 &gt;= 250。
 
-- `excludePreexistingTasks` — _boolean · optional_ — Optional flag to only include tasks created or updated after the stream is initiated, and not any previous preexisting tasks. If unset or false, the stream will include any new tasks and task updates, as well as all preexisting tasks.
+- `excludePreexistingTasks` — _boolean · optional_ — 可选标志，仅包含流启动后创建或更新的任务，不包含此前既有任务。如果未设置或为 false，该流会包含任何新任务和任务更新，以及所有既有任务。
 
-- `taskType` — _object · optional_ — Optional filter that only returns tasks with specific types. If not provided, all task types will be streamed.
+- `taskType` — _object · optional_ — 可选过滤器，仅返回特定类型的任务。如果未提供，则流式传输所有任务类型。
 
-- `updateStartTime` — _string · optional_ — If provided, returns tasks which have been updated since the given time.
+- `updateStartTime` — _string · optional_ — 如果提供，则返回自给定时间以来更新过的任务。
 
-- `parentTaskId` — _string · optional_ — A filter for tasks with a specific parent task ID. Note: This filter is mutually exclusive with all other filter fields (`updateStartTime`, `assignee`, `statusFilter`, `taskType`). Either provide `parentTaskId` or any combination of the other filters, but not both.
+- `parentTaskId` — _string · optional_ — 用于筛选具有特定父任务 ID 的任务。注意：此过滤器与所有其他过滤字段（`updateStartTime`、`assignee`、`statusFilter`、`taskType`）互斥。请提供 `parentTaskId`，或提供其他过滤器的任意组合，但不能同时提供。
 
-- `assignee` — _object · optional_ — A filter for tasks assigned to a specific principal.
+- `assignee` — _object · optional_ — 用于筛选分配给特定 principal 的任务。
 
-- `statusFilter` — _object · optional_ — A filter for task statuses (inclusive or exclusive).
+- `statusFilter` — _object · optional_ — 任务状态过滤器（包含或排除）。
 
-### Response
+### 响应
 
-Returns a stream of task updates as they occur.
+在任务更新发生时返回任务更新流。
 
 - `heartbeat` — _object_
 
-OR
+或
 
-- `task_event` — _object_ — Contains information about a task event.
+- `task_event` — _object_ — 包含任务事件相关信息。
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误

@@ -1199,24 +1199,24 @@ title: "OverrideEntity"
 }
 ```
 
-Override an Entity Component. An override is a definitive change to entity data. Any authorized user of service can override overridable components on any entity. Only fields marked with overridable can be overridden. When setting an override, the user or service setting the override is asserting that they are certain of the change and the truth behind it.
+覆盖实体组件。覆盖是对实体数据的确定性变更。任何获得授权的服务用户都可以覆盖任意实体上的可覆盖组件。只有标记为 overridable 的字段可以被覆盖。设置覆盖时，执行覆盖的用户或服务表示其确信该变更及其背后的事实。
 
-### Request
+### 请求
 
 **OverrideEntityRequest**
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `entity` — _object_ — The entity containing the overridden fields. The service will extract the overridable fields from the entity object and ignore any other fields.
+- `entity` — _object_ — 包含被覆盖字段的实体。服务会从实体对象中提取可覆盖字段，并忽略所有其他字段。
 
-- `field_path` — _list of strings_ — The field paths that will be extracted from the Entity and saved as an override. Only fields marked overridable can be overridden.
+- `field_path` — _list of strings_ — 将从实体中提取并保存为覆盖的字段路径。只有标记为 overridable 的字段可以被覆盖。
 
-- `provenance` — _object_ — Additional information about the source of the override.
+- `provenance` — _object_ — 关于覆盖来源的附加信息。
 
-### Response
+### 响应
 
 **OverrideEntityResponse**
 
-This endpoint returns an object.
+此端点返回一个对象。
 
-- `status` — _enum_ — The status of the override request.
+- `status` — _enum_ — 覆盖请求的状态。

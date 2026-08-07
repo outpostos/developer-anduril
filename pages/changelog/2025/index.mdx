@@ -1,20 +1,20 @@
 ---
-title: "Changelog"
+title: "更新日志"
 ---
 
-# Changelog
+# 更新日志
 
-July 24, 2025
+2025 年 7 月 24 日
 
-Existing developers
+现有开发者
 
-This major version update introduces breaking changes from SDK v1. If you are a current Lattice SDK developer, version v1 will continue to work but will no longer be maintained. We recommend upgrading to Lattice SDK v2.
+此次 major 版本更新引入了相对于 SDK v1 的破坏性变更。如果你是当前 Lattice SDK 开发者，v1 版本会继续工作，但不再维护。建议升级到 Lattice SDK v2。
 
-Lattice SDK v1 is built to natively support gRPC, while v2 uses OpenAPI to offer a more streamlined experience. To choose a migration path that works for you, see [migration guide](/reference/overview/versioning/migrating-to-v2).
+Lattice SDK v1 原生支持 gRPC，而 v2 使用 OpenAPI 以提供更简化的体验。要选择适合你的迁移路径，请参阅[迁移指南](/reference/overview/versioning/migrating-to-v2)。
 
-## New REST SDKs
+## 新版 REST SDK
 
-The Lattice SDK introduces improved access to the Lattice SDK with REST support. Simply [install the Lattice SDK](/guides/getting-started/set-up#get-the-sdk) in a language of your choice to get started building with Lattice:
+Lattice SDK 通过 REST 支持改进了 SDK 访问方式。只需用你选择的语言[安装 Lattice SDK](/guides/getting-started/set-up#get-the-sdk)，即可开始使用 Lattice 构建：
 
 ```
 package main
@@ -42,23 +42,23 @@ func main() {
 }
 ```
 
-## The Buf Schema registry
+## Buf Schema registry
 
-The Lattice Protobuf definitions are now published, and available from the [Buf Schema registry](https://buf.build/anduril/lattice-sdk/).
+Lattice Protobuf 定义现已发布，并可从 [Buf Schema registry](https://buf.build/anduril/lattice-sdk/) 获取。
 
 ![Shows the Buf schema registry.](/img/anduril.docs.buildwithfern.com/7cf7ebc2f433fec5e77a2b7061b720f89bc2932716d34c05a73360a24cef1943/assets/images/screenshots/lattice-buf-schema-registry.png)
 
-Use the Lattice protos and a plugin of your choice, to generate SDK artifacts for your language of choice. For more information, and to see an example in Go, see [Generate the Lattice SDK for gRPC](/guides/getting-started/set-up#generate-the-sdk-for-grpc).
+使用 Lattice protos 和你选择的插件，为所选语言生成 SDK 产物。更多信息以及 Go 示例请参阅 [Generate the Lattice SDK for gRPC](/guides/getting-started/set-up#generate-the-sdk-for-grpc)。
 
 ## Objects API
 
-Lattice now supporting a resilient, distributed binary object store, letting you efficiently store binary data and relate them to entities in your environment. Some use cases include:
+Lattice 现在支持弹性的分布式二进制对象存储，让你能高效存储二进制数据，并将其与环境中的实体关联。用例包括：
 
-- Creating image thumbnails for tracks in the Lattice UI.
-- Maintaining CSV data for entities for implementing vessel manifests, or other relevant entity metadata.
+- 在 Lattice UI 中为航迹创建图片缩略图。
+- 维护实体的 CSV 数据，用于实现船舶清单或其他相关实体元数据。
 
 ![Lattice UI object store.](/img/anduril.docs.buildwithfern.com/dc72382af2efe25a3f117a76ec39a7aaf531e7d501fadb6d805e24cdab27578b/assets/images/screenshots/changelog-vessel-track.png)
 
-The [Objects API](/reference/rest/objects/list-objects) lets you upload, retrieve, and delete objects across the Lattice mesh. For more information, see [Objects](/guides/objects/overview) in the *Lattice SDK Guide*.
+[Objects API](/reference/rest/objects/list-objects) 可让你在 Lattice mesh 中上传、获取和删除对象。更多信息请参阅 *Lattice SDK 指南* 中的 [Objects](/guides/objects/overview)。
 
-Was this page helpful?
+此页面有帮助吗？

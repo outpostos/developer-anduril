@@ -1,10 +1,10 @@
 ---
-title: "Get OAuth2 token"
+title: "获取 OAuth2 令牌"
 ---
 
-# Get OAuth2 token
+# 获取 OAuth2 令牌
 
-**Endpoint**: `POST /api/v1/oauth/token`
+**端点**: `POST /api/v1/oauth/token`
 
 **cURL**
 
@@ -15,7 +15,7 @@ curl -X POST https://example.developer.anduril.com/api/v1/oauth/token \
      -d "grant_type=client_credentials"
 ```
 
-**200 Successful**
+**200 成功**
 
 ```json
 {
@@ -28,44 +28,44 @@ curl -X POST https://example.developer.anduril.com/api/v1/oauth/token \
 }
 ```
 
-Gets a new short-lived token using the specified client credentials
+使用指定客户端凭据获取新的短期令牌
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Request
+### 请求
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `grant_type` — _"client_credentials" · required_ — The type of grant being requested
+- `grant_type` — _"client_credentials" · required_ — 所请求的授权类型
 
-- `client_id` — _string · optional_ — The client identifier
+- `client_id` — _string · optional_ — 客户端标识符
 
-- `client_secret` — _string · optional_ — The client secret
+- `client_secret` — _string · optional_ — 客户端密钥
 
-### Response
+### 响应
 
-Access token response
+访问令牌响应
 
-- `access_token` — _string_ — The access token
+- `access_token` — _string_ — 访问令牌
 
-- `token_type` — _string_ — The type of token (typically “Bearer”)
+- `token_type` — _string_ — 令牌类型（通常为 “Bearer”）
 
-- `expires_in` — _integer · optional_ — Lifetime of the access token in seconds
+- `expires_in` — _integer · optional_ — 访问令牌的生命周期，单位为秒
 
-- `refresh_expires_in` — _integer · optional_ — Lifetime of the refresh token
+- `refresh_expires_in` — _integer · optional_ — 刷新令牌的生命周期
 
-- `not-before-policy` — _integer · optional_ — Enforce that a token cannot be used before a specific unixtime
+- `not-before-policy` — _integer · optional_ — 强制令牌在指定 unixtime 之前不可使用
 
-- `scope` — _string · optional_ — The scope of the access token
+- `scope` — _string · optional_ — 访问令牌的 scope
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误

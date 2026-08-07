@@ -1,10 +1,10 @@
 ---
-title: "Get object metadata"
+title: "获取对象元数据"
 ---
 
-# Get object metadata
+# 获取对象 metadata
 
-**Endpoint**: `HEAD /api/v1/objects/:objectPath`
+**端点**: `HEAD /api/v1/objects/:objectPath`
 
 ```bash
 curl -X HEAD https://example.developer.anduril.com/api/v1/objects/objectPath \
@@ -17,32 +17,32 @@ curl -X HEAD https://example.developer.anduril.com/api/v1/objects/objectPath \
 {}
 ```
 
-Returns metadata for a specified object path. Use this to fetch metadata such as object size (size_bytes), its expiry time (expiry_time), or its latest update timestamp (last_updated_at).
+返回指定对象路径的元数据。可用它获取对象大小 (size_bytes)、过期时间 (expiry_time) 或最新更新时间戳 (last_updated_at) 等元数据。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Path parameters
+### 路径参数
 
-- `objectPath` — _string · required_ — The path of the object to query.
+- `objectPath` — _string · required_ — 要查询的对象路径。
 
-### Response headers
+### 响应标头
 
-### Response
+### 响应
 
-Successful operation
+操作成功
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误
 
 500
 
-Internal Server Error
+Internal Server 错误

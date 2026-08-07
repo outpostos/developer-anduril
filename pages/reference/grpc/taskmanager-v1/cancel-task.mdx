@@ -1272,22 +1272,22 @@ title: "CancelTask"
 }
 ```
 
-This method initiates task cancellation based on the task's current state: - If the task has not been sent to an agent, it cancels immediately and transitions the task to a terminal state (`STATUS_DONE_NOT_OK` with `ERROR_CODE_CANCELLED`). - If the task has already been sent to an agent, the cancellation request is routed to the agent. The agent is then responsible for deciding whether cancellation is possible or not: - If the task can be cancelled, the agent must use `UpdateStatus` and set the task status to `STATUS_DONE_NOT_OK`. - If the task cannot be cancelled, the agent must use `UpdateStatus` to attach a `TaskError` to the task with the error code `ERROR_CODE_REJECTED` and a `message` explaining why the task cannot be cancelled.
+此方法会根据任务当前状态发起任务取消：- 如果任务尚未发送给 agent，则立即取消并将任务转换为终止状态（`STATUS_DONE_NOT_OK`，错误码为 `ERROR_CODE_CANCELLED`）。- 如果任务已发送给 agent，则取消请求会路由到该 agent。随后由 agent 决定是否可以取消：- 如果可以取消，agent 必须使用 `UpdateStatus` 并将任务状态设为 `STATUS_DONE_NOT_OK`。- 如果无法取消，agent 必须使用 `UpdateStatus` 将 `TaskError` 附加到任务上，错误码设为 `ERROR_CODE_REJECTED`，并在 `message` 中说明任务无法取消的原因。
 
-### Request
+### 请求
 
 **CancelTaskRequest**
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `task_id` — _string_ — The ID of the Task being cancelled.
+- `task_id` — _string_ — 正在取消的任务 ID。
 
-- `author` — _object_ — Who or what is requesting to cancel this task.
+- `author` — _object_ — 请求取消此任务的主体。
 
-### Response
+### 响应
 
 **CancelTaskResponse**
 
-This endpoint returns an object.
+此端点返回一个对象。
 
-- `task` — _object_ — The updated task, regardless of whether the cancellation request was confirmed or denied by the agent.
+- `task` — _object_ — 更新后的任务，无论取消请求是被 agent 确认还是拒绝。

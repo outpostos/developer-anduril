@@ -1,3 +1,3 @@
 export default {
-  overview: 'Overview'
+  overview: '概览'
 }

@@ -1,10 +1,10 @@
 ---
-title: "Cancel task"
+title: "取消任务"
 ---
 
-# Cancel task
+# 取消任务
 
-**Endpoint**: `PUT /api/v1/tasks/:taskId/cancel`
+**端点**: `PUT /api/v1/tasks/:taskId/cancel`
 
 **cURL**
 
@@ -15,7 +15,7 @@ curl -X PUT https://example.developer.anduril.com/api/v1/tasks/taskId/cancel \
      -d '{}'
 ```
 
-**200 Updated**
+**200 已更新**
 
 ```json
 {
@@ -2555,70 +2555,70 @@ curl -X PUT https://example.developer.anduril.com/api/v1/tasks/taskId/cancel \
 }
 ```
 
-Cancels a task by marking it for cancellation in the system. This method initiates task cancellation based on the task's current state: - If the task has not been sent to an agent, it cancels immediately and transitions the task to a terminal state (`STATUS_DONE_NOT_OK` with `ERROR_CODE_CANCELLED`). - If the task has already been sent to an agent, the cancellation request is routed to the agent. The agent is then responsible for deciding whether cancellation is possible or not: - If the task can be cancelled, the agent must use `UpdateTaskStatus` and set the task status to `STATUS_DONE_NOT_OK`. - If the task cannot be cancelled, the agent must use `UpdateTaskStatus` to attach a `TaskError` to the task with the error code `ERROR_CODE_REJECTED` and a `message` explaining why the task cannot be cancelled.
+通过在系统中标记任务待取消来取消任务。此方法会根据任务当前状态发起任务取消：- 如果任务尚未发送给 agent，则立即取消并将任务转换为终止状态（`STATUS_DONE_NOT_OK`，错误码为 `ERROR_CODE_CANCELLED`）。- 如果任务已发送给 agent，则取消请求会路由到该 agent。随后由 agent 决定是否可以取消：- 如果可以取消，agent 必须使用 `UpdateTaskStatus` 并将任务状态设为 `STATUS_DONE_NOT_OK`。- 如果无法取消，agent 必须使用 `UpdateTaskStatus` 将 `TaskError` 附加到任务上，错误码设为 `ERROR_CODE_REJECTED`，并在 `message` 中说明任务无法取消的原因。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Path parameters
+### 路径参数
 
-- `taskId` — _string · required_ — The ID of task to cancel
+- `taskId` — _string · required_ — 要取消的任务 ID
 
-### Request
+### 请求
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `author` — _object · optional_ — Who or what is requesting to cancel this task.
+- `author` — _object · optional_ — 请求取消此任务的主体。
 
-### Response
+### 响应
 
-Task cancellation was successful.
+任务取消成功。
 
-- `version` — _object · optional_ — Version of this task.
+- `version` — _object · optional_ — 此任务的版本。
 
-- `displayName` — _string · optional_ — DEPRECATED: Human readable display name for this task, should be short (&lt;100 chars).
+- `displayName` — _string · optional_ — 已弃用：此任务的人类可读显示名称，应较短（&lt;100 个字符）。
 
-- `specification` — _object · optional_ — The path for the Protobuf task definition, and the complete task data.
+- `specification` — _object · optional_ — Protobuf 任务定义的路径，以及完整任务数据。
 
-- `createdBy` — _object · optional_ — Records who created this task. This field will not change after the task has been created.
+- `createdBy` — _object · optional_ — 记录创建此任务的主体。任务创建后，此字段不会改变。
 
-- `lastUpdatedBy` — _object · optional_ — Records who updated this task last.
+- `lastUpdatedBy` — _object · optional_ — 记录最后更新此任务的主体。
 
-- `lastUpdateTime` — _datetime · optional_ — Records the time of last update.
+- `lastUpdateTime` — _datetime · optional_ — 记录最后更新时间。
 
-- `status` — _object · optional_ — The status of this task.
+- `status` — _object · optional_ — 此任务的状态。
 
-- `scheduledTime` — _datetime · optional_ — If the task has been scheduled to execute, what time it should execute at.
+- `scheduledTime` — _datetime · optional_ — 如果任务已计划执行，则表示应执行的时间。
 
-- `relations` — _object · optional_ — Any related Tasks associated with this, typically includes an assignee for this task and/or a parent.
+- `relations` — _object · optional_ — 与此项关联的任何相关任务，通常包括此任务的 assignee 和/或父任务。
 
-- `description` — _string · optional_ — Longer, free form human readable description of this task
+- `description` — _string · optional_ — 此任务较长的自由形式人类可读描述
 
-- `isExecutedElsewhere` — _boolean · optional_ — If set, execution of this task is managed elsewhere, not by Task Manager. In other words, task manager will not attempt to update the assigned agent with execution instructions.
+- `isExecutedElsewhere` — _boolean · optional_ — 如果设置，则此任务的执行由其他位置管理，而不是由 Task Manager 管理。换言之，Task Manager 不会尝试向分配的 agent 更新执行指令。
 
-- `createTime` — _datetime · optional_ — Time of task creation.
+- `createTime` — _datetime · optional_ — 任务创建时间。
 
-- `replication` — _object · optional_ — If populated, designates this to be a replicated task.
+- `replication` — _object · optional_ — 如果填充，则指定此任务为 replicated task。
 
-- `initialEntities` — _list of objects · optional_ — If populated, indicates an initial set of entities that can be used to execute an entity aware task For example, an entity Objective, an entity Keep In Zone, etc. These will not be updated during execution. If a taskable agent needs continuous updates on the entities from the COP, can call entity-manager, or use an AlternateId escape hatch.
+- `initialEntities` — _list of objects · optional_ — 如果填充，表示可用于执行实体感知任务的一组初始实体。例如实体 Objective、实体 Keep In Zone 等。这些实体在执行期间不会更新。如果可任务化 agent 需要来自 COP 的实体持续更新，可以调用 entity-manager，或使用 AlternateId escape hatch。
 
-- `owner` — _object · optional_ — The networked owner of this task. It is used to ensure that linear writes occur on the node responsible for replication of task data to other nodes running Task Manager.
+- `owner` — _object · optional_ — 此任务的网络化 owner。用于确保线性写入发生在负责将任务数据复制到其他运行 Task Manager 节点的节点上。
 
-- `retryStrategy` — _object · optional_ — Sets an optional try strategy for tasks. Use this option to control how Lattice attempts to retry delivery of tasks to assets with intermittent access or network connectivity to your environment.
+- `retryStrategy` — _object · optional_ — 设置任务的可选重试策略。使用此选项控制 Lattice 如何尝试向对你的环境访问或网络连接不稳定的资产重试交付任务。
 
-- `deliveryState` — _object · optional_ — The current delivery state of a task.
+- `deliveryState` — _object · optional_ — 任务当前交付状态。
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误
 
 404
 
-Not Found Error
+Not Found 错误

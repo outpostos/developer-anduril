@@ -74,7 +74,7 @@ async function validateExtractionRegressions() {
   const grpcCreate = await fs.readFile(path.join(ROOT, 'pages/reference/grpc/taskmanager-v1/create-task.mdx'), 'utf8')
   const publish = await fs.readFile(path.join(ROOT, 'pages/guides/entities/publish.mdx'), 'utf8')
 
-  if (!restCreate.includes('- `taskId` — _string · optional_ — If non-empty')) {
+  if (!restCreate.includes('- `taskId` — _string · optional_ — 如果非空')) {
     fail('REST create-task request field taskId is not rendered as one atomic property bullet')
   }
 
@@ -83,11 +83,11 @@ async function validateExtractionRegressions() {
     fail('REST create-task contains standalone property type/optional bullets')
   }
 
-  if (!grpcCreate.includes('### Request') || !grpcCreate.includes('- `task_id` — _string_ — If non-empty')) {
+  if (!grpcCreate.includes('### 请求') || !grpcCreate.includes('- `task_id` — _string_ — 如果非空')) {
     fail('gRPC create-task is missing extracted Request field descriptions')
   }
 
-  if (!grpcCreate.includes('### Response') || !grpcCreate.includes('- `task` — _object_ — Task that was created.')) {
+  if (!grpcCreate.includes('### 响应') || !grpcCreate.includes('- `task` — _object_ — 已创建的任务。')) {
     fail('gRPC create-task is missing extracted Response field descriptions')
   }
 

@@ -1,3 +1,3 @@
 export default {
-  5: 'September 5, 2025'
+  5: '2025 年 9 月 5 日'
 }

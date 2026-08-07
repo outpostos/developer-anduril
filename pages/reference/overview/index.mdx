@@ -1,61 +1,61 @@
 ---
-title: "The Lattice API"
+title: "Lattice API"
 ---
 
-# The Lattice API
+# Lattice API
 
-With the SDK and its open data models, Lattice lets you integrate highly customizable data systems and hardware platforms with Lattice’s growing body of robust, field-tested integrations.
+借助 SDK 及其开放数据模型，Lattice 让你可以把高度可定制的数据系统和硬件平台接入 Lattice 不断扩展、经过现场验证的稳健集成生态。
 
-Lattice provides the following APIs:
+Lattice 提供以下 API：
 
-Entities
+实体
 
-Entities model anything in the world that is of significance to an operator.
+实体用于建模世界中对操作员有意义的任何事物。
 
-Tasks
+任务
 
-Tasking enables you to send sequential commands to agents connected to Lattice.
+任务分配让你可以向连接到 Lattice 的 agent 发送顺序命令。
 
-Objects
+对象
 
-Objects let you store distributed binary data in Lattice.
+对象让你可以在 Lattice 中存储分布式二进制数据。
 
-## API availability
+## API 可用性
 
-Lattice APIs designate three availability levels: **beta**, **generally available (GA)**, and **deprecated**:
+Lattice API 标记三种可用性级别：**beta**、**generally available (GA)** 和 **deprecated**：
 
-API Versioning policy
+API 版本管理策略
 
-- Resources marked as beta should not be depended on in production.
-- Resources marked as beta may have breaking changes without notice.
-- Resources marked as beta may not be available within every Anduril environment.
-- Resources not marked as beta are generally available , and maintain stability.
+- 标记为 beta 的资源不应在生产环境中依赖。
+- 标记为 beta 的资源可能在不通知的情况下发生破坏性变更。
+- 标记为 beta 的资源可能并非在所有 Anduril 环境中可用。
+- 未标记为 beta 的资源通常为 GA，并保持稳定性。
 
-For [REST](/reference/rest/entities/publish-entity), any REST APIs still in development are marked as beta within the reference documentation:
+对于 [REST](/reference/rest/entities/publish-entity)，仍在开发中的 REST API 会在参考文档中标记为 beta：
 
 ![Displays the Lattice REST API with a `Beta` label.](/img/anduril.docs.buildwithfern.com/6c5bec76116a59a19be5038e35a8e4c013ef4a5a19524154497cf1b260d65726/assets/images/screenshots/beta.png)
 
-For [gRPC](/reference/grpc/entitymanager-v1/publish-entity), APIs still in development are marked with beta in the namespace. For example, `anduril.entitymanager.v2beta`.
+对于 [gRPC](/reference/grpc/entitymanager-v1/publish-entity)，仍在开发中的 API 会在命名空间中带有 beta 标记。例如 `anduril.entitymanager.v2beta`。
 
-## Lattice SDK versions
+## Lattice SDK 版本
 
-The Lattice SDK versions for different languages are independently versioned. The versions are based on the semantic versioning standard. For example, in version `2.6.4`, `2` is the *major*, `6` is the *minor* and `4` is the *patch*. When we release a new version of the SDK, we increment one of these values depending on the type of change introduced.
+不同语言的 Lattice SDK 独立进行版本管理。这些版本遵循语义化版本标准。例如在版本 `2.6.4` 中，`2` 是 *major*，`6` 是 *minor*，`4` 是 *patch*。发布新版 SDK 时，我们会根据引入的变更类型递增其中一个值。
 
-- Major : We increment the major version when the version contains breaking changes that are not backwards compatible with the previous version. For example, to change a method.
-- Minor : We increment the minor version when the version contains new features that are backwards compatible with the previous version. For example, to add a new method.
-- Patch : We increment the patch version when the version contains backwards compatible bug fixes. For example, fixing a bug where Entities were not correctly publishing.
+- Major：当版本包含与前一版本不向后兼容的破坏性变更时递增 major 版本。例如修改某个方法。
+- Minor：当版本包含与前一版本向后兼容的新功能时递增 minor 版本。例如新增某个方法。
+- Patch：当版本包含向后兼容的 bug 修复时递增 patch 版本。例如修复实体未正确发布的问题。
 
-SDK Versioning policy
+SDK 版本管理策略
 
-When a new Lattice SDK major version is released, the previous major version is supported for **six** months for critical security fixes.
+新的 Lattice SDK major 版本发布后，前一个 major 版本会继续获得 **六** 个月的关键安全修复支持。
 
-If you’re on an older major SDK version, we recommend upgrading to the latest major version to take advantage of new features and bug fixes. Older major versions of the package continue to be available for use, but won’t receive any additional updates.
+如果你仍在使用较旧的 major SDK 版本，建议升级到最新 major 版本，以获得新功能和 bug 修复。旧 major 版本的软件包仍可继续使用，但不会再收到额外更新。
 
-#### v1 to v2
+#### v1 到 v2
 
-Moving from Lattice SDK v1 to v2+ consisted of a major change where we generated clients from our REST endpoints rather than our gRPC endpoints. A special [migration guide](/reference/overview/versioning/migrating-to-v2) is available for this migration.
+从 Lattice SDK v1 迁移到 v2+ 的主要变化是客户端改为从 REST 端点生成，而不是从 gRPC 端点生成。此迁移可参考专门的[迁移指南](/reference/overview/versioning/migrating-to-v2)。
 
-## What’s next?
+## 接下来
 
-- Get started with Lattice using the sample apps .
-- Follow the quickstart guide to build your first integration.
+- 使用示例应用开始体验 Lattice。
+- 按照快速入门指南构建你的第一个集成。

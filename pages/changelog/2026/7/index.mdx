@@ -1,35 +1,35 @@
 ---
-title: "Changelog"
+title: "更新日志"
 ---
 
-# Changelog
+# 更新日志
 
-July 23, 2026
+2026 年 7 月 23 日
 
 ## Lattice Schema Registry
 
-The Lattice Schema Registry (LSR) is now available at [https://schema-registry.developer.anduril.com](https://schema-registry.developer.anduril.com/).
+Lattice Schema Registry (LSR) 现已在 [https://schema-registry.developer.anduril.com](https://schema-registry.developer.anduril.com/) 可用。
 
 ![The Lattice Schema Registry dashboard, showing published schema repositories and their versions.](/img/anduril.docs.buildwithfern.com/948813b683a8d8aae00d83c090fe6cde782a0c6d68119969aa1ddf7674ffa076/assets/images/screenshots/registry-dashboard.png)
 
-The LSR enables you to publish, share, and use schema definitions with the Protobuf Interface Definition Language. Log in with your existing Lattice Developer single sign-on (SSO).
+LSR 支持使用 Protobuf Interface Definition Language 发布、共享和使用 schema 定义。请使用现有 Lattice Developer 单点登录 (SSO) 登录。
 
-Your organization owns the lifecycle of the schemas you publish to the LSR, giving you more control over defining your integration’s features in Lattice. For example, if you’re integrating a taskable agent, you can publish a task definition that expresses your platform’s unique capabilities to operators, then modify the schema as the integration evolves.
+你的组织拥有发布到 LSR 的 schema 生命周期，因此可以更好地控制如何在 Lattice 中定义集成功能。例如，如果你正在集成可任务化 agent，可以发布一个任务定义，向操作员表达平台的独特能力，然后随着集成演进修改该 schema。
 
-To get started, see the following pages in the *Lattice SDK guide*:
+要开始使用，请参阅 *Lattice SDK 指南* 中的以下页面：
 
-- Define tasks explains how to describe your platform’s capabilities as a custom task definition.
-- Create tasks shows you how to issue tasks to your agent from those definitions.
-- Registry explains how to publish, version, and share your schemas in the LSR.
+- Define tasks 说明如何将平台能力描述为自定义任务定义。
+- Create tasks 展示如何基于这些定义向 agent 下发任务。
+- Registry 说明如何在 LSR 中发布、版本化和共享 schema。
 
-Repository visibility
+仓库可见性
 
-- The Lattice Schema Registry is not rated for ITAR specifications, regardless of repository visibility. Do not use the registry to store any classified specifications.
+- 无论仓库可见性如何，Lattice Schema Registry 都不适用于 ITAR 规范。不要使用该 registry 存储任何涉密规范。
 
-For an example of how to define and use custom tasks, see the [Auto reconnaissance sample app](https://github.com/anduril/sample-app-auto-reconnaissance).
+For an example of how to define and use custom tasks, see the [自动侦察 sample app](https://github.com/anduril/sample-app-auto-reconnaissance).
 
-Existing users
+现有用户
 
-If you have used the Schema Registry in beta prior to today, we are making a change to how revisions work. Breaking changes are no longer allowed for `alpha`, `beta`, and `test` packages. To prevent breaking changes, you must publish a new version (for example, `v1alpha` to `v2alpha`).
+如果你此前使用过 beta 版 Schema Registry，我们正在调整 revision 的工作方式。`alpha`、`beta` 和 `test` 软件包不再允许破坏性变更。为避免破坏性变更，你必须发布新版本（例如从 `v1alpha` 到 `v2alpha`）。
 
-Was this page helpful?
+此页面有帮助吗？

@@ -1,27 +1,27 @@
 ---
-title: "Changelog"
+title: "更新日志"
 ---
 
-# Changelog
+# 更新日志
 
-August 11, 2025
+2025 年 8 月 11 日
 
-The Lattice SDK now supports streaming entity updates in real-time using the REST API across all supported languages:
+Lattice SDK 现在支持在所有受支持语言中使用 REST API 实时流式传输实体更新：
 
-- Added StreamEntities API for establishing persistent connections to stream entity events
-- Implemented examples for streaming entities in Go, Java, Python, and TypeScript
-- Updated documentation to demonstrate both basic streaming and component filtering
+- 新增 StreamEntities API，用于建立持久连接以流式传输实体事件
+- 实现 Go、Java、Python 和 TypeScript 的实体流式传输示例
+- 更新文档以同时演示基础流式传输和组件过滤
 
-## New features
+## 新功能
 
-The new `StreamEntities` API provides several configurable parameters:
+新的 `StreamEntities` API 提供多个可配置参数：
 
-- preExistingOnly : Controls whether to stream only existing entities or include real-time updates.
-- heartbeatIntervalMS : Configures how frequently the server sends heartbeat events.
-- componentsToInclude : Allows filtering which entity components are streamed, reducing bandwidth usage and improving performance.
+- preExistingOnly：控制是仅流式传输既有实体，还是包含实时更新。
+- heartbeatIntervalMS：配置服务器发送 heartbeat 事件的频率。
+- componentsToInclude：允许过滤要流式传输的实体组件，从而减少带宽使用并提升性能。
 
-## Documentation updates
+## 文档更新
 
-As a part of this release, [Watch entities](/guides/entities/watch) guide has been updated with code examples in all supported languages. Each example demonstrates both basic entity streaming and filtering specific components, providing common patterns for integrating real-time entity data into your Lattice apps.
+作为此版本的一部分，[Watch entities](/guides/entities/watch) 指南已更新所有受支持语言的代码示例。每个示例都演示基础实体流式传输和特定组件过滤，为将实时实体数据集成到 Lattice 应用提供常见模式。
 
-Was this page helpful?
+此页面有帮助吗？

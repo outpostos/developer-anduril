@@ -1,59 +1,59 @@
 ---
-title: "Migrate to v2"
+title: "迁移到 v2"
 ---
 
-# Migrate to v2
+# 迁移到 v2
 
-The v2 release of the Lattice SDK represents a change in **SDK implementation**, and not in the underlying Lattice services or APIs.
+Lattice SDK v2 版本代表的是 **SDK 实现** 的变化，而不是底层 Lattice 服务或 API 的变化。
 
-The underlying Lattice services continue to support both REST and gRPC protocols.
+底层 Lattice 服务会继续同时支持 REST 和 gRPC 协议。
 
-If you’re an existing Lattice developer, you have three migration paths to choose from:
+如果你是现有 Lattice 开发者，可以从三条迁移路径中选择：
 
-1. [**Continue using gRPC with Buf**](#option-1-use-v2-with-grpc) (recommended): If your apps use gRPC, or you have existing Lattice integrations that use gRPC, get the artifacts directly from the [Lattice Schema Registry](https://schema-registry.developer.anduril.com/anduril/lattice-sdk/sdks/main:protobuf). If you prefer to continue using gRPC and want to generate clients compatible with Lattice SDK v1, use the following plugin versions when getting the artifacts from Buf: Plugins | Language | Plugin version | | --- | --- | | C++ | [grpc/cpp@1.68.0](https://buf.build/anduril/lattice-sdk/sdks/main:grpc/cpp?version=v1.68.0) | | Java | [grpc/java@1.54.1](https://buf.build/anduril/lattice-sdk/sdks/main:grpc/java?version=v1.54.1) | | Go | [grpc/go@1.5.1](https://buf.build/anduril/lattice-sdk/sdks/main:grpc/go?version=v1.5.1) | | Javascript/Typescript | [es@2.2.0](https://buf.build/anduril/lattice-sdk/sdks/main:bufbuild/es?version=v2.2.0) | | Python | [betterproto@2.0.0b7](https://github.com/danielgtaylor/python-betterproto/tree/v.2.0.0b7) | | Rust | [neoeinstein-prost@0.5.0](https://buf.build/anduril/lattice-sdk/sdks/main:community/neoeinstein-prost?version=v0.5.0) and [neoeinstein-tonic@0.5.0](https://buf.build/anduril/lattice-sdk/sdks/main:community/neoeinstein-tonic?version=v0.5.0) | Python We do not recommend using `betterproto` moving forward, as the plugin does not support type `Any`. For Python, we recommend using the [`grpc/python`](https://buf.build/anduril/lattice-sdk/sdks/main:grpc/python) plugin.
-2. [**Migrate to SDK v2**](#option-2-use-v2-with-rest) (recommended): We recommend migrating to the REST-based SDKs for faster integration with Lattice, if you prefer working with JSON formats, or have existing APIs that use REST. REST offers a more streamlined setup experience and better browser compatibility.
-3. **Maintain v1 usage** (not recommended): While you can continue using v1 gRPC-based packages without changes, we do not recommend this approach. New versions of the Lattice SDK include new features and critical updates to existing resources.
+1. [**继续通过 Buf 使用 gRPC**](#option-1-use-v2-with-grpc)（推荐）：如果你的应用使用 gRPC，或已有使用 gRPC 的 Lattice 集成，请直接从 [Lattice Schema Registry](https://schema-registry.developer.anduril.com/anduril/lattice-sdk/sdks/main:protobuf) 获取产物。如果你希望继续使用 gRPC，并希望生成兼容 Lattice SDK v1 的客户端，请在从 Buf 获取产物时使用以下插件版本：插件 | 语言 | 插件版本 | | --- | --- | | C++ | [grpc/cpp@1.68.0](https://buf.build/anduril/lattice-sdk/sdks/main:grpc/cpp?version=v1.68.0) | | Java | [grpc/java@1.54.1](https://buf.build/anduril/lattice-sdk/sdks/main:grpc/java?version=v1.54.1) | | Go | [grpc/go@1.5.1](https://buf.build/anduril/lattice-sdk/sdks/main:grpc/go?version=v1.5.1) | | Javascript/Typescript | [es@2.2.0](https://buf.build/anduril/lattice-sdk/sdks/main:bufbuild/es?version=v2.2.0) | | Python | [betterproto@2.0.0b7](https://github.com/danielgtaylor/python-betterproto/tree/v.2.0.0b7) | | Rust | [neoeinstein-prost@0.5.0](https://buf.build/anduril/lattice-sdk/sdks/main:community/neoeinstein-prost?version=v0.5.0) 和 [neoeinstein-tonic@0.5.0](https://buf.build/anduril/lattice-sdk/sdks/main:community/neoeinstein-tonic?version=v0.5.0) | Python 后续不建议继续使用 `betterproto`，因为该插件不支持 `Any` 类型。对于 Python，建议使用 [`grpc/python`](https://buf.build/anduril/lattice-sdk/sdks/main:grpc/python) 插件。
+2. [**迁移到 SDK v2**](#option-2-use-v2-with-rest)（推荐）： 如果你偏好 JSON 格式，或已有 API 使用 REST，建议迁移到基于 REST 的 SDK，以便更快地与 Lattice 集成。REST 提供更简化的设置体验和更好的浏览器兼容性。
+3. **继续使用 v1**（不推荐）： 虽然你可以不做更改继续使用基于 gRPC 的 v1 软件包，但不建议采用这种方式。新版 Lattice SDK 包含新功能以及对现有资源的关键更新。
 
-Use the following table to help you decide which migration path is best for you:
+使用下表帮助判断哪条迁移路径最适合你：
 
 |  | REST | gRPC |
 | --- | --- | --- |
-| Installation | Packages via [PyPi](https://pypi.org/project/anduril-lattice-sdk/), [Maven](https://central.sonatype.com/artifact/com.anduril/lattice-sdk), [npm](https://www.npmjs.com/package/@anduril-industries/lattice-sdk), source via [GitHub](https://github.com/anduril?q=lattice-sdk&type=all&language=&sort=) | Packages generated in [Lattice Schema Registry](https://schema-registry.developer.anduril.com/anduril/lattice-sdk) |
-| Language Support | Python, Typescript, Java, and Go | Auto-generated bindings for 16 languages |
-| Authentication | Includes built-in support for OAuth 2.0 | Requires manual token lifecycle management |
-| Streaming | Supported with basic filtering | Supported with advanced filtering |
-| API availability | `Entities`, `Tasks`, and `Objects` | `Entities` and `Tasks` |
-| Retries | Built-in retries for `5xx`, `408`, `409`, and `429` responses | No built-in retries, implement them in your integration |
-| On-the-wire size | Larger packets with JSON encoding | Smaller packets with binary encoding |
-| Browser support | Better browser support | Weaker browser support |
+| 安装 | 通过 [PyPi](https://pypi.org/project/anduril-lattice-sdk/)、[Maven](https://central.sonatype.com/artifact/com.anduril/lattice-sdk)、[npm](https://www.npmjs.com/package/@anduril-industries/lattice-sdk) 获取软件包，或通过 [GitHub](https://github.com/anduril?q=lattice-sdk&type=all&language=&sort=) 获取源码 | 在 [Lattice Schema Registry](https://schema-registry.developer.anduril.com/anduril/lattice-sdk) 中生成软件包 |
+| 语言支持 | Python、Typescript、Java 和 Go | 自动生成 16 种语言的绑定 |
+| 认证 | 内置支持 OAuth 2.0 | 需要手动管理令牌生命周期 |
+| 流式传输 | 支持基础过滤 | 支持高级过滤 |
+| API 可用性 | `Entities`、`Tasks` 和 `Objects` | `Entities` 和 `Tasks` |
+| 重试 | 对 `5xx`、`408`、`409` 和 `429` 响应内置重试 | 无内置重试，请在你的集成中实现 |
+| 传输大小 | JSON 编码的数据包较大 | 二进制编码的数据包较小 |
+| 浏览器支持 | 浏览器支持更好 | 浏览器支持较弱 |
 
-The following steps guide you through the first two recommended paths.
+以下步骤会引导你完成前两条推荐路径。
 
-## Before you begin
+## 开始之前
 
-- Check the version of the Lattice SDK package: ``` go list -m github.com/anduril/lattice-sdk-go ``` If your version starts with `1.x.x`, continue with the migration guide:
+- 检查 Lattice SDK 软件包版本：``` go list -m github.com/anduril/lattice-sdk-go ``` 如果版本以 `1.x.x` 开头，请继续阅读迁移指南：
 
-## Option 1: Use v2 with gRPC
+## 选项 1：通过 gRPC 使用 v2
 
-The following shows how to update from v1 to v2 gRPC implementation in Go:
+下面展示如何在 Go 中把 gRPC 实现从 v1 更新到 v2：
 
 1
 
-### Update your Lattice SDK dependency
+### 更新 Lattice SDK 依赖
 
-Update your go.mod file to include the new version of the gRPC client:
+更新 go.mod 文件，加入新版 gRPC 客户端：
 
 ```
 go get schema-registry.developer.anduril.com/gen/go/anduril/lattice-sdk/grpc/go@v<latest-supported-version>
 ```
 
-This fetches the specified version from the Lattice Schema Registry.
+这会从 Lattice Schema Registry 获取指定版本。
 
 2
 
-### Update import statements and instansiation
+### 更新 import 语句和实例化方式
 
-Update your imports to use the new version of the client. The following `.diff` shows the necessary changes needed to use `grpc/go@1.5.1`, the same plugin version used for Lattice SDK v1:
+更新 import，使其使用新版客户端。下面的 `.diff` 展示了使用 `grpc/go@1.5.1` 所需的变更，这也是 Lattice SDK v1 使用的同一插件版本：
 
 ```
 --- v1.go
@@ -90,17 +90,17 @@ Update your imports to use the new version of the client. The following `.diff` 
  	log.Printf("Response: %v", response)
 ```
 
-## Option 2: Use v2 with REST
+## 选项 2：通过 REST 使用 v2
 
-If you’re migrating from the v1 gRPC SDK to the v2 REST SDK, follow these steps to update your implementation:
+如果你要从 v1 gRPC SDK 迁移到 v2 REST SDK，请按以下步骤更新实现：
 
 1
 
-### Install the REST SDK
+### 安装 REST SDK
 
-Follow the [SDK setup guide](/guides/getting-started/set-up#get-the-sdk-for-rest) to install the REST SDK for your preferred language.
+按照 [SDK 设置指南](/guides/getting-started/set-up#get-the-sdk-for-rest) 为你偏好的语言安装 REST SDK。
 
-For Go, do the following:
+对于 Go，执行以下命令：
 
 ```
 go get github.com/anduril/lattice-sdk-go/v2
@@ -108,9 +108,9 @@ go get github.com/anduril/lattice-sdk-go/v2
 
 2
 
-### Update import statements and SDK usage
+### 更新 import 语句和 SDK 用法
 
-When migrating from the gRPC implementation to REST, you’ll need to update how you initialize and configure the client:
+从 gRPC 实现迁移到 REST 时，需要更新客户端的初始化和配置方式：
 
 ```
 --- grpc_v1.go	2025-08-01 10:11:20
@@ -164,8 +164,8 @@ When migrating from the gRPC implementation to REST, you’ll need to update how
  	}
 ```
 
-## What’s next?
+## 接下来
 
-- Review our language-specific setup guides for detailed implementation instructions
-- See the API reference and explore the Lattice APIs.
-- Check out the sample apps to see the SDK in action.
+- 查看各语言的设置指南，了解详细实现说明
+- 查看 API 参考并探索 Lattice API。
+- 查看示例应用，了解 SDK 的实际用法。

@@ -1,10 +1,10 @@
 ---
-title: "Stream manual control frames"
+title: "流式传输手动控制帧"
 ---
 
-# Stream manual control frames
+# 流式传输手动控制帧
 
-**Endpoint**: `POST /api/v1/tasks/:taskId/manual-control/stream`
+**端点**: `POST /api/v1/tasks/:taskId/manual-control/stream`
 
 **cURL**
 
@@ -15,38 +15,38 @@ curl -X POST https://example.developer.anduril.com/api/v1/tasks/taskId/manual-co
      -d '{}'
 ```
 
-Establishes a server streaming connection that delivers manual control frames to agents using server-sent events (SSE). This endpoint streams manual control frames, for example, for joystick movements, for a specific task to the executing agent. The agent should open this stream before reporting `STATUS_EXECUTING` to ensure it is ready to receive control input when the operator begins sending frames. Each frame includes epoch and sequence metadata for handling concurrent control sessions and detecting stale or out-of-order frames. Heartbeat messages are sent periodically to maintain the connection. The stream terminates automatically when the task reaches a terminal state (`STATUS_DONE_OK` or `STATUS_DONE_NOT_OK`).
+使用 server-sent events (SSE) 建立服务器流式连接，将手动控制帧交付给 agent。此端点会针对特定任务，将手动控制帧（例如摇杆移动）流式传输给执行中的 agent。agent 应在报告 `STATUS_EXECUTING` 之前打开此流，以确保操作员开始发送帧时已准备好接收控制输入。每一帧都包含 epoch 和 sequence 元数据，用于处理并发控制会话并检测过期或乱序帧。系统会定期发送 heartbeat 消息以维持连接。当任务达到终止状态（`STATUS_DONE_OK` 或 `STATUS_DONE_NOT_OK`）时，该流会自动终止。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Path parameters
+### 路径参数
 
-- `taskId` — _string · required_ — The ID of the manual control task to receive frames for.
+- `taskId` — _string · required_ — 要接收帧的手动控制任务 ID。
 
-### Request
+### 请求
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `heartbeatIntervalMs` — _integer · optional_ — The time interval, in milliseconds, that determines the frequency at which to send heartbeat events. Defaults to 30000 (30 seconds).
+- `heartbeatIntervalMs` — _integer · optional_ — 发送 heartbeat 事件的时间间隔，单位为毫秒。默认值为 30000（30 秒）。
 
-### Response
+### 响应
 
-Returns a stream of manual control frames as they are sent by the operator.
+在操作员发送手动控制帧时返回这些帧的流。
 
 - `heartbeat` — _object_
 
-OR
+或
 
-- `manual_control_frame` — _object_ — A single frame of manual control input forwarded by Lattice to an agent. When an operator sends manual control input, for example, joystick movements using `SendManualControlFrames`, Lattice packages each input into a `ManualControlFrame` and forwards it to the executing agent via the `ListenForManualControlFrames` streaming RPC. Each frame carries sequencing metadata to support concurrent control sessions, detect stale frames, and ensure proper ordering.
+- `manual_control_frame` — _object_ — Lattice 转发给 agent 的单个手动控制输入帧。当操作员发送手动控制输入时，例如通过 `SendManualControlFrames` 发送摇杆移动，Lattice 会将每个输入打包为 `ManualControlFrame`，并通过 `ListenForManualControlFrames` 流式 RPC 转发给执行中的 agent。每一帧都带有排序元数据，用于支持并发控制会话、检测过期帧并确保正确顺序。
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误
