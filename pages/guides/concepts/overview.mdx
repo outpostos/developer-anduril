@@ -3,9 +3,9 @@ title: Building with Lattice
 description: Lattice 平台与 Lattice SDK
 ---
 
-# Building with Lattice
+import { Cards } from 'nextra/components'
 
-<span className="anduril-badge">中文薄切片</span>
+# Building with Lattice
 
 Lattice 平台与 Lattice SDK
 
@@ -13,9 +13,20 @@ Lattice 平台与 Lattice SDK
 
 ## 快速入口
 
-- **Get started**: 将一艘水面舰艇发布到 Lattice。
-- **API Reference**: 了解 Lattice API。
-- **Sample apps**: 在本地机器运行示例应用。
+<Cards num={3} className="anduril-entry-cards">
+  <a className="anduril-entry-card" href="/guides/getting-started/quickstart">
+    <strong>Get started</strong>
+    <span>将一艘水面舰艇发布到 Lattice。</span>
+  </a>
+  <a className="anduril-entry-card" href="/reference/overview/overview">
+    <strong>API Reference</strong>
+    <span>了解 Lattice API。</span>
+  </a>
+  <a className="anduril-entry-card" href="/samples/overview">
+    <strong>Sample apps</strong>
+    <span>在本地机器运行示例应用。</span>
+  </a>
+</Cards>
 
 ## Data flow
 
@@ -26,7 +37,10 @@ Lattice 平台与 Lattice SDK
 
 这些集成的主要入口是 [`Entities`](/reference/rest/entities)、[`Tasks`](/reference/rest/tasks) 和 [`Objects`](/reference/rest/objects) API。下图展示了你的集成如何嵌入 Lattice 生态系统：
 
-> 图示：集成位于外部应用、机器人、传感器与 Lattice 服务之间，通过 Entities、Tasks 和 Objects API 与 Lattice 交换数据。
+<figure className="anduril-diagram">
+  <img src="/img/overview.png" alt="Lattice integration data flow overview" />
+  <figcaption>图示：集成位于外部应用、机器人、传感器与 Lattice 服务之间，通过 Entities、Tasks 和 Objects API 与 Lattice 交换数据。</figcaption>
+</figure>
 
 ## Protocols
 

@@ -22,5 +22,9 @@ export default {
   changelog: {
     title: 'Changelog',
     type: 'page'
+  },
+  404: {
+    title: '404',
+    display: 'hidden'
   }
 }
