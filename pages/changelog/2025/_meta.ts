@@ -1,7 +1,7 @@
 export default {
-  12: 'December',
-  10: 'October',
-  9: 'September',
-  8: 'August',
-  7: 'July'
+  12: '十二月',
+  10: '十月',
+  9: '九月',
+  8: '八月',
+  7: '七月'
 }

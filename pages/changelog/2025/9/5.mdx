@@ -1,12 +1,12 @@
 ---
-title: "Changelog"
+title: "更新日志"
 ---
 
-# Changelog
+# 更新日志
 
-September 5, 2025
+2025 年 9 月 5 日
 
-Updated all Java examples to use the new `addHeader` method for adding authentication headers, simplifying how Sandbox authentication headers are set in Java applications.
+更新所有 Java 示例，改用新的 `addHeader` 方法添加认证标头，简化 Java 应用中 Sandbox 认证标头的设置方式。
 
 ```
 --- java-client-before.java	2025-09-05 10:00:00
@@ -42,12 +42,12 @@ Updated all Java examples to use the new `addHeader` method for adding authentic
  }
 ```
 
-## Java SDK Improvements
+## Java SDK 改进
 
-The [Lattice SDK for Java 2.3.0](https://github.com/anduril/lattice-sdk-java/releases/tag/v2.3.0) introduces a simplified approach for adding authentication headers to API requests:
+[Lattice SDK for Java 2.3.0](https://github.com/anduril/lattice-sdk-java/releases/tag/v2.3.0) 引入了向 API 请求添加认证标头的简化方式：
 
-- Added new addHeader method to the Lattice client builder that eliminates the need to create custom OkHttpClient instances.
-- Updated all Java examples to use this new approach, resulting in cleaner, more maintainable code.
-- Removed boilerplate OkHttpClient interceptor configuration that was previously required.
+- 在 Lattice client builder 中新增 addHeader 方法，无需再创建自定义 OkHttpClient 实例。
+- 更新所有 Java 示例以使用这种新方式，使代码更简洁、更易维护。
+- 移除了此前必需的 OkHttpClient interceptor 样板配置。
 
-Was this page helpful?
+此页面有帮助吗？

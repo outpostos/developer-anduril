@@ -1184,12 +1184,12 @@ title: "PublishEntity"
 {}
 ```
 
-Create or update an entity and get a response confirming whether the Entity Manager API succesfully processes the entity. Ideal for testing environments. When publishing an entity, only your integration can modify or delete that entity; other sources, such as the UI or other integrations, can't. If you're pushing entity updates so fast that your publish task can't keep up with your update rate (a rough estimate of &gt;= 1 Hz), use the PublishEntities request instead.
+创建或更新实体，并获得确认 Entity Manager API 是否成功处理该实体的响应。适合测试环境。发布实体时，只有你的集成可以修改或删除该实体；UI 或其他集成等来源不能修改或删除。如果你推送实体更新的速度太快，导致发布任务跟不上更新速率（粗略估计为 &gt;= 1 Hz），请改用 PublishEntities 请求。
 
-### Request
+### 请求
 
 **PublishEntityRequest**
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `entity` — _object_ — Create or update an entity. Required fields: entity_id: Unique string identifier. Can be a Globally Unique Identifier (GUID). expiry_time: Expiration time that must be greater than the current time and less than 30 days in the future. The Entities API will reject any entity update with an expiry_time in the past. When the expiry_time has passed, the Entities API will delete the entity from the COP and send a DELETE event. is_live: Boolean that when true, creates or updates the entity. If false and the entity is still live, triggers a DELETE event. provenance.integration_name: String that uniquely identifies the integration responsible for publishing the entity. provenance.data_type. provenance.source_update_time. This can be earlier than the RPC call if the data entered is older. aliases.name: Human-readable string that represents the name of an entity. ontology.template For additional required fields that are determined by template, see com.anduril.entitymanager.v1.Template. if an entity_id is provided, Entity Manager updates the entity. If no entity_id is provided, it creates an entity.
+- `entity` — _object_ — 创建或更新实体。必填字段：entity_id：唯一字符串标识符，可以是全局唯一标识符 (GUID)。expiry_time：过期时间，必须晚于当前时间且小于未来 30 天。Entities API 会拒绝任何 expiry_time 位于过去的实体更新。当 expiry_time 已过，Entities API 会从 COP 中删除该实体并发送 DELETE 事件。is_live：布尔值；为 true 时创建或更新实体。如果为 false 且实体仍为 live，则触发 DELETE 事件。provenance.integration_name：唯一标识负责发布该实体的集成的字符串。provenance.data_type。provenance.source_update_time。如果录入的数据较旧，该时间可早于 RPC 调用。aliases.name：表示实体名称的人类可读字符串。ontology.template：模板决定的其他必填字段见 com.anduril.entitymanager.v1.Template。如果提供 entity_id，Entity Manager 会更新该实体；如果未提供 entity_id，则创建实体。

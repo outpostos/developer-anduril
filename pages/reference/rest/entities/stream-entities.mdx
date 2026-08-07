@@ -1,10 +1,10 @@
 ---
-title: "Stream entity events"
+title: "流式传输实体事件"
 ---
 
-# Stream entity events
+# 流式传输实体事件
 
-**Endpoint**: `POST /api/v1/entities/stream`
+**端点**: `POST /api/v1/entities/stream`
 
 **cURL**
 
@@ -15,40 +15,40 @@ curl -X POST https://example.developer.anduril.com/api/v1/entities/stream \
      -d '{}'
 ```
 
-Establishes a server-sent events (SSE) connection that streams entity data in real-time. This is a one-way connection from server to client that follows the SSE protocol with text/event-stream content type. This endpoint enables clients to maintain a real-time view of the common operational picture (COP) by first streaming all pre-existing entities that match filter criteria, then continuously delivering updates as entities are created, modified, or deleted. The server first sends events with type PREEXISTING for all live entities matching the filter that existed before the stream was open, then streams CREATE events for newly created entities, UPDATE events when existing entities change, and DELETED events when entities are removed. The stream remains open indefinitely unless preExistingOnly is set to true. Heartbeat messages can be configured to maintain connection health and detect disconnects by setting the heartbeatIntervalMS parameter. These heartbeats help keep the connection alive and allow clients to verify the server is still responsive. Clients can optimize bandwidth usage by specifying which entity components they need populated using the componentsToInclude parameter. This allows receiving only relevant data instead of complete entities. The connection automatically recovers from temporary disconnections, resuming the stream where it left off. Unlike polling approaches, this provides real-time updates with minimal latency and reduced server load.
+建立 server-sent events (SSE) 连接，实时流式传输实体数据。这是遵循 SSE 协议、内容类型为 text/event-stream 的服务器到客户端单向连接。该端点会先流式传输所有匹配过滤条件的既有实体，然后随着实体创建、修改或删除持续交付更新，让客户端维护通用作战图 (COP) 的实时视图。服务器首先为流打开前已存在且匹配过滤条件的所有 live 实体发送 PREEXISTING 类型事件，然后为新建实体发送 CREATE 事件，为现有实体变更发送 UPDATE 事件，为移除实体发送 DELETED 事件。除非 preExistingOnly 设为 true，否则流会无限期保持打开。可通过 heartbeatIntervalMS 参数配置 heartbeat 消息来维护连接健康并检测断连。这些 heartbeat 有助于保持连接，并让客户端确认服务器仍有响应。客户端可使用 componentsToInclude 参数指定需要填充的实体组件，以优化带宽使用，从而只接收相关数据而不是完整实体。连接会从临时断连中自动恢复，并从上次位置继续流式传输。与轮询方式不同，它能以更低延迟和更低服务器负载提供实时更新。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Request
+### 请求
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `heartbeatIntervalMS` — _integer · optional_ — at what interval to send heartbeat events, defaults to 30s.
+- `heartbeatIntervalMS` — _integer · optional_ — 发送 heartbeat 事件的间隔，默认 30 秒。
 
-- `preExistingOnly` — _boolean · optional_ — only stream pre-existing entities in the environment and then close the connection, defaults to false.
+- `preExistingOnly` — _boolean · optional_ — 仅流式传输环境中的既有实体，然后关闭连接；默认值为 false。
 
-- `componentsToInclude` — _list of strings · optional_ — list of components to include, leave empty to include all components.
+- `componentsToInclude` — _list of strings · optional_ — 要包含的组件列表；留空表示包含所有组件。
 
-- `filter` — _object · optional_ — Optional root of a Statement filter expression tree. If provided, only entities matching the filter are streamed. Applied dynamically: an entity that begins matching is delivered as a CREATE, and one that stops matching is delivered as a DELETE. Mirrors the filter on the gRPC StreamEntityComponents endpoint.
+- `filter` — _object · optional_ — Statement 过滤表达式树的可选根节点。如果提供，则只流式传输匹配过滤条件的实体。该过滤会动态应用：开始匹配的实体会作为 CREATE 交付，不再匹配的实体会作为 DELETE 交付。与 gRPC StreamEntityComponents 端点上的过滤器一致。
 
-### Response
+### 响应
 
-Returns all pre-existing data and then return all new data as they become available.
+返回所有既有数据，然后在新数据可用时返回新数据。
 
 - `heartbeat` — _object_
 
-OR
+或
 
-- `entity` — _object_ — Event representing some type of entity change.
+- `entity` — _object_ — 表示某类实体变更的事件。
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误

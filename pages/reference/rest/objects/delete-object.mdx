@@ -1,10 +1,10 @@
 ---
-title: "Delete object"
+title: "删除对象"
 ---
 
-# Delete object
+# 删除对象
 
-**Endpoint**: `DELETE /api/v1/objects/:objectPath`
+**端点**: `DELETE /api/v1/objects/:objectPath`
 
 **cURL**
 
@@ -13,30 +13,30 @@ curl -X DELETE https://example.developer.anduril.com/api/v1/objects/objectPath \
      -H "Authorization: Bearer <token>"
 ```
 
-Deletes an object from your environment given the objectPath path parameter.
+根据 objectPath 路径参数从你的环境中删除对象。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Path parameters
+### 路径参数
 
-- `objectPath` — _string · required_ — The path of the object to delete.
+- `objectPath` — _string · required_ — 要删除的对象路径。
 
-### Response
+### 响应
 
-Successful operation
+操作成功
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误
 
 500
 
-Internal Server Error
+Internal Server 错误

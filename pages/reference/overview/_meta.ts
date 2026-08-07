@@ -1,4 +1,4 @@
 export default {
-  overview: 'Overview',
-  versioning: 'Versioning'
+  overview: '概览',
+  versioning: '版本管理'
 }

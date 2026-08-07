@@ -1,3 +1,3 @@
 export default {
-  'get-token': 'Get OAuth2 token'
+  'get-token': '获取 OAuth2 令牌'
 }

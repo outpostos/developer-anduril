@@ -1,10 +1,10 @@
 ---
-title: "Query tasks"
+title: "查询任务"
 ---
 
-# Query tasks
+# 查询任务
 
-**Endpoint**: `POST /api/v1/tasks/query`
+**端点**: `POST /api/v1/tasks/query`
 
 **cURL**
 
@@ -15,7 +15,7 @@ curl -X POST https://example.developer.anduril.com/api/v1/tasks/query \
      -d '{}'
 ```
 
-**200 Successful**
+**200 成功**
 
 ```json
 {
@@ -2485,42 +2485,42 @@ curl -X POST https://example.developer.anduril.com/api/v1/tasks/query \
 }
 ```
 
-Searches for Tasks that match specified filtering criteria and returns matching tasks in paginated form. This method allows filtering tasks based on the following criteria: - Parent-task relationships. - Task status with inclusive or exclusive filtering. - Update time ranges. Lattice returns the results in pages. When more results are available than can be returned in a single response, a `page_token` is provided. Use the `page_token` in subsequent requests to retrieve the next set of results. By default, this returns the latest task version for each matching task.
+搜索匹配指定过滤条件的任务，并以分页形式返回匹配任务。此方法支持基于以下条件过滤任务：- 父任务关系。- 任务状态（包含或排除过滤）。- 更新时间范围。Lattice 按页返回结果。当可用结果超出单次响应可返回数量时，会提供 `page_token`。在后续请求中使用 `page_token` 获取下一组结果。默认情况下，会返回每个匹配任务的最新任务版本。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Request
+### 请求
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `pageToken` — _string · optional_ — If set, returns results starting from the given pageToken.
+- `pageToken` — _string · optional_ — 如果设置，则从给定 pageToken 开始返回结果。
 
-- `parentTaskId` — _string · optional_ — If present matches tasks with this parent task ID. This is mutually exclusive with all other query parameters, for example, either provide parent task ID, or any of the remaining parameters, but not both.
+- `parentTaskId` — _string · optional_ — 如果存在，则匹配具有此父任务 ID 的任务。该参数与所有其他查询参数互斥。例如，要么提供父任务 ID，要么提供其余参数之一，但不能同时提供。
 
 - `statusFilter` — _object · optional_
 
-- `updateTimeRange` — _object · optional_ — If provided, only provides tasks updated within the time range.
+- `updateTimeRange` — _object · optional_ — 如果提供，则仅提供该时间范围内更新过的任务。
 
-### Response
+### 响应
 
-Task query was successful
+任务查询成功
 
 - `tasks` — _list of objects · optional_
 
-- `nextPageToken` — _string · optional_ — Incomplete results can be detected by a non-empty nextPageToken field in the query results. In order to retrieve the next page, perform the exact same request as previously and append a pageToken field with the value of nextPageToken from the previous page. A new nextPageToken is provided on the following pages until all the results are retrieved.
+- `nextPageToken` — _string · optional_ — 查询结果中的非空 nextPageToken 字段表示结果不完整。要获取下一页，请执行与之前完全相同的请求，并附加 pageToken 字段，其值为上一页的 nextPageToken。后续页面会提供新的 nextPageToken，直到所有结果都被获取。
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误
 
 404
 
-Not Found Error
+Not Found 错误

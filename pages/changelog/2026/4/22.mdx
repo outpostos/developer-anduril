@@ -1,29 +1,29 @@
 ---
-title: "Changelog"
+title: "更新日志"
 ---
 
-# Changelog
+# 更新日志
 
-April 22, 2026
+2026 年 4 月 22 日
 
-## StreamTasks gRPC support
+## StreamTasks gRPC 支持
 
-The Lattice SDK now supports streaming task updates in real-time using the gRPC API:
+Lattice SDK 现在支持使用 gRPC API 实时流式传输任务更新：
 
-- Added StreamTasks gRPC endpoint for establishing persistent connections to stream task events
-- Implemented Go/gRPC example demonstrating how to connect and process task streams
-- Updated documentation to include gRPC usage patterns alongside existing REST examples
+- 新增 StreamTasks gRPC 端点，用于建立持久连接以流式传输任务事件
+- 实现 Go/gRPC 示例，演示如何连接并处理任务流
+- 更新文档，在现有 REST 示例旁加入 gRPC 使用模式
 
-## Key features
+## 主要功能
 
-The `StreamTasks` gRPC API provides the same configurable parameters as the REST version:
+`StreamTasks` gRPC API 提供与 REST 版本相同的可配置参数：
 
-- heartbeatIntervalMs : Configures how frequently the server sends heartbeat events to verify connection health.
-- excludePreexistingTasks : Controls whether to stream only new tasks created after the connection is established or include existing tasks.
-- taskType : Allows filtering the stream by task type prefix, reducing bandwidth usage and focusing on relevant task updates.
+- heartbeatIntervalMs：配置服务器发送 heartbeat 事件以验证连接健康的频率。
+- excludePreexistingTasks：控制是只流式传输连接建立后创建的新任务，还是也包含既有任务。
+- taskType：允许按任务类型前缀过滤流，减少带宽使用并聚焦相关任务更新。
 
-## Documentation updates
+## 文档更新
 
-As a part of this release, the [Operate on tasks](/guides/tasks/command-and-operate) guide has been updated with a Go/gRPC code example. The example demonstrates how to establish a task stream connection, process heartbeat events, and handle incoming task events using the gRPC protocol.
+作为此版本的一部分，[Operate on tasks](/guides/tasks/command-and-operate) 指南已更新 Go/gRPC 代码示例。该示例演示如何建立任务流连接、处理 heartbeat 事件，并使用 gRPC 协议处理传入任务事件。
 
-Was this page helpful?
+此页面有帮助吗？

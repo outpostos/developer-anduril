@@ -1,10 +1,10 @@
 ---
-title: "Delete entity override"
+title: "删除实体覆盖"
 ---
 
-# Delete entity override
+# 删除实体覆盖
 
-**Endpoint**: `DELETE /api/v1/entities/:entityId/override/:fieldPath`
+**端点**: `DELETE /api/v1/entities/:entityId/override/:fieldPath`
 
 **cURL**
 
@@ -13,7 +13,7 @@ curl -X DELETE https://example.developer.anduril.com/api/v1/entities/entityId/ov
      -H "Authorization: Bearer <token>"
 ```
 
-**200 Deleted**
+**200 已删除**
 
 ```json
 {
@@ -1957,110 +1957,110 @@ curl -X DELETE https://example.developer.anduril.com/api/v1/entities/entityId/ov
 }
 ```
 
-This operation clears the override value from the specified field path on the entity.
+此操作会清除实体上指定字段路径的覆盖值。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Path parameters
+### 路径参数
 
-- `entityId` — _string · required_ — The unique ID of the entity to undo an override from.
+- `entityId` — _string · required_ — 要撤销覆盖的实体唯一 ID。
 
-- `fieldPath` — _string · required_ — The fieldPath to clear overrides from.
+- `fieldPath` — _string · required_ — 要清除覆盖的 fieldPath。
 
-### Response
+### 响应
 
-The removal of entity override was successful.
+实体覆盖移除成功。
 
-- `entityId` — _string · optional_ — A Globally Unique Identifier (GUID) for your entity. This is a required field.
+- `entityId` — _string · optional_ — 实体的全局唯一标识符 (GUID)。这是必填字段。
 
-- `description` — _string · optional_ — A human-readable entity description that’s helpful for debugging purposes and human traceability. If this field is empty, the Entity Manager API generates one for you.
+- `description` — _string · optional_ — 人类可读的实体描述，有助于调试和人工追踪。如果此字段为空，Entity Manager API 会自动生成。
 
-- `isLive` — _boolean · optional_ — Indicates the entity is active and should have a lifecycle state of CREATE or UPDATE. Set this field to true when publishing an entity.
+- `isLive` — _boolean · optional_ — 表示实体处于活动状态，生命周期状态应为 CREATE 或 UPDATE。发布实体时将此字段设为 true。
 
-- `createdTime` — _datetime · optional_ — The time when the entity was first known to the entity producer. If this field is empty, the Entity Manager API uses the current timestamp of when the entity is first received. For example, when a drone is first powered on, it might report its startup time as the created time. The timestamp doesn't change for the lifetime of an entity.
+- `createdTime` — _datetime · optional_ — 实体生产者首次知晓该实体的时间。如果此字段为空，Entity Manager API 会使用首次收到实体时的当前时间戳。例如，无人机首次上电时，可能会把启动时间报告为创建时间。该时间戳在实体生命周期内不会改变。
 
-- `expiryTime` — _datetime · optional_ — Future time that expires an entity and updates the is_live flag. For entities that are constantly updating, the expiry time also updates. In some cases, this may differ from is_live. Example: Entities with tasks exported to an external system must remain active even after they expire. This field is required when publishing a prepopulated entity. The expiry time must be in the future, but less than 30 days from the current time.
+- `expiryTime` — _datetime · optional_ — 使实体过期并更新 is_live 标志的未来时间。对于持续更新的实体，过期时间也会更新。在某些情况下，这可能与 is_live 不同。例如，带有导出到外部系统任务的实体，即使过期后也必须保持活动。发布预填充实体时，此字段必填。过期时间必须在未来，但距离当前时间小于 30 天。
 
-- `noExpiry` — _boolean · optional_ — Use noExpiry only when the entity contains information that should be available to other tasks or integrations beyond its immediate operational context. For example, use noExpiry for long-living geographical entities that maintain persistent relevance across multiple operations or tasks.
+- `noExpiry` — _boolean · optional_ — 仅当实体包含应在其直接操作上下文之外供其他任务或集成使用的信息时，才使用 noExpiry。例如，对于在多个行动或任务中持续相关的长期地理实体，可使用 noExpiry。
 
-- `status` — _object · optional_ — Human-readable descriptions of what the entity is currently doing.
+- `status` — _object · optional_ — 关于实体当前正在执行事项的人类可读描述。
 
-- `location` — _object · optional_ — Geospatial data related to the entity, including its position, kinematics, and orientation. Populate either this field (and `location_uncertainty`) or `kinematics`, not both. Populating both can lead to conflicting or inconsistent kinematics data for the entity.
+- `location` — _object · optional_ — 与实体相关的地理空间数据，包括其位置、运动学和姿态。填充此字段（以及 `location_uncertainty`）或 `kinematics` 二者之一，不要同时填充。同时填充可能导致实体运动学数据冲突或不一致。
 
-- `locationUncertainty` — _object · optional_ — Indicates uncertainty of the entity's position and kinematics.
+- `locationUncertainty` — _object · optional_ — 表示实体位置和运动学的不确定性。
 
-- `kinematics` — _object · optional_ — Kinematics data related to the entity to a higher degree of granularity than Location. This is preferred for Track Entities. Populate either `location`/`location_uncertainty` or this field, not both. Populating both can lead to conflicting or inconsistent kinematics data for the entity.
+- `kinematics` — _object · optional_ — 与实体相关、粒度高于 Location 的运动学数据。对于航迹实体优先使用此字段。填充 `location`/`location_uncertainty` 或此字段二者之一，不要同时填充。同时填充可能导致实体运动学数据冲突或不一致。
 
-- `geoShape` — _object · optional_ — Geospatial representation of the entity, including entities that cover an area rather than a fixed point.
+- `geoShape` — _object · optional_ — 实体的地理空间表示，包括覆盖区域而非固定点的实体。
 
-- `geoDetails` — _object · optional_ — Additional details on what the geospatial area or point represents, along with visual display details.
+- `geoDetails` — _object · optional_ — 关于地理空间区域或点表示内容的附加详细信息，以及视觉显示详情。
 
-- `aliases` — _object · optional_ — Entity name displayed in the Lattice UI side panel. Also includes identifiers that other systems can use to reference the same entity.
+- `aliases` — _object · optional_ — 显示在 Lattice UI 侧边栏中的实体名称。还包含其他系统可用于引用同一实体的标识符。
 
-- `tracked` — _object · optional_ — If this entity is tracked by another entity, this component contains data related to how it's being tracked.
+- `tracked` — _object · optional_ — 如果此实体由另一个实体跟踪，该组件包含其跟踪方式相关数据。
 
-- `correlation` — _object · optional_ — If this entity has been correlated or decorrelated to another one, this component contains information on the correlation or decorrelation.
+- `correlation` — _object · optional_ — 如果此实体已与另一个实体关联或解除关联，该组件包含相关关联或解除关联信息。
 
-- `milView` — _object · optional_ — View of the entity.
+- `milView` — _object · optional_ — 实体视图。
 
-- `ontology` — _object · optional_ — Ontology defines an entity's categorization in Lattice, and improves data retrieval and integration. Builds a standardized representation of the entity.
+- `ontology` — _object · optional_ — 本体定义实体在 Lattice 中的分类，并改进数据检索和集成。它构建实体的标准化表示。
 
-- `sensors` — _object · optional_ — Details an entity's available sensors.
+- `sensors` — _object · optional_ — 详述实体可用的传感器。
 
-- `payloads` — _object · optional_ — Details an entity's available payloads.
+- `payloads` — _object · optional_ — 详述实体可用的 payload。
 
-- `powerState` — _object · optional_ — Details the entity's power source.
+- `powerState` — _object · optional_ — 详述实体的电源。
 
-- `provenance` — _object · optional_ — The primary data source provenance for this entity.
+- `provenance` — _object · optional_ — 此实体的主要数据来源。
 
-- `overrides` — _object · optional_ — Provenance of override data.
+- `overrides` — _object · optional_ — 覆盖数据的来源。
 
-- `indicators` — _object · optional_ — Describes an entity’s specific characteristics and the operations that can be performed on the entity. For example, “simulated” informs the operator that the entity is from a simulation, and “deletable” informs the operator (and system) that the delete operation is valid against the entity.
+- `indicators` — _object · optional_ — 描述实体的特定特征以及可对实体执行的操作。例如，“simulated” 告知操作员该实体来自仿真，“deletable” 告知操作员（以及系统）可对该实体执行删除操作。
 
-- `targetPriority` — _object · optional_ — The prioritization associated with an entity, such as if it’s a threat or a high-value target.
+- `targetPriority` — _object · optional_ — 与实体关联的优先级，例如它是否为威胁或高价值目标。
 
-- `signal` — _object · optional_ — Describes an entity's signal characteristics, primarily used when an entity is a signal of interest.
+- `signal` — _object · optional_ — 描述实体的信号特征，主要在实体为感兴趣信号时使用。
 
-- `transponderCodes` — _object · optional_ — A message describing any transponder codes associated with Mode 1, 2, 3, 4, 5, S, C interrogations. These are related to ADS-B modes.
+- `transponderCodes` — _object · optional_ — 描述与 Mode 1、2、3、4、5、S、C 询问相关的任何应答机代码的消息。这些代码与 ADS-B 模式相关。
 
-- `dataClassification` — _object · optional_ — Describes an entity's security classification levels at an overall classification level and on a per field level.
+- `dataClassification` — _object · optional_ — 描述实体整体级别和逐字段级别的安全密级。
 
-- `taskCatalog` — _object · optional_ — A catalog of tasks that can be performed by an entity.
+- `taskCatalog` — _object · optional_ — 实体可执行任务的目录。
 
-- `media` — _object · optional_ — Media associated with an entity, such as videos, images, or thumbnails.
+- `media` — _object · optional_ — 与实体关联的媒体，例如视频、图片或缩略图。
 
-- `relationships` — _object · optional_ — The relationships between this entity and other entities in the common operational picture (COP).
+- `relationships` — _object · optional_ — 此实体与通用作战图 (COP) 中其他实体之间的关系。
 
-- `visualDetails` — _object · optional_ — Visual details associated with the display of an entity in the client.
+- `visualDetails` — _object · optional_ — 与客户端中实体显示相关的视觉详情。
 
-- `dimensions` — _object · optional_ — Physical dimensions of the entity.
+- `dimensions` — _object · optional_ — 实体的物理尺寸。
 
-- `routeDetails` — _object · optional_ — Additional information about an entity's route.
+- `routeDetails` — _object · optional_ — 关于实体路线的附加信息。
 
-- `schedules` — _object · optional_ — Schedules associated with this entity.
+- `schedules` — _object · optional_ — 与此实体关联的日程。
 
-- `health` — _object · optional_ — Health metrics or connection status reported by the entity.
+- `health` — _object · optional_ — 实体报告的健康指标或连接状态。
 
-- `groupDetails` — _object · optional_ — Details for the group associated with this entity.
+- `groupDetails` — _object · optional_ — 与此实体关联的组详情。
 
-- `supplies` — _object · optional_ — Contains relevant supply information for the entity, such as fuel.
+- `supplies` — _object · optional_ — 包含实体的相关补给信息，例如燃料。
 
-- `orbit` — _object · optional_ — Orbit information for space objects.
+- `orbit` — _object · optional_ — 空间对象的轨道信息。
 
-- `symbology` — _object · optional_ — Symbology/iconography for the entity respecting an existing standard.
+- `symbology` — _object · optional_ — 遵循现有标准的实体符号/图标体系。
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误
 
 404
 
-Not Found Error
+Not Found 错误

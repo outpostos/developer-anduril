@@ -1,5 +1,5 @@
 export default {
-  overview: 'Overview',
+  overview: '概览',
   rest: 'REST',
   grpc: 'gRPC'
 }

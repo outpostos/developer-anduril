@@ -1,10 +1,10 @@
 ---
-title: "Stream as agent"
+title: "作为 agent 流式传输"
 ---
 
-# Stream as agent
+# 作为 agent 流式传输
 
-**Endpoint**: `POST /api/v1/agent/stream`
+**端点**: `POST /api/v1/agent/stream`
 
 **cURL**
 
@@ -15,36 +15,36 @@ curl -X POST https://example.developer.anduril.com/api/v1/agent/stream \
      -d '{}'
 ```
 
-Establishes a server streaming connection that delivers tasks to taskable agents for execution using Server-Sent Events (SSE). This method creates a connection from the Tasks API to an agent that streams relevant tasks to the listener agent. The agent receives a stream of tasks that match the entities specified by the tasks' selector criteria. The stream delivers three types of requests: - `ExecuteRequest`: Contains a new task for the agent to execute - `CancelRequest`: Indicates a task should be canceled - `CompleteRequest`: Indicates a task should be completed Additionally, heartbeat messages are sent periodically to maintain the connection. This is recommended method for taskable agents to receive and process tasks in real-time. Agents should maintain connection to this stream and process incoming tasks according to their capabilities. When an agent receives a task, it should update the task status using the `UpdateStatus` endpoint to provide progress information back to Tasks API.
+使用 Server-Sent Events (SSE) 建立服务器流式连接，把任务交付给可任务化 agent 执行。此方法会从 Tasks API 到 agent 创建连接，将相关任务流式传输给监听 agent。agent 会收到与任务 selector 条件所指定实体匹配的任务流。该流交付三类请求：- `ExecuteRequest`：包含要由 agent 执行的新任务 - `CancelRequest`：表示应取消某个任务 - `CompleteRequest`：表示应完成某个任务。此外，会定期发送 heartbeat 消息以维持连接。这是推荐的可任务化 agent 实时接收和处理任务的方法。agent 应保持与此流的连接，并根据自身能力处理传入任务。当 agent 收到任务时，应使用 `UpdateStatus` 端点更新任务状态，将进度信息回传给 Tasks API。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Request
+### 请求
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `agentSelector` — _object · optional_ — The selector criteria to determine which tasks the agent receives.
+- `agentSelector` — _object · optional_ — 用于确定 agent 接收哪些任务的 selector 条件。
 
-- `heartbeatIntervalMs` — _integer · optional_ — The time interval, in milliseconds, that determines the frequency at which to send heartbeat events. Defaults to 30000 (30 seconds).
+- `heartbeatIntervalMs` — _integer · optional_ — 发送 heartbeat 事件的时间间隔，单位为毫秒。默认值为 30000（30 秒）。
 
-### Response
+### 响应
 
-Returns a stream of tasks to the agent as they become available.
+在任务可用时向 agent 返回任务流。
 
 - `heartbeat` — _object_
 
-OR
+或
 
-- `agent_request` — _object_ — The wrapper for a task’s action requests: execute, cancel, or complete.
+- `agent_request` — _object_ — 任务动作请求的包装器：执行、取消或完成。
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误

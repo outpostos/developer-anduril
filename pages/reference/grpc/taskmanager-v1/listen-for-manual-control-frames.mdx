@@ -28,20 +28,20 @@ title: "ListenForManualControlFrames"
 }
 ```
 
-Establishes a server streaming connection for receiving manual control frames for a specific task. Agents call this RPC to subscribe to manual control frames for a task they are executing. Task Manager forwards frames from the operator's `SendManualControlFrames` stream, including epoch and sequence metadata for handling concurrent control sessions and detecting stale frames. The agent should open this stream before setting the task status to `STATUS_EXECUTING` to ensure it is ready to receive control input as soon as the operator begins sending frames. The stream terminates when the task reaches a terminal state, either `STATUS_DONE_OK` or `STATUS_DONE_NOT_OK`.
+建立服务器流式连接，用于接收特定任务的手动控制帧。agent 调用此 RPC，订阅其正在执行任务的手动控制帧。Task Manager 会转发来自操作员 `SendManualControlFrames` 流的帧，其中包含 epoch 和 sequence 元数据，用于处理并发控制会话并检测过期帧。agent 应在将任务状态设为 `STATUS_EXECUTING` 前打开此流，以确保操作员开始发送帧后能立即接收控制输入。当任务达到 `STATUS_DONE_OK` 或 `STATUS_DONE_NOT_OK` 终止状态时，该流结束。
 
-### Request
+### 请求
 
 **ListenForManualControlFramesRequest**
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `task_id` — _string_ — The task ID of the manual control task the agent listens for.
+- `task_id` — _string_ — agent 监听的手动控制任务 ID。
 
-### Response
+### 响应
 
 **ListenForManualControlFramesResponse**
 
-This endpoint returns an object.
+此端点返回一个对象。
 
-- `frame` — _object_ — The manual control frame. Contains the control instructions and sequencing metadata.
+- `frame` — _object_ — 手动控制帧。包含控制指令和排序元数据。

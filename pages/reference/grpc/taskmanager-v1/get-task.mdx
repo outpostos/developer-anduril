@@ -1264,24 +1264,24 @@ title: "GetTask"
 }
 ```
 
-Retrieves a specific Task by its ID, with options to select a particular task version or view. This method returns detailed information about a task including its current status, specification, relations, and other metadata. The response includes the complete Task object with all associated fields. By default, the method returns the latest definition version of the task from the manager's perspective. The definition_version parameter allows retrieving a specific historical version, while the task_view parameter controls whether to show the task from the manager's or agent's perspective.
+按 ID 获取特定任务，并可选择特定任务版本或视图。此方法返回任务的详细信息，包括当前状态、specification、relations 和其他元数据。响应包含完整任务对象及所有关联字段。默认情况下，该方法从 manager 视角返回任务的最新定义版本。definition_version 参数用于获取指定历史版本，task_view 参数用于控制从 manager 视角还是 agent 视角显示任务。
 
-### Request
+### 请求
 
 **GetTaskRequest**
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `task_id` — _string_ — ID of Task to get.
+- `task_id` — _string_ — 要获取的任务 ID。
 
-- `definition_version` — _uint_ — If set to a number greater than zero, retrieves specific definition_version, otherwise retrieves the latest definition_version.
+- `definition_version` — _uint_ — 如果设置为大于零的数字，则获取指定 definition_version；否则获取最新 definition_version。
 
-- `task_view` — _enum_ — Optional - select which view of the task to fetch. If not set, defaults to TASK_VIEW_MANAGER.
+- `task_view` — _enum_ — 可选 - 选择要获取的任务视图。如果未设置，默认值为 TASK_VIEW_MANAGER。
 
-### Response
+### 响应
 
 **GetTaskResponse**
 
-This endpoint returns an object.
+此端点返回一个对象。
 
-- `task` — _object_ — The Task returned from Lattice.
+- `task` — _object_ — Lattice 返回的任务。

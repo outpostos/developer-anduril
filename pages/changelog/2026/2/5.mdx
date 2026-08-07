@@ -1,28 +1,28 @@
 ---
-title: "Changelog"
+title: "更新日志"
 ---
 
-# Changelog
+# 更新日志
 
-February 5, 2026
+2026 年 2 月 5 日
 
-## Server-sent events (SSE) for tasking
+## 任务分配的 server-sent events (SSE)
 
-The Lattice SDK now supports two new APIs that use server-sent events (SSE) for real-time task monitoring in Lattice:
+Lattice SDK 现在支持两个使用 server-sent events (SSE) 在 Lattice 中实时监控任务的新 API：
 
-1. StreamTasks - For monitoring all tasks across your Lattice environment.
-2. StreamAsAgent - For receiving tasks assigned to specific agents.
+1. StreamTasks - 用于监控整个 Lattice 环境中的所有任务。
+2. StreamAsAgent - 用于接收分配给特定 agent 的任务。
 
-These new features provide instant updates on task creation, status changes, and completion without the need for polling, and replace the previous polling-based approach:
+这些新功能无需轮询即可即时更新任务创建、状态变更和完成情况，并替代此前基于轮询的方式：
 
-- Filtering options : Focus on specific tasks using type prefix filtering.
-- Heartbeat mechanism : Verify connection health with configurable heartbeat intervals.
-- Comprehensive event data : Access full task details including status, description, and metadata.
-- Efficient resource usage : Reduce network traffic and server load compared to polling.
+- 过滤选项：使用类型前缀过滤聚焦特定任务。
+- Heartbeat 机制：通过可配置的 heartbeat 间隔验证连接健康。
+- 完整事件数据：访问完整任务详情，包括状态、描述和元数据。
+- 高效资源使用：相比轮询减少网络流量和服务器负载。
 
 ### StreamTasks
 
-The `StreamTasks` API enables centralized monitoring of all tasks in your Lattice environment regardless of the assigned agent.
+`StreamTasks` API 支持集中监控 Lattice 环境中的所有任务，不受分配 agent 限制。
 
 ```
 // Create task stream request
@@ -42,7 +42,7 @@ stream, err := LatticeClient.Tasks.StreamTasks(ctx, request)
 
 ### StreamAsAgent
 
-The `StreamAsAgent` API replaces the previous ListenAsAgent method, allowing agents to listen for tasks assigned specifically to them using server-sent events.
+`StreamAsAgent` API 替代此前的 ListenAsAgent 方法，允许 agent 使用 server-sent events 监听专门分配给自己的任务。
 
 ```
 // Create agent stream request
@@ -56,6 +56,6 @@ agentRequest := &Lattice.AgentStreamRequest{
 agentStream, err := LatticeClient.Tasks.StreamAsAgent(ctx, agentRequest)
 ```
 
-For more information about monitoring tasks, see [Command and operate](/guides/tasks/command-and-operate) in the Lattice SDK guide.
+有关监控任务的更多信息，请参阅 Lattice SDK 指南中的 [Command and operate](/guides/tasks/command-and-operate)。
 
-Was this page helpful?
+此页面有帮助吗？

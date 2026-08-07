@@ -1,10 +1,10 @@
 ---
-title: "List objects"
+title: "列出对象"
 ---
 
-# List objects
+# 列出对象
 
-**Endpoint**: `GET /api/v1/objects`
+**端点**: `GET /api/v1/objects`
 
 **cURL**
 
@@ -13,7 +13,7 @@ curl https://example.developer.anduril.com/api/v1/objects \
      -H "Authorization: Bearer <token>"
 ```
 
-**200 Retrieved**
+**200 已获取**
 
 ```json
 {
@@ -32,42 +32,42 @@ curl https://example.developer.anduril.com/api/v1/objects \
 }
 ```
 
-Lists objects in your environment. You can define a prefix to list a subset of your objects. If you do not set a prefix, Lattice returns all available objects. By default this endpoint will list local objects only.
+列出你的环境中的对象。你可以定义前缀来列出对象子集。如果未设置前缀，Lattice 会返回所有可用对象。默认情况下，此端点只列出本地对象。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Query parameters
+### 查询参数
 
-- `prefix` — _string · optional_ — Filters the objects based on the specified prefix path. If no path is specified, all objects are returned.
+- `prefix` — _string · optional_ — 根据指定前缀路径筛选对象。如果未指定路径，则返回所有对象。
 
-- `sinceTimestamp` — _datetime · optional_ — Sets the age for the oldest objects to query across the environment.
+- `sinceTimestamp` — _datetime · optional_ — 设置在整个环境中查询对象时最旧对象的时间范围。
 
-- `pageToken` — _string · optional_ — Base64 and URL-encoded cursor returned by the service to continue paging.
+- `pageToken` — _string · optional_ — 服务返回的 Base64 和 URL 编码游标，用于继续分页。
 
-- `allObjectsInMesh` — _boolean · optional_ — Lists objects across all environment nodes in a Lattice Mesh.
+- `allObjectsInMesh` — _boolean · optional_ — 列出 Lattice Mesh 中所有环境节点上的对象。
 
-- `maxPageSize` — _integer · optional_ — Sets the maximum number of items that should be returned on a single page.
+- `maxPageSize` — _integer · optional_ — 设置单页应返回的最大条目数。
 
-### Response
+### 响应
 
-Successful operation
+操作成功
 
 - `path_metadatas` — _list of objects_
 
 - `next_page_token` — _string · optional_
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误
 
 500
 
-Internal Server Error
+Internal Server 错误

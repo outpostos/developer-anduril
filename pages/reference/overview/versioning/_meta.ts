@@ -1,3 +1,3 @@
 export default {
-  'migrating-to-v2': 'Migrating to v2'
+  'migrating-to-v2': '迁移到 v2'
 }

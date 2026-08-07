@@ -1,10 +1,10 @@
 ---
-title: "Upload object"
+title: "上传对象"
 ---
 
-# Upload object
+# 上传对象
 
-**Endpoint**: `POST /api/v1/objects/:objectPath`
+**端点**: `POST /api/v1/objects/:objectPath`
 
 **cURL**
 
@@ -15,7 +15,7 @@ curl --data-binary "path/to/file" -X POST https://example.developer.anduril.com/
   -H "Content-Type: application/octet-stream"
 ```
 
-**200 Successful**
+**200 成功**
 
 ```json
 {
@@ -29,35 +29,35 @@ curl --data-binary "path/to/file" -X POST https://example.developer.anduril.com/
 }
 ```
 
-Uploads an object. The object must be 1 GiB or smaller.
+上传对象。对象大小必须不超过 1 GiB。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Path parameters
+### 路径参数
 
-- `objectPath` — _string · required_ — Path of the Object that is to be uploaded.
+- `objectPath` — _string · required_ — 要上传的对象路径。
 
-### Headers
+### 标头
 
-An optional expiry TTL associated with an object. The value represents the number of nanoseconds the object will exist in the local store. If no TTL is supplied, the server applies a default TTL. In most cases, the default TTL is 90 days. However, it might be higher or lower, depending on the retention requirements of your environment.
+与对象关联的可选过期 TTL。该值表示对象在本地存储中存在的纳秒数。如果未提供 TTL，服务器会应用默认 TTL。多数情况下默认 TTL 为 90 天，但也可能更高或更低，取决于你的环境保留要求。
 
-Controls how the object is distributed across the mesh. If set to `force`, the object will be force distributed to all nodes. Force-distributed objects are subject to a size limit.
+控制对象如何在 mesh 中分发。如果设为 `force`，对象会强制分发到所有节点。强制分发的对象受大小限制约束。
 
-Allowed values
+允许值
 
 :
 
-### Request
+### 请求
 
-This endpoint expects binary data of type application/octet-stream.
+此端点需要 `application/octet-stream` 类型的二进制数据。
 
-### Response headers
+### 响应标头
 
-### Response
+### 响应
 
-Successful upload
+上传成功
 
 - `content_identifier` — _object_
 
@@ -67,20 +67,20 @@ Successful upload
 
 - `expiry_time` — _datetime · optional_
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 413
 
-Content Too Large Error
+Content Too Large 错误
 
 500
 
-Internal Server Error
+Internal Server 错误
 
 507
 
-Insufficient Storage Error
+Insufficient Storage 错误

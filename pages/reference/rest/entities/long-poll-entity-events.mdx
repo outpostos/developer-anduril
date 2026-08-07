@@ -1,10 +1,10 @@
 ---
-title: "Poll entity events"
+title: "轮询实体事件"
 ---
 
-# Poll entity events
+# 轮询实体事件
 
-**Endpoint**: `POST /api/v1/entities/events`
+**端点**: `POST /api/v1/entities/events`
 
 **cURL**
 
@@ -17,7 +17,7 @@ curl -X POST https://example.developer.anduril.com/api/v1/entities/events \
 }'
 ```
 
-**200 Successful**
+**200 成功**
 
 ```json
 {
@@ -1897,46 +1897,46 @@ curl -X POST https://example.developer.anduril.com/api/v1/entities/events \
 }
 ```
 
-This is a long polling API that will first return all pre-existing data and then return all new data as it becomes available. If you want to start a new polling session then open a request with an empty 'sessionToken' in the request body. The server will return a new session token in the response. If you want to retrieve the next batch of results from an existing polling session then send the session token you received from the server in the request body. If no new data is available then the server will hold the connection open for up to 5 minutes. After the 5 minute timeout period, the server will close the connection with no results and you may resume polling with the same session token. If your session falls behind more than 3x the total number of entities in the environment, the server will terminate your session. In this case you must start a new session by sending a request with an empty session token.
+这是一个长轮询 API，会先返回所有既有数据，然后在新数据可用时返回新数据。如果要启动新的轮询会话，请在请求正文中使用空的 'sessionToken' 发起请求。服务器会在响应中返回新的会话令牌。如果要从现有轮询会话获取下一批结果，请在请求正文中发送从服务器收到的会话令牌。如果没有新数据可用，服务器会保持连接最多 5 分钟。5 分钟超时后，服务器会关闭连接且不返回结果，你可以使用同一个会话令牌继续轮询。如果你的会话落后超过环境中实体总数的 3 倍，服务器会终止会话。在这种情况下，必须发送空会话令牌来启动新会话。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Request
+### 请求
 
-This endpoint expects an object.
+此端点需要一个对象。
 
-- `sessionToken` — _string · required_ — Long-poll session identifier. Leave empty to start a new polling session.
+- `sessionToken` — _string · required_ — 长轮询会话标识符。留空以启动新的轮询会话。
 
-- `batchSize` — _integer · optional_ — Maximum size of response batch. Defaults to 100. Must be between 1 and 2000 (inclusive).
+- `batchSize` — _integer · optional_ — 响应批次的最大大小。默认值为 100。必须介于 1 到 2000（含）之间。
 
-### Response
+### 响应
 
-Entity event batch retrieval was successful
+实体事件批次获取成功
 
-- `sessionToken` — _string · optional_ — Long-poll session identifier. Use this token to resume polling on subsequent requests.
+- `sessionToken` — _string · optional_ — 长轮询会话标识符。使用此令牌在后续请求中恢复轮询。
 
 - `entityEvents` — _list of objects · optional_
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误
 
 404
 
-Not Found Error
+Not Found 错误
 
 408
 
-Request Timeout Error
+Request Timeout 错误
 
 429
 
-Too Many Requests Error
+Too Many Requests 错误

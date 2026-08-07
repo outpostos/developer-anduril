@@ -1,11 +1,11 @@
 export default {
-  'create-task': 'Create task',
-  'get-task': 'Get task',
-  'query-tasks': 'Query tasks',
-  'cancel-task': 'Cancel task',
-  'update-task-status': 'Update task status',
-  'stream-tasks': 'Stream tasks',
-  'listen-as-agent': 'Listen as agent',
-  'stream-as-agent': 'Stream as agent',
-  'stream-manual-control-frames': 'Stream manual control frames'
+  'create-task': '创建任务',
+  'get-task': '获取任务',
+  'query-tasks': '查询任务',
+  'cancel-task': '取消任务',
+  'update-task-status': '更新任务状态',
+  'stream-tasks': '流式传输任务',
+  'listen-as-agent': '作为 agent 监听',
+  'stream-as-agent': '作为 agent 流式传输',
+  'stream-manual-control-frames': '流式传输手动控制帧'
 }

@@ -1,92 +1,92 @@
 ---
-title: "Sample apps"
+title: "示例应用"
 ---
 
-# Sample apps
+# 示例应用
 
-## Entity visualizer
+## 实体可视化器
 
-Entities characterize real world objects such as vehicles, ships, aircraft, and more. The Lattice data model provides an open, flexible set of attributes which may be defined by automated sensor systems, tactical data links, and input by human operators. This sample app renders a simple web app which shows all entities in an environment on a map.
+实体用于刻画车辆、舰船、航空器等真实世界对象。Lattice 数据模型提供一组开放且灵活的属性，这些属性可以由自动化传感器系统、战术数据链以及人工操作员输入来定义。此示例应用渲染一个简单 Web 应用，在地图上展示环境中的所有实体。
 
-This app is designed to be a starting point for learning about entities and the many attributes enabled by the entity open data model:
+此应用旨在作为学习实体以及实体开放数据模型所支持各类属性的起点：
 
-Entity visualizer
+实体可视化器
 
-Click to go to the sample application repository on GitHub. By downloading and/or using, you agree to the terms of use. If you do not agree, do not use the application or the SDK:
+点击进入 GitHub 上的示例应用仓库。下载和/或使用即表示你同意使用条款；如果不同意，请不要使用该应用或 SDK：
 
-- Visualize Entities on a Map sample app
+- 地图实体可视化示例应用
 
 ![](/img/anduril.docs.buildwithfern.com/df2943ff63c8f0de53aff525d969c89aa2e4a0a698496bc72532ca1f38947a85/assets/images/sample-apps/entity-map.png)
 
-## Task an asset
+## 向资产下发任务
 
-Tasks are the core open data model which communicate requests to manned or unmanned agents to perform purposeful activities, such as moving to a given location, orienting sensing towards a location of interest, or taking more active actions on other entities.
+任务是核心开放数据模型，用于向有人或无人 agent 传达执行目标活动的请求，例如移动到指定位置、将传感器指向感兴趣位置，或对其他实体执行更主动的动作。
 
-This repository demonstrates how to define and operate on a custom `Orbit` task. The task is defined in a `.proto` file and published to the Lattice Schema Registry.
+此仓库演示如何定义并操作自定义 `Orbit` 任务。该任务在 `.proto` 文件中定义，并发布到 Lattice Schema Registry。
 
-Three distinct programs demonstrate:
+三个独立程序演示：
 
-- Publishing a Track to Lattice representing a sensor point-of-interests
-- Creating a taskable Asset that accepts and executes an Orbit task
-- Using the Common Operating Picture (COP) to identify and automatically task the Asset based on the entities in the environment.
+- 向 Lattice 发布表示传感器兴趣点的航迹
+- 创建可接受并执行 Orbit 任务的可任务化资产
+- 使用通用作战图 (COP) 根据环境中的实体识别资产，并自动向资产下发任务。
 
-These work in conjunction to demonstrate an automated tasking scenario.
+这些程序协同演示一个自动化任务分配场景。
 
-You can download this sample app from GitHub.
+你可以从 GitHub 下载此示例应用。
 
-Auto reconnaissance
+自动侦察
 
-Click to go to the sample application repository on GitHub. By downloading and/or using, you agree to the terms of use. If you do not agree, do not use the application or the SDK:
+点击进入 GitHub 上的示例应用仓库。下载和/或使用即表示你同意使用条款；如果不同意，请不要使用该应用或 SDK：
 
-- Task an Asset sample app
+- 向资产下发任务示例应用
 
 ![](/img/anduril.docs.buildwithfern.com/e19a41cffcf050c937a06186ea6dc87eb6e70920d98fc5ee16faa6c3dfca6e80/assets/images/sample-apps/tasking.png)
 
 ## Objects CLI
 
-In Lattice, the [Objects API](/reference/rest/objects/list-objects) provides a content-delivery network service that enables resilient data storage at the edge. This sample app implements a command-line interface that lets developers interact with the Objects API for managing files across the Lattice environment.
+在 Lattice 中，[Objects API](/reference/rest/objects/list-objects) 提供内容分发网络服务，用于在边缘实现弹性数据存储。此示例应用实现了一个命令行界面，让开发者可以与 Objects API 交互，在整个 Lattice 环境中管理文件。
 
-The Objects CLI provides a comprehensive set of operations including uploading files with customizable time-to-live values, downloading objects to specified locations, retrieving metadata, listing objects with prefix filtering, and deleting objects from the store.
+Objects CLI 提供一组完整操作，包括使用可自定义存活时间上传文件、将对象下载到指定位置、获取元数据、按前缀过滤列出对象，以及从存储中删除对象。
 
 Objects CLI
 
-Click to go to the sample application repository on GitHub. By downloading and/or using, you agree to the terms of use. If you do not agree, do not use the application or the SDK:
+点击进入 GitHub 上的示例应用仓库。下载和/或使用即表示你同意使用条款；如果不同意，请不要使用该应用或 SDK：
 
-- Objects CLI sample app
+- Objects CLI 示例应用
 
 ![](/img/anduril.docs.buildwithfern.com/583705f9b28aa34570b44842ab83054da69ed50c4cdf9146859a4c442d198e9b/assets/images/sample-apps/objects-cli.png)
 
-For more information, see [Objects overview](/guides/objects/overview).
+更多信息请参阅[对象概览](/guides/objects/overview)。
 
-## Integrate maritime AIS position data
+## 集成海事 AIS 位置数据
 
-The AIS (Automatic Identification System) vessel traffic dataset is a repository of vessel identification and positioning data. The data is collected by the U.S. Coast Guard through an onboard navigation safety device that transmits and monitors the location and characteristics of vessels in U.S. and international waters in real time.
+AIS（自动识别系统）船舶交通数据集是船舶识别与定位数据仓库。这些数据由美国海岸警卫队通过船载导航安全设备采集，该设备会实时传输并监控美国及国际水域中船舶的位置与特征。
 
-This sample integration utilizes previously extracted AIS data to represent the location of a surface vessel over time, and then models that vessel as an entity with a location which is periodically updated. Once the entity is published in Lattice it may be visualized or referenced by another app.
+此示例集成使用预先提取的 AIS 数据表示水面船舶随时间变化的位置，然后将该船舶建模为带有周期性位置更新的实体。实体发布到 Lattice 后，可由其他应用可视化或引用。
 
-This sample app is available using the gRPC SDK or the REST SDK:
+此示例应用可使用 gRPC SDK 或 REST SDK：
 
-AIS integration
+AIS 集成
 
-Click to go to the sample application repository on GitHub. By downloading and/or using, you agree to the terms of use. If you do not agree, do not use the application or the SDK:
+点击进入 GitHub 上的示例应用仓库。下载和/或使用即表示你同意使用条款；如果不同意，请不要使用该应用或 SDK：
 
-- AIS Integration sample app using gRPC SDK
-- AIS Integration sample app using REST SDK
+- 使用 gRPC SDK 的 AIS 集成示例应用
+- 使用 REST SDK 的 AIS 集成示例应用
 
 ![](/img/anduril.docs.buildwithfern.com/4a529a595d17e583420ee1bfe53e7c99a9c06a48829dcc2557912222015d7b07/assets/images/sample-apps/ais-motion.png)
 
-## Entity thumbnail
+## 实体缩略图
 
-In Lattice, an object is a data model that lets you store and access files across your environment. The [**Objects**](/reference/rest/objects/list-objects) API is a content-delivery network service that provides resilient data storage at the edge. Use objects together with entities to implement use-cases like track thumbnails, and vessel manifests.
+在 Lattice 中，对象是一种数据模型，可让你在整个环境中存储和访问文件。[**Objects**](/reference/rest/objects/list-objects) API 是一种内容分发网络服务，在边缘提供弹性数据存储。将对象与实体结合使用，可以实现航迹缩略图、船舶清单等用例。
 
-This app demonstrates an entity thumbnail use-case implemented with the Lattice SDK. The sample app is a command-line interface tool that lets you upload images to Lattice, and link them with an entity. The example C2 app shows this linked image as a thumbnail of the entity:
+此应用演示使用 Lattice SDK 实现的实体缩略图用例。示例应用是一个命令行工具，可将图片上传到 Lattice，并将图片与实体关联。示例 C2 应用会把该关联图片显示为实体缩略图：
 
-Track thumbnail
+航迹缩略图
 
-Click to go to the sample application repository on GitHub. By downloading and/or using, you agree to the terms of use. If you do not agree, do not use the application or the SDK:
+点击进入 GitHub 上的示例应用仓库。下载和/或使用即表示你同意使用条款；如果不同意，请不要使用该应用或 SDK：
 
-- Entity thumbnail sample app
+- 实体缩略图示例应用
 
 ![](/img/anduril.docs.buildwithfern.com/58c183e84a49edc4eb2b0c8a5db18eb71e36c6ebdfd68091cd2950a16858f5dc/assets/images/sample-apps/track-thumbnail.png)
 
-For more information, see [Objects](/guides/objects/overview).
+更多信息请参阅[对象](/guides/objects/overview)。

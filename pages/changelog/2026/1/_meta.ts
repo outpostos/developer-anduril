@@ -1,3 +1,3 @@
 export default {
-  15: 'January 15, 2026'
+  15: '2026 年 1 月 15 日'
 }

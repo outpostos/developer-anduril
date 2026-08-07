@@ -4,23 +4,23 @@ export default {
     display: 'hidden'
   },
   guides: {
-    title: 'Guides',
+    title: '指南',
     type: 'page'
   },
   reference: {
-    title: 'Reference',
+    title: '参考',
     type: 'page'
   },
   samples: {
-    title: 'Samples',
+    title: '示例',
     type: 'page'
   },
   license: {
-    title: 'License',
+    title: '许可',
     type: 'page'
   },
   changelog: {
-    title: 'Changelog',
+    title: '更新日志',
     type: 'page'
   },
   404: {

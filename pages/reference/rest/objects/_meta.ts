@@ -1,7 +1,7 @@
 export default {
-  'upload-object': 'Upload object',
-  'get-object': 'Get object',
-  'get-object-metadata': 'Get object metadata',
-  'list-objects': 'List objects',
-  'delete-object': 'Delete object'
+  'upload-object': '上传对象',
+  'get-object': '获取对象',
+  'get-object-metadata': '获取对象元数据',
+  'list-objects': '列出对象',
+  'delete-object': '删除对象'
 }

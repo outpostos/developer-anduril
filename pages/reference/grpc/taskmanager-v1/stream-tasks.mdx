@@ -1249,38 +1249,38 @@ title: "StreamTasks"
 }
 ```
 
-Establishes a server streaming connection that delivers task updates in real-time. The stream delivers all existing non-terminal tasks when first connected, followed by real-time updates for task creation and status changes. Additionally, heartbeat messages are sent periodically to maintain the connection. The stream delivers two types of responses: - Heartbeat: A periodic message to maintain connection health - TaskEvent: Contains a task and an event type indicating whether the task was created, updated, or was preexisting when the stream was established Filtering options allow narrowing the stream to specific task types, statuses, assignees, parent tasks, or tasks updated after a certain time.
+建立服务器流式连接，实时交付任务更新。首次连接时，该流会交付所有现有的非终止任务，随后实时交付任务创建和状态变更更新。此外，会定期发送 heartbeat 消息以维持连接。该流交付两类响应：- Heartbeat：用于维持连接健康的周期性消息 - TaskEvent：包含任务和事件类型，表明任务是创建、更新，还是在流建立时已存在。过滤选项可将流缩小到特定任务类型、状态、assignee、父任务，或某个时间之后更新的任务。
 
-### Request
+### 请求
 
 **StreamTasksRequest**
 
-This endpoint expects an object.
+此端点需要一个对象。
 
 - `task_type` — _object or string_
 
-- `rate_limit` — _object_ — Rate limit configuration for task update events.
+- `rate_limit` — _object_ — 任务更新事件的限速配置。
 
-- `views` — _list of enums_ — Optional additional views of a Task. If not set, defaults to TASK_VIEW_MANAGER.
+- `views` — _list of enums_ — 任务的可选附加视图。如果未设置，默认值为 TASK_VIEW_MANAGER。
 
-- `heartbeat_interval_ms` — _uint_ — The time interval, in milliseconds, that determines the frequency at which to send heartbeat events. Defaults to 30000 (30 seconds).
+- `heartbeat_interval_ms` — _uint_ — 发送 heartbeat 事件的时间间隔，单位为毫秒。默认值为 30000（30 秒）。
 
-- `exclude_preexisting_tasks` — _boolean_ — Optional flag to only include tasks created or updated after the stream is initiated, and not any previous preexisting tasks. If unset or false, the stream will include any new tasks and task updates, as well as all preexisting tasks.
+- `exclude_preexisting_tasks` — _boolean_ — 可选标志，仅包含流启动后创建或更新的任务，不包含此前既有任务。如果未设置或为 false，该流会包含任何新任务和任务更新，以及所有既有任务。
 
-- `update_start_time` — _object_ — If provided, returns tasks which have been updated since the given time.
+- `update_start_time` — _object_ — 如果提供，则返回自给定时间以来更新过的任务。
 
-- `parent_task_id` — _string_ — A filter for tasks with a specific parent task ID. Note: This filter is mutually exclusive with all other filter fields.
+- `parent_task_id` — _string_ — 用于筛选具有特定父任务 ID 的任务。注意：此过滤器与所有其他过滤字段互斥。
 
-- `assignee` — _object_ — A filter for tasks assigned to a specific principal.
+- `assignee` — _object_ — 用于筛选分配给特定 principal 的任务。
 
-- `status_filter` — _object_ — Filters on provided status types in the filter.
+- `status_filter` — _object_ — 按过滤器中提供的状态类型进行筛选。
 
-### Response
+### 响应
 
 **StreamTasksResponse**
 
-This endpoint returns an object.
+此端点返回一个对象。
 
-- `task_event` — _object_ — Task event associated with the streaming request.
+- `task_event` — _object_ — 与流式请求关联的任务事件。
 
-- `heartbeat` — _object_ — Heartbeat message signaling liveliness of the stream.
+- `heartbeat` — _object_ — 表示流仍然存活的 heartbeat 消息。

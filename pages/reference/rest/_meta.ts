@@ -1,6 +1,6 @@
 export default {
-  entities: 'Entities',
-  tasks: 'Tasks',
-  objects: 'Objects',
+  entities: '实体',
+  tasks: '任务',
+  objects: '对象',
   oauth: 'OAuth'
 }

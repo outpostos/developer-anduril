@@ -1,3 +1,3 @@
 export default {
-  12: 'December 12, 2025'
+  12: '2025 年 12 月 12 日'
 }

@@ -1,9 +1,9 @@
 export default {
-  8: 'August',
-  7: 'July',
-  6: 'June',
-  5: 'May',
-  4: 'April',
-  2: 'February',
-  1: 'January'
+  8: '八月',
+  7: '七月',
+  6: '六月',
+  5: '五月',
+  4: '四月',
+  2: '二月',
+  1: '一月'
 }

@@ -1,10 +1,10 @@
 ---
-title: "Get task"
+title: "获取任务"
 ---
 
-# Get task
+# 获取任务
 
-**Endpoint**: `GET /api/v1/tasks/:taskId`
+**端点**: `GET /api/v1/tasks/:taskId`
 
 **cURL**
 
@@ -13,7 +13,7 @@ curl https://example.developer.anduril.com/api/v1/tasks/taskId \
      -H "Authorization: Bearer <token>"
 ```
 
-**200 Retrieved**
+**200 已获取**
 
 ```json
 {
@@ -2553,64 +2553,64 @@ curl https://example.developer.anduril.com/api/v1/tasks/taskId \
 }
 ```
 
-Retrieves a specific Task by its ID, with options to select a particular task version or view. This method returns detailed information about a task including its current status, specification, relations, and other metadata. The response includes the complete Task object with all associated fields. By default, the method returns the latest definition version of the task from the manager's perspective.
+按 ID 获取特定任务，并可选择特定任务版本或视图。此方法返回任务的详细信息，包括当前状态、specification、relations 和其他元数据。响应包含完整任务对象及所有关联字段。默认情况下，该方法从 manager 视角返回任务的最新定义版本。
 
-### Authentication
+### 认证
 
-- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer 认证，格式为 `Bearer <token>`，其中 token 是你的认证令牌。
 
-### Path parameters
+### 路径参数
 
-- `taskId` — _string · required_ — ID of task to return
+- `taskId` — _string · required_ — 要返回的任务 ID
 
-### Response
+### 响应
 
-Task retrieval was successful.
+任务获取成功。
 
-- `version` — _object · optional_ — Version of this task.
+- `version` — _object · optional_ — 此任务的版本。
 
-- `displayName` — _string · optional_ — DEPRECATED: Human readable display name for this task, should be short (&lt;100 chars).
+- `displayName` — _string · optional_ — 已弃用：此任务的人类可读显示名称，应较短（&lt;100 个字符）。
 
-- `specification` — _object · optional_ — The path for the Protobuf task definition, and the complete task data.
+- `specification` — _object · optional_ — Protobuf 任务定义的路径，以及完整任务数据。
 
-- `createdBy` — _object · optional_ — Records who created this task. This field will not change after the task has been created.
+- `createdBy` — _object · optional_ — 记录创建此任务的主体。任务创建后，此字段不会改变。
 
-- `lastUpdatedBy` — _object · optional_ — Records who updated this task last.
+- `lastUpdatedBy` — _object · optional_ — 记录最后更新此任务的主体。
 
-- `lastUpdateTime` — _datetime · optional_ — Records the time of last update.
+- `lastUpdateTime` — _datetime · optional_ — 记录最后更新时间。
 
-- `status` — _object · optional_ — The status of this task.
+- `status` — _object · optional_ — 此任务的状态。
 
-- `scheduledTime` — _datetime · optional_ — If the task has been scheduled to execute, what time it should execute at.
+- `scheduledTime` — _datetime · optional_ — 如果任务已计划执行，则表示应执行的时间。
 
-- `relations` — _object · optional_ — Any related Tasks associated with this, typically includes an assignee for this task and/or a parent.
+- `relations` — _object · optional_ — 与此项关联的任何相关任务，通常包括此任务的 assignee 和/或父任务。
 
-- `description` — _string · optional_ — Longer, free form human readable description of this task
+- `description` — _string · optional_ — 此任务较长的自由形式人类可读描述
 
-- `isExecutedElsewhere` — _boolean · optional_ — If set, execution of this task is managed elsewhere, not by Task Manager. In other words, task manager will not attempt to update the assigned agent with execution instructions.
+- `isExecutedElsewhere` — _boolean · optional_ — 如果设置，则此任务的执行由其他位置管理，而不是由 Task Manager 管理。换言之，Task Manager 不会尝试向分配的 agent 更新执行指令。
 
-- `createTime` — _datetime · optional_ — Time of task creation.
+- `createTime` — _datetime · optional_ — 任务创建时间。
 
-- `replication` — _object · optional_ — If populated, designates this to be a replicated task.
+- `replication` — _object · optional_ — 如果填充，则指定此任务为 replicated task。
 
-- `initialEntities` — _list of objects · optional_ — If populated, indicates an initial set of entities that can be used to execute an entity aware task For example, an entity Objective, an entity Keep In Zone, etc. These will not be updated during execution. If a taskable agent needs continuous updates on the entities from the COP, can call entity-manager, or use an AlternateId escape hatch.
+- `initialEntities` — _list of objects · optional_ — 如果填充，表示可用于执行实体感知任务的一组初始实体。例如实体 Objective、实体 Keep In Zone 等。这些实体在执行期间不会更新。如果可任务化 agent 需要来自 COP 的实体持续更新，可以调用 entity-manager，或使用 AlternateId escape hatch。
 
-- `owner` — _object · optional_ — The networked owner of this task. It is used to ensure that linear writes occur on the node responsible for replication of task data to other nodes running Task Manager.
+- `owner` — _object · optional_ — 此任务的网络化 owner。用于确保线性写入发生在负责将任务数据复制到其他运行 Task Manager 节点的节点上。
 
-- `retryStrategy` — _object · optional_ — Sets an optional try strategy for tasks. Use this option to control how Lattice attempts to retry delivery of tasks to assets with intermittent access or network connectivity to your environment.
+- `retryStrategy` — _object · optional_ — 设置任务的可选重试策略。使用此选项控制 Lattice 如何尝试向对你的环境访问或网络连接不稳定的资产重试交付任务。
 
-- `deliveryState` — _object · optional_ — The current delivery state of a task.
+- `deliveryState` — _object · optional_ — 任务当前交付状态。
 
-### Errors
+### 错误
 
 400
 
-Bad Request Error
+Bad Request 错误
 
 401
 
-Unauthorized Error
+Unauthorized 错误
 
 404
 
-Not Found Error
+Not Found 错误
