@@ -1200,3 +1200,23 @@ title: "OverrideEntity"
 ```
 
 Override an Entity Component. An override is a definitive change to entity data. Any authorized user of service can override overridable components on any entity. Only fields marked with overridable can be overridden. When setting an override, the user or service setting the override is asserting that they are certain of the change and the truth behind it.
+
+### Request
+
+**OverrideEntityRequest**
+
+This endpoint expects an object.
+
+- `entity` — _object_ — The entity containing the overridden fields. The service will extract the overridable fields from the entity object and ignore any other fields.
+
+- `field_path` — _list of strings_ — The field paths that will be extracted from the Entity and saved as an override. Only fields marked overridable can be overridden.
+
+- `provenance` — _object_ — Additional information about the source of the override.
+
+### Response
+
+**OverrideEntityResponse**
+
+This endpoint returns an object.
+
+- `status` — _enum_ — The status of the override request.

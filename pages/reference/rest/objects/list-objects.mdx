@@ -36,55 +36,27 @@ Lists objects in your environment. You can define a prefix to list a subset of y
 
 ### Authentication
 
-- `Authorization`
-
-- Bearer
-
-Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
 
 ### Query parameters
 
-- `prefix`
+- `prefix` — _string · optional_ — Filters the objects based on the specified prefix path. If no path is specified, all objects are returned.
 
-- _stringOptional_
+- `sinceTimestamp` — _datetime · optional_ — Sets the age for the oldest objects to query across the environment.
 
-Filters the objects based on the specified prefix path. If no path is specified, all objects are returned.
+- `pageToken` — _string · optional_ — Base64 and URL-encoded cursor returned by the service to continue paging.
 
-- `sinceTimestamp`
+- `allObjectsInMesh` — _boolean · optional_ — Lists objects across all environment nodes in a Lattice Mesh.
 
-- _datetimeOptional_
-
-Sets the age for the oldest objects to query across the environment.
-
-- `pageToken`
-
-- _stringOptionalformat: "string"_
-
-Base64 and URL-encoded cursor returned by the service to continue paging.
-
-- `allObjectsInMesh`
-
-- _booleanOptional_
-
-Lists objects across all environment nodes in a Lattice Mesh.
-
-- `maxPageSize`
-
-- _integerOptional_
-
-Sets the maximum number of items that should be returned on a single page.
+- `maxPageSize` — _integer · optional_ — Sets the maximum number of items that should be returned on a single page.
 
 ### Response
 
 Successful operation
 
-- `path_metadatas`
+- `path_metadatas` — _list of objects_
 
-- _list of objects_
-
-- `next_page_token`
-
-- _stringOptional_
+- `next_page_token` — _string · optional_
 
 ### Errors
 

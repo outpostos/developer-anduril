@@ -32,73 +32,33 @@ Gets a new short-lived token using the specified client credentials
 
 ### Authentication
 
-- `Authorization`
-
-- Bearer
-
-Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
 
 ### Request
 
 This endpoint expects an object.
 
-- `grant_type`
+- `grant_type` — _"client_credentials" · required_ — The type of grant being requested
 
-- _"client_credentials"Required_
+- `client_id` — _string · optional_ — The client identifier
 
-The type of grant being requested
-
-- `client_id`
-
-- _stringOptional_
-
-The client identifier
-
-- `client_secret`
-
-- _stringOptionalformat: "password"_
-
-The client secret
+- `client_secret` — _string · optional_ — The client secret
 
 ### Response
 
 Access token response
 
-- `access_token`
+- `access_token` — _string_ — The access token
 
-- _string_
+- `token_type` — _string_ — The type of token (typically “Bearer”)
 
-The access token
+- `expires_in` — _integer · optional_ — Lifetime of the access token in seconds
 
-- `token_type`
+- `refresh_expires_in` — _integer · optional_ — Lifetime of the refresh token
 
-- _string_
+- `not-before-policy` — _integer · optional_ — Enforce that a token cannot be used before a specific unixtime
 
-The type of token (typically “Bearer”)
-
-- `expires_in`
-
-- _integerOptional_
-
-Lifetime of the access token in seconds
-
-- `refresh_expires_in`
-
-- _integerOptional_
-
-Lifetime of the refresh token
-
-- `not-before-policy`
-
-- _integerOptional_
-
-Enforce that a token cannot be used before a specific unixtime
-
-- `scope`
-
-- _stringOptional_
-
-The scope of the access token
+- `scope` — _string · optional_ — The scope of the access token
 
 ### Errors
 

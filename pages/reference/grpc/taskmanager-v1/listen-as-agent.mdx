@@ -1224,3 +1224,23 @@ title: "ListenAsAgent"
 ```
 
 Establishes a server streaming connection that delivers tasks to taskable agents for execution. This method creates a persistent connection from Task Manager to an agent, allowing the server to push tasks to the agent as they become available. The agent receives a stream of tasks that match its selector criteria (e.g., entity IDs). The stream delivers three types of requests: - ExecuteRequest: Contains a new task for the agent to execute - CancelRequest: Indicates a task should be canceled - CompleteRequest: Indicates a task should be completed This is the primary method for taskable agents to receive and process tasks in real-time. Agents should maintain this connection and process incoming tasks according to their capabilities. When an agent receives a task, it should update the task status using the `UpdateStatus` RPC to provide progress information back to Task Manager. When `heartbeat_interval_ms` is set on the request, heartbeat messages are sent periodically to maintain the connection during idle periods when no tasks are being delivered.
+
+### Request
+
+**ListenAsAgentRequest**
+
+This endpoint expects an object.
+
+- `agent_selector` — _object_
+
+- `heartbeat_interval_ms` — _uint_ — The time interval, in milliseconds, that determines the frequency at which to send heartbeat events. If unset or set to 0, no heartbeat messages are sent.
+
+### Response
+
+**ListenAsAgentResponse**
+
+This endpoint returns an object.
+
+- `request` — _object_
+
+- `heartbeat` — _object_ — Heartbeat message signaling liveliness of the stream.

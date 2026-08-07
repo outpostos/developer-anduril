@@ -2559,183 +2559,69 @@ Creates a new Task in the system with the specified parameters. This method init
 
 ### Authentication
 
-- `Authorization`
-
-- Bearer
-
-Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
 
 ### Request
 
 This endpoint expects an object.
 
-- `taskId`
+- `taskId` — _string · optional_ — If non-empty, will set the requested Task ID, otherwise will generate a new random GUID. Will reject if supplied Task ID does not match [A-Za-z0-9_-.]36.
 
-- _stringOptional_
+- `description` — _string · optional_ — Longer, free form human readable description of this Task.
 
-If non-empty, will set the requested Task ID, otherwise will generate a new random GUID. Will reject if supplied Task ID does not match [A-Za-z0-9_-.]36.
+- `specification` — _object · optional_ — The path for the Protobuf task definition, and the complete task data.
 
-- `description`
+- `author` — _object · optional_ — A Principal is an entity that has authority over this task.
 
-- _stringOptional_
+- `relations` — _object · optional_ — Any relationships associated with this Task, such as a parent Task or an assignee this Task is designated to for execution.
 
-Longer, free form human readable description of this Task.
+- `isExecutedElsewhere` — _boolean · optional_ — If set, then the service will not trigger execution of this task on an agent. Useful for when ingesting tasks from an external system that is triggering execution of tasks on agents.
 
-- `specification`
+- `initialEntities` — _list of objects · optional_ — Indicates an initial set of entities that can be used to execute an entity aware task. For example, an entity Objective, an entity Keep In Zone, etc.
 
-- _objectOptional_
+- `retryStrategy` — _object · optional_ — Any retry strategy for task execution or update.
 
-The path for the Protobuf task definition, and the complete task data.
+- `deliveryConstraints` — _object · optional_ — Any scheduling constraints for Lattice delivery of the task.
 
-- `author`
-
-- _objectOptional_
-
-A Principal is an entity that has authority over this task.
-
-- `relations`
-
-- _objectOptional_
-
-Any relationships associated with this Task, such as a parent Task or an assignee this Task is designated to for execution.
-
-- `isExecutedElsewhere`
-
-- _booleanOptional_
-
-If set, then the service will not trigger execution of this task on an agent. Useful for when ingesting tasks from an external system that is triggering execution of tasks on agents.
-
-- `initialEntities`
-
-- _list of objectsOptional_
-
-Indicates an initial set of entities that can be used to execute an entity aware task. For example, an entity Objective, an entity Keep In Zone, etc.
-
-- `retryStrategy`
-
-- _objectOptional_
-
-Any retry strategy for task execution or update.
-
-- `deliveryConstraints`
-
-- _objectOptional_
-
-Any scheduling constraints for Lattice delivery of the task.
-
-- `displayName`
-
-- _stringOptional_
-
-Deprecated
-
-Human readable display name for this Task, should be short (&lt;100 chars).
+- `displayName` — _string · optional · deprecated_ — Human readable display name for this Task, should be short (&lt;100 chars).
 
 ### Response
 
 Task creation was successful
 
-- `version`
+- `version` — _object · optional_ — Version of this task.
 
-- _objectOptional_
+- `displayName` — _string · optional_ — DEPRECATED: Human readable display name for this task, should be short (&lt;100 chars).
 
-Version of this task.
+- `specification` — _object · optional_ — The path for the Protobuf task definition, and the complete task data.
 
-- `displayName`
+- `createdBy` — _object · optional_ — Records who created this task. This field will not change after the task has been created.
 
-- _stringOptional_
+- `lastUpdatedBy` — _object · optional_ — Records who updated this task last.
 
-DEPRECATED: Human readable display name for this task, should be short (&lt;100 chars).
+- `lastUpdateTime` — _datetime · optional_ — Records the time of last update.
 
-- `specification`
+- `status` — _object · optional_ — The status of this task.
 
-- _objectOptional_
+- `scheduledTime` — _datetime · optional_ — If the task has been scheduled to execute, what time it should execute at.
 
-The path for the Protobuf task definition, and the complete task data.
+- `relations` — _object · optional_ — Any related Tasks associated with this, typically includes an assignee for this task and/or a parent.
 
-- `createdBy`
+- `description` — _string · optional_ — Longer, free form human readable description of this task
 
-- _objectOptional_
+- `isExecutedElsewhere` — _boolean · optional_ — If set, execution of this task is managed elsewhere, not by Task Manager. In other words, task manager will not attempt to update the assigned agent with execution instructions.
 
-Records who created this task. This field will not change after the task has been created.
+- `createTime` — _datetime · optional_ — Time of task creation.
 
-- `lastUpdatedBy`
+- `replication` — _object · optional_ — If populated, designates this to be a replicated task.
 
-- _objectOptional_
+- `initialEntities` — _list of objects · optional_ — If populated, indicates an initial set of entities that can be used to execute an entity aware task For example, an entity Objective, an entity Keep In Zone, etc. These will not be updated during execution. If a taskable agent needs continuous updates on the entities from the COP, can call entity-manager, or use an AlternateId escape hatch.
 
-Records who updated this task last.
+- `owner` — _object · optional_ — The networked owner of this task. It is used to ensure that linear writes occur on the node responsible for replication of task data to other nodes running Task Manager.
 
-- `lastUpdateTime`
+- `retryStrategy` — _object · optional_ — Sets an optional try strategy for tasks. Use this option to control how Lattice attempts to retry delivery of tasks to assets with intermittent access or network connectivity to your environment.
 
-- _datetimeOptional_
-
-Records the time of last update.
-
-- `status`
-
-- _objectOptional_
-
-The status of this task.
-
-- `scheduledTime`
-
-- _datetimeOptional_
-
-If the task has been scheduled to execute, what time it should execute at.
-
-- `relations`
-
-- _objectOptional_
-
-Any related Tasks associated with this, typically includes an assignee for this task and/or a parent.
-
-- `description`
-
-- _stringOptional_
-
-Longer, free form human readable description of this task
-
-- `isExecutedElsewhere`
-
-- _booleanOptional_
-
-If set, execution of this task is managed elsewhere, not by Task Manager. In other words, task manager will not attempt to update the assigned agent with execution instructions.
-
-- `createTime`
-
-- _datetimeOptional_
-
-Time of task creation.
-
-- `replication`
-
-- _objectOptional_
-
-If populated, designates this to be a replicated task.
-
-- `initialEntities`
-
-- _list of objectsOptional_
-
-If populated, indicates an initial set of entities that can be used to execute an entity aware task For example, an entity Objective, an entity Keep In Zone, etc. These will not be updated during execution. If a taskable agent needs continuous updates on the entities from the COP, can call entity-manager, or use an AlternateId escape hatch.
-
-- `owner`
-
-- _objectOptional_
-
-The networked owner of this task. It is used to ensure that linear writes occur on the node responsible for replication of task data to other nodes running Task Manager.
-
-- `retryStrategy`
-
-- _objectOptional_
-
-Sets an optional try strategy for tasks. Use this option to control how Lattice attempts to retry delivery of tasks to assets with intermittent access or network connectivity to your environment.
-
-- `deliveryState`
-
-- _objectOptional_
-
-The current delivery state of a task.
+- `deliveryState` — _object · optional_ — The current delivery state of a task.
 
 ### Errors
 

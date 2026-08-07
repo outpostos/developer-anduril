@@ -1250,3 +1250,37 @@ title: "StreamTasks"
 ```
 
 Establishes a server streaming connection that delivers task updates in real-time. The stream delivers all existing non-terminal tasks when first connected, followed by real-time updates for task creation and status changes. Additionally, heartbeat messages are sent periodically to maintain the connection. The stream delivers two types of responses: - Heartbeat: A periodic message to maintain connection health - TaskEvent: Contains a task and an event type indicating whether the task was created, updated, or was preexisting when the stream was established Filtering options allow narrowing the stream to specific task types, statuses, assignees, parent tasks, or tasks updated after a certain time.
+
+### Request
+
+**StreamTasksRequest**
+
+This endpoint expects an object.
+
+- `task_type` — _object or string_
+
+- `rate_limit` — _object_ — Rate limit configuration for task update events.
+
+- `views` — _list of enums_ — Optional additional views of a Task. If not set, defaults to TASK_VIEW_MANAGER.
+
+- `heartbeat_interval_ms` — _uint_ — The time interval, in milliseconds, that determines the frequency at which to send heartbeat events. Defaults to 30000 (30 seconds).
+
+- `exclude_preexisting_tasks` — _boolean_ — Optional flag to only include tasks created or updated after the stream is initiated, and not any previous preexisting tasks. If unset or false, the stream will include any new tasks and task updates, as well as all preexisting tasks.
+
+- `update_start_time` — _object_ — If provided, returns tasks which have been updated since the given time.
+
+- `parent_task_id` — _string_ — A filter for tasks with a specific parent task ID. Note: This filter is mutually exclusive with all other filter fields.
+
+- `assignee` — _object_ — A filter for tasks assigned to a specific principal.
+
+- `status_filter` — _object_ — Filters on provided status types in the filter.
+
+### Response
+
+**StreamTasksResponse**
+
+This endpoint returns an object.
+
+- `task_event` — _object_ — Task event associated with the streaming request.
+
+- `heartbeat` — _object_ — Heartbeat message signaling liveliness of the stream.

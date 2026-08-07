@@ -1273,3 +1273,21 @@ title: "CancelTask"
 ```
 
 This method initiates task cancellation based on the task's current state: - If the task has not been sent to an agent, it cancels immediately and transitions the task to a terminal state (`STATUS_DONE_NOT_OK` with `ERROR_CODE_CANCELLED`). - If the task has already been sent to an agent, the cancellation request is routed to the agent. The agent is then responsible for deciding whether cancellation is possible or not: - If the task can be cancelled, the agent must use `UpdateStatus` and set the task status to `STATUS_DONE_NOT_OK`. - If the task cannot be cancelled, the agent must use `UpdateStatus` to attach a `TaskError` to the task with the error code `ERROR_CODE_REJECTED` and a `message` explaining why the task cannot be cancelled.
+
+### Request
+
+**CancelTaskRequest**
+
+This endpoint expects an object.
+
+- `task_id` — _string_ — The ID of the Task being cancelled.
+
+- `author` — _object_ — Who or what is requesting to cancel this task.
+
+### Response
+
+**CancelTaskResponse**
+
+This endpoint returns an object.
+
+- `task` — _object_ — The updated task, regardless of whether the cancellation request was confirmed or denied by the agent.

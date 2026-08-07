@@ -1961,263 +1961,95 @@ This operation clears the override value from the specified field path on the en
 
 ### Authentication
 
-- `Authorization`
-
-- Bearer
-
-Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
 
 ### Path parameters
 
-- `entityId`
+- `entityId` — _string · required_ — The unique ID of the entity to undo an override from.
 
-- _stringRequired_
-
-The unique ID of the entity to undo an override from.
-
-- `fieldPath`
-
-- _stringRequired_
-
-The fieldPath to clear overrides from.
+- `fieldPath` — _string · required_ — The fieldPath to clear overrides from.
 
 ### Response
 
 The removal of entity override was successful.
 
-- `entityId`
+- `entityId` — _string · optional_ — A Globally Unique Identifier (GUID) for your entity. This is a required field.
 
-- _stringOptional_
+- `description` — _string · optional_ — A human-readable entity description that’s helpful for debugging purposes and human traceability. If this field is empty, the Entity Manager API generates one for you.
 
-A Globally Unique Identifier (GUID) for your entity. This is a required field.
+- `isLive` — _boolean · optional_ — Indicates the entity is active and should have a lifecycle state of CREATE or UPDATE. Set this field to true when publishing an entity.
 
-- `description`
+- `createdTime` — _datetime · optional_ — The time when the entity was first known to the entity producer. If this field is empty, the Entity Manager API uses the current timestamp of when the entity is first received. For example, when a drone is first powered on, it might report its startup time as the created time. The timestamp doesn't change for the lifetime of an entity.
 
-- _stringOptional_
+- `expiryTime` — _datetime · optional_ — Future time that expires an entity and updates the is_live flag. For entities that are constantly updating, the expiry time also updates. In some cases, this may differ from is_live. Example: Entities with tasks exported to an external system must remain active even after they expire. This field is required when publishing a prepopulated entity. The expiry time must be in the future, but less than 30 days from the current time.
 
-A human-readable entity description that’s helpful for debugging purposes and human traceability. If this field is empty, the Entity Manager API generates one for you.
+- `noExpiry` — _boolean · optional_ — Use noExpiry only when the entity contains information that should be available to other tasks or integrations beyond its immediate operational context. For example, use noExpiry for long-living geographical entities that maintain persistent relevance across multiple operations or tasks.
 
-- `isLive`
+- `status` — _object · optional_ — Human-readable descriptions of what the entity is currently doing.
 
-- _booleanOptional_
+- `location` — _object · optional_ — Geospatial data related to the entity, including its position, kinematics, and orientation. Populate either this field (and `location_uncertainty`) or `kinematics`, not both. Populating both can lead to conflicting or inconsistent kinematics data for the entity.
 
-Indicates the entity is active and should have a lifecycle state of CREATE or UPDATE. Set this field to true when publishing an entity.
+- `locationUncertainty` — _object · optional_ — Indicates uncertainty of the entity's position and kinematics.
 
-- `createdTime`
+- `kinematics` — _object · optional_ — Kinematics data related to the entity to a higher degree of granularity than Location. This is preferred for Track Entities. Populate either `location`/`location_uncertainty` or this field, not both. Populating both can lead to conflicting or inconsistent kinematics data for the entity.
 
-- _datetimeOptional_
+- `geoShape` — _object · optional_ — Geospatial representation of the entity, including entities that cover an area rather than a fixed point.
 
-The time when the entity was first known to the entity producer. If this field is empty, the Entity Manager API uses the current timestamp of when the entity is first received. For example, when a drone is first powered on, it might report its startup time as the created time. The timestamp doesn't change for the lifetime of an entity.
+- `geoDetails` — _object · optional_ — Additional details on what the geospatial area or point represents, along with visual display details.
 
-- `expiryTime`
+- `aliases` — _object · optional_ — Entity name displayed in the Lattice UI side panel. Also includes identifiers that other systems can use to reference the same entity.
 
-- _datetimeOptional_
+- `tracked` — _object · optional_ — If this entity is tracked by another entity, this component contains data related to how it's being tracked.
 
-Future time that expires an entity and updates the is_live flag. For entities that are constantly updating, the expiry time also updates. In some cases, this may differ from is_live. Example: Entities with tasks exported to an external system must remain active even after they expire. This field is required when publishing a prepopulated entity. The expiry time must be in the future, but less than 30 days from the current time.
+- `correlation` — _object · optional_ — If this entity has been correlated or decorrelated to another one, this component contains information on the correlation or decorrelation.
 
-- `noExpiry`
+- `milView` — _object · optional_ — View of the entity.
 
-- _booleanOptional_
+- `ontology` — _object · optional_ — Ontology defines an entity's categorization in Lattice, and improves data retrieval and integration. Builds a standardized representation of the entity.
 
-Use noExpiry only when the entity contains information that should be available to other tasks or integrations beyond its immediate operational context. For example, use noExpiry for long-living geographical entities that maintain persistent relevance across multiple operations or tasks.
+- `sensors` — _object · optional_ — Details an entity's available sensors.
 
-- `status`
+- `payloads` — _object · optional_ — Details an entity's available payloads.
 
-- _objectOptional_
+- `powerState` — _object · optional_ — Details the entity's power source.
 
-Human-readable descriptions of what the entity is currently doing.
+- `provenance` — _object · optional_ — The primary data source provenance for this entity.
 
-- `location`
+- `overrides` — _object · optional_ — Provenance of override data.
 
-- _objectOptional_
+- `indicators` — _object · optional_ — Describes an entity’s specific characteristics and the operations that can be performed on the entity. For example, “simulated” informs the operator that the entity is from a simulation, and “deletable” informs the operator (and system) that the delete operation is valid against the entity.
 
-Geospatial data related to the entity, including its position, kinematics, and orientation. Populate either this field (and `location_uncertainty`) or `kinematics`, not both. Populating both can lead to conflicting or inconsistent kinematics data for the entity.
+- `targetPriority` — _object · optional_ — The prioritization associated with an entity, such as if it’s a threat or a high-value target.
 
-- `locationUncertainty`
+- `signal` — _object · optional_ — Describes an entity's signal characteristics, primarily used when an entity is a signal of interest.
 
-- _objectOptional_
+- `transponderCodes` — _object · optional_ — A message describing any transponder codes associated with Mode 1, 2, 3, 4, 5, S, C interrogations. These are related to ADS-B modes.
 
-Indicates uncertainty of the entity's position and kinematics.
+- `dataClassification` — _object · optional_ — Describes an entity's security classification levels at an overall classification level and on a per field level.
 
-- `kinematics`
+- `taskCatalog` — _object · optional_ — A catalog of tasks that can be performed by an entity.
 
-- _objectOptional_
+- `media` — _object · optional_ — Media associated with an entity, such as videos, images, or thumbnails.
 
-Kinematics data related to the entity to a higher degree of granularity than Location. This is preferred for Track Entities. Populate either `location`/`location_uncertainty` or this field, not both. Populating both can lead to conflicting or inconsistent kinematics data for the entity.
+- `relationships` — _object · optional_ — The relationships between this entity and other entities in the common operational picture (COP).
 
-- `geoShape`
+- `visualDetails` — _object · optional_ — Visual details associated with the display of an entity in the client.
 
-- _objectOptional_
+- `dimensions` — _object · optional_ — Physical dimensions of the entity.
 
-Geospatial representation of the entity, including entities that cover an area rather than a fixed point.
+- `routeDetails` — _object · optional_ — Additional information about an entity's route.
 
-- `geoDetails`
+- `schedules` — _object · optional_ — Schedules associated with this entity.
 
-- _objectOptional_
+- `health` — _object · optional_ — Health metrics or connection status reported by the entity.
 
-Additional details on what the geospatial area or point represents, along with visual display details.
+- `groupDetails` — _object · optional_ — Details for the group associated with this entity.
 
-- `aliases`
+- `supplies` — _object · optional_ — Contains relevant supply information for the entity, such as fuel.
 
-- _objectOptional_
+- `orbit` — _object · optional_ — Orbit information for space objects.
 
-Entity name displayed in the Lattice UI side panel. Also includes identifiers that other systems can use to reference the same entity.
-
-- `tracked`
-
-- _objectOptional_
-
-If this entity is tracked by another entity, this component contains data related to how it's being tracked.
-
-- `correlation`
-
-- _objectOptional_
-
-If this entity has been correlated or decorrelated to another one, this component contains information on the correlation or decorrelation.
-
-- `milView`
-
-- _objectOptional_
-
-View of the entity.
-
-- `ontology`
-
-- _objectOptional_
-
-Ontology defines an entity's categorization in Lattice, and improves data retrieval and integration. Builds a standardized representation of the entity.
-
-- `sensors`
-
-- _objectOptional_
-
-Details an entity's available sensors.
-
-- `payloads`
-
-- _objectOptional_
-
-Details an entity's available payloads.
-
-- `powerState`
-
-- _objectOptional_
-
-Details the entity's power source.
-
-- `provenance`
-
-- _objectOptional_
-
-The primary data source provenance for this entity.
-
-- `overrides`
-
-- _objectOptional_
-
-Provenance of override data.
-
-- `indicators`
-
-- _objectOptional_
-
-Describes an entity’s specific characteristics and the operations that can be performed on the entity. For example, “simulated” informs the operator that the entity is from a simulation, and “deletable” informs the operator (and system) that the delete operation is valid against the entity.
-
-- `targetPriority`
-
-- _objectOptional_
-
-The prioritization associated with an entity, such as if it’s a threat or a high-value target.
-
-- `signal`
-
-- _objectOptional_
-
-Describes an entity's signal characteristics, primarily used when an entity is a signal of interest.
-
-- `transponderCodes`
-
-- _objectOptional_
-
-A message describing any transponder codes associated with Mode 1, 2, 3, 4, 5, S, C interrogations. These are related to ADS-B modes.
-
-- `dataClassification`
-
-- _objectOptional_
-
-Describes an entity's security classification levels at an overall classification level and on a per field level.
-
-- `taskCatalog`
-
-- _objectOptional_
-
-A catalog of tasks that can be performed by an entity.
-
-- `media`
-
-- _objectOptional_
-
-Media associated with an entity, such as videos, images, or thumbnails.
-
-- `relationships`
-
-- _objectOptional_
-
-The relationships between this entity and other entities in the common operational picture (COP).
-
-- `visualDetails`
-
-- _objectOptional_
-
-Visual details associated with the display of an entity in the client.
-
-- `dimensions`
-
-- _objectOptional_
-
-Physical dimensions of the entity.
-
-- `routeDetails`
-
-- _objectOptional_
-
-Additional information about an entity's route.
-
-- `schedules`
-
-- _objectOptional_
-
-Schedules associated with this entity.
-
-- `health`
-
-- _objectOptional_
-
-Health metrics or connection status reported by the entity.
-
-- `groupDetails`
-
-- _objectOptional_
-
-Details for the group associated with this entity.
-
-- `supplies`
-
-- _objectOptional_
-
-Contains relevant supply information for the entity, such as fuel.
-
-- `orbit`
-
-- _objectOptional_
-
-Orbit information for space objects.
-
-- `symbology`
-
-- _objectOptional_
-
-Symbology/iconography for the entity respecting an existing standard.
+- `symbology` — _object · optional_ — Symbology/iconography for the entity respecting an existing standard.
 
 ### Errors
 

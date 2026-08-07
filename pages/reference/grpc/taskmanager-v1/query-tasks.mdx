@@ -1285,3 +1285,33 @@ title: "QueryTasks"
 ```
 
 Searches for Tasks that match specified filtering criteria and returns matching tasks in paginated form. This method allows filtering tasks based on multiple criteria including: - Parent task relationships - Task status (with inclusive or exclusive filtering) - Update time ranges - Task view (manager or agent perspective) - Task assignee - Task type (via exact URL matches or prefix matching) Results are returned in pages. When more results are available than can be returned in a single response, a page_token is provided that can be used in subsequent requests to retrieve the next set of results. By default, this returns the latest task version for each matching task from the manager's perspective.
+
+### Request
+
+**QueryTasksRequest**
+
+This endpoint expects an object.
+
+- `task_type` — _object or string_
+
+- `parent_task_id` — _string_ — If present matches Tasks with this parent Task ID. This is mutually exclusive with all other query parameters, i.e., either provide parent Task ID, or any of the remaining parameters, but not both.
+
+- `page_token` — _string_ — If set, returns results starting from the given page token.
+
+- `status_filter` — _object_ — Filters on provided status types in the filter.
+
+- `update_time_range` — _object_ — If provided, only provides Tasks updated within the time range.
+
+- `view` — _enum_ — The filter for view of a Task. If not set, defaults to TASK_VIEW_MANAGER.
+
+- `assignee` — _object_ — If provided, returns Tasks that match this assignee.
+
+### Response
+
+**QueryTasksResponse**
+
+This endpoint returns an object.
+
+- `tasks` — _list of objects_ — Tasks matching the Query Task request.
+
+- `page_token` — _string_ — Page token to the next page of Tasks.

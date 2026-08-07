@@ -33,31 +33,15 @@ Uploads an object. The object must be 1 GiB or smaller.
 
 ### Authentication
 
-- `Authorization`
-
-- Bearer
-
-Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
 
 ### Path parameters
 
-- `objectPath`
-
-- _stringRequiredformat: "^[a-zA-Z0-9/_=\\-.]*$"_
-
-Path of the Object that is to be uploaded.
+- `objectPath` — _string · required_ — Path of the Object that is to be uploaded.
 
 ### Headers
 
-- `Time-To-Live`
-
-- _longOptional_
-
 An optional expiry TTL associated with an object. The value represents the number of nanoseconds the object will exist in the local store. If no TTL is supplied, the server applies a default TTL. In most cases, the default TTL is 90 days. However, it might be higher or lower, depending on the retention requirements of your environment.
-
-- `Distribution-Mode`
-
-- _enumOptional_
 
 Controls how the object is distributed across the mesh. If set to `force`, the object will be force distributed to all nodes. Force-distributed objects are subject to a size limit.
 
@@ -71,41 +55,17 @@ This endpoint expects binary data of type application/octet-stream.
 
 ### Response headers
 
-- `Path`
-
-- _stringOptional_
-
-- `Checksum`
-
-- _stringOptional_
-
-- `Last-Modified`
-
-- _stringOptional_
-
-- `Expires`
-
-- _stringOptional_
-
 ### Response
 
 Successful upload
 
-- `content_identifier`
+- `content_identifier` — _object_
 
-- _object_
+- `size_bytes` — _uint64_
 
-- `size_bytes`
+- `last_updated_at` — _datetime_
 
-- _uint64_
-
-- `last_updated_at`
-
-- _datetime_
-
-- `expiry_time`
-
-- _datetimeOptional_
+- `expiry_time` — _datetime · optional_
 
 ### Errors
 

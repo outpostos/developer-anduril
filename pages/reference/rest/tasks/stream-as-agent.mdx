@@ -19,43 +19,25 @@ Establishes a server streaming connection that delivers tasks to taskable agents
 
 ### Authentication
 
-- `Authorization`
-
-- Bearer
-
-Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
 
 ### Request
 
 This endpoint expects an object.
 
-- `agentSelector`
+- `agentSelector` — _object · optional_ — The selector criteria to determine which tasks the agent receives.
 
-- _objectOptional_
-
-The selector criteria to determine which tasks the agent receives.
-
-- `heartbeatIntervalMs`
-
-- _integerOptional_
-
-The time interval, in milliseconds, that determines the frequency at which to send heartbeat events. Defaults to 30000 (30 seconds).
+- `heartbeatIntervalMs` — _integer · optional_ — The time interval, in milliseconds, that determines the frequency at which to send heartbeat events. Defaults to 30000 (30 seconds).
 
 ### Response
 
 Returns a stream of tasks to the agent as they become available.
 
-- `heartbeat`
-
-- _object_
+- `heartbeat` — _object_
 
 OR
 
-- `agent_request`
-
-- _object_
-
-The wrapper for a task’s action requests: execute, cancel, or complete.
+- `agent_request` — _object_ — The wrapper for a task’s action requests: execute, cancel, or complete.
 
 ### Errors
 

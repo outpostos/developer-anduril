@@ -19,49 +19,27 @@ Establishes a server streaming connection that delivers manual control frames to
 
 ### Authentication
 
-- `Authorization`
-
-- Bearer
-
-Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
 
 ### Path parameters
 
-- `taskId`
-
-- _stringRequired_
-
-The ID of the manual control task to receive frames for.
+- `taskId` — _string · required_ — The ID of the manual control task to receive frames for.
 
 ### Request
 
 This endpoint expects an object.
 
-- `heartbeatIntervalMs`
-
-- _integerOptional_
-
-The time interval, in milliseconds, that determines the frequency at which to send heartbeat events. Defaults to 30000 (30 seconds).
+- `heartbeatIntervalMs` — _integer · optional_ — The time interval, in milliseconds, that determines the frequency at which to send heartbeat events. Defaults to 30000 (30 seconds).
 
 ### Response
 
 Returns a stream of manual control frames as they are sent by the operator.
 
-- `heartbeat`
-
-- _object_
+- `heartbeat` — _object_
 
 OR
 
-- `manual_control_frame`
-
-- _object_
-
-A single frame of manual control input forwarded by Lattice to an agent.
-
-When an operator sends manual control input, for example, joystick movements using `SendManualControlFrames`, Lattice packages each input into a `ManualControlFrame` and forwards it to the executing agent via the `ListenForManualControlFrames` streaming RPC.
-
-Each frame carries sequencing metadata to support concurrent control sessions, detect stale frames, and ensure proper ordering.
+- `manual_control_frame` — _object_ — A single frame of manual control input forwarded by Lattice to an agent. When an operator sends manual control input, for example, joystick movements using `SendManualControlFrames`, Lattice packages each input into a `ManualControlFrame` and forwards it to the executing agent via the `ListenForManualControlFrames` streaming RPC. Each frame carries sequencing metadata to support concurrent control sessions, detect stale frames, and ensure proper ordering.
 
 ### Errors
 

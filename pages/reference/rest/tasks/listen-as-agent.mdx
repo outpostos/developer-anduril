@@ -2724,43 +2724,23 @@ Establishes a server streaming connection that delivers tasks to taskable agents
 
 ### Authentication
 
-- `Authorization`
-
-- Bearer
-
-Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
 
 ### Request
 
 This endpoint expects an object.
 
-- `agentSelector`
-
-- _objectOptional_
-
-Selector criteria to determine which Agent Tasks the agent receives
+- `agentSelector` — _object · optional_ — Selector criteria to determine which Agent Tasks the agent receives
 
 ### Response
 
 Requests for the agent to comply with.
 
-- `executeRequest`
+- `executeRequest` — _object · optional_ — The request to execute a task. Contains the unique ID of the task to execute.
 
-- _objectOptional_
+- `cancelRequest` — _object · optional_ — The request to cancel a task. Contains the task, and the assignee of the request to cancel the task.
 
-The request to execute a task. Contains the unique ID of the task to execute.
-
-- `cancelRequest`
-
-- _objectOptional_
-
-The request to cancel a task. Contains the task, and the assignee of the request to cancel the task.
-
-- `completeRequest`
-
-- _objectOptional_
-
-The request to complete a task. Contains the unique ID of the task to complete.
+- `completeRequest` — _object · optional_ — The request to complete a task. Contains the unique ID of the task to complete.
 
 ### Errors
 

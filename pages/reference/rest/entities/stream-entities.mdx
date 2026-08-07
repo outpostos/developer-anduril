@@ -19,55 +19,29 @@ Establishes a server-sent events (SSE) connection that streams entity data in re
 
 ### Authentication
 
-- `Authorization`
-
-- Bearer
-
-Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
 
 ### Request
 
 This endpoint expects an object.
 
-- `heartbeatIntervalMS`
+- `heartbeatIntervalMS` — _integer · optional_ — at what interval to send heartbeat events, defaults to 30s.
 
-- _integerOptional_
+- `preExistingOnly` — _boolean · optional_ — only stream pre-existing entities in the environment and then close the connection, defaults to false.
 
-at what interval to send heartbeat events, defaults to 30s.
+- `componentsToInclude` — _list of strings · optional_ — list of components to include, leave empty to include all components.
 
-- `preExistingOnly`
-
-- _booleanOptional_
-
-only stream pre-existing entities in the environment and then close the connection, defaults to false.
-
-- `componentsToInclude`
-
-- _list of stringsOptional_
-
-list of components to include, leave empty to include all components.
-
-- `filter`
-
-- _objectOptional_
-
-Optional root of a Statement filter expression tree. If provided, only entities matching the filter are streamed. Applied dynamically: an entity that begins matching is delivered as a CREATE, and one that stops matching is delivered as a DELETE. Mirrors the filter on the gRPC StreamEntityComponents endpoint.
+- `filter` — _object · optional_ — Optional root of a Statement filter expression tree. If provided, only entities matching the filter are streamed. Applied dynamically: an entity that begins matching is delivered as a CREATE, and one that stops matching is delivered as a DELETE. Mirrors the filter on the gRPC StreamEntityComponents endpoint.
 
 ### Response
 
 Returns all pre-existing data and then return all new data as they become available.
 
-- `heartbeat`
-
-- _object_
+- `heartbeat` — _object_
 
 OR
 
-- `entity`
-
-- _object_
-
-Event representing some type of entity change.
+- `entity` — _object_ — Event representing some type of entity change.
 
 ### Errors
 

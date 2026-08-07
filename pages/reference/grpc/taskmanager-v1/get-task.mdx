@@ -1265,3 +1265,23 @@ title: "GetTask"
 ```
 
 Retrieves a specific Task by its ID, with options to select a particular task version or view. This method returns detailed information about a task including its current status, specification, relations, and other metadata. The response includes the complete Task object with all associated fields. By default, the method returns the latest definition version of the task from the manager's perspective. The definition_version parameter allows retrieving a specific historical version, while the task_view parameter controls whether to show the task from the manager's or agent's perspective.
+
+### Request
+
+**GetTaskRequest**
+
+This endpoint expects an object.
+
+- `task_id` — _string_ — ID of Task to get.
+
+- `definition_version` — _uint_ — If set to a number greater than zero, retrieves specific definition_version, otherwise retrieves the latest definition_version.
+
+- `task_view` — _enum_ — Optional - select which view of the task to fetch. If not set, defaults to TASK_VIEW_MANAGER.
+
+### Response
+
+**GetTaskResponse**
+
+This endpoint returns an object.
+
+- `task` — _object_ — The Task returned from Lattice.

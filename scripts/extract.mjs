@@ -163,6 +163,14 @@ function className(node) {
   return attr(node, 'class')
 }
 
+function classList(node) {
+  return className(node).split(/\s+/).filter(Boolean)
+}
+
+function hasClass(node, name) {
+  return classList(node).includes(name)
+}
+
 function children(node) {
   return node.childNodes || []
 }
@@ -173,6 +181,10 @@ function isElement(node, tagName) {
 
 function hasClassPart(node, part) {
   return className(node).includes(part)
+}
+
+function hasPropertyPart(node, part) {
+  return hasClass(node, `fern-api-property-${part}`)
 }
 
 function textContent(node) {
@@ -297,6 +309,14 @@ function renderBlocks(nodes, sourceFile, context = {}) {
     const tag = node.tagName
     const cls = className(node)
 
+    if (context.atomicProperties && isPropertyRow(node)) {
+      const property = renderProperty(node, sourceFile)
+      if (property) blocks.push(property)
+      continue
+    }
+
+    if (context.atomicProperties && isPropertyPart(node)) continue
+
     if (/^h[1-4]$/.test(tag)) {
       const title = blockText(node, sourceFile)
       if (title && !context.skipH1) blocks.push(`${'#'.repeat(headingDepth(tag))} ${title}`)
@@ -340,7 +360,7 @@ function renderBlocks(nodes, sourceFile, context = {}) {
     }
 
     if (cls.includes('fern-api-property')) {
-      const property = renderProperty(node, sourceFile)
+      const property = context.atomicProperties ? renderProperty(node, sourceFile) : renderLegacyProperty(node, sourceFile)
       if (property) blocks.push(property)
       continue
     }
@@ -405,7 +425,21 @@ function renderTable(node, sourceFile) {
   ].join('\n')
 }
 
-function renderProperty(node, sourceFile) {
+function isPropertyPart(node) {
+  return ['key', 'meta', 'type', 'optional', 'required'].some((part) => hasPropertyPart(node, part))
+}
+
+function isPropertyRow(node) {
+  if (node.tagName !== 'div') return false
+  if (isPropertyPart(node)) return false
+  const id = attr(node, 'id')
+  if (!hasClass(node, 'fern-api-property') && !/^(request|response)\.(auth|body|path|query|headers)\.[A-Za-z0-9_.-]+$/.test(id)) return false
+  const keys = findAll(node, (candidate) => hasPropertyPart(candidate, 'key'))
+  if (keys.length !== 1) return false
+  return Boolean(findFirst(node, (candidate) => hasPropertyPart(candidate, 'type') || hasPropertyPart(candidate, 'meta')))
+}
+
+function renderLegacyProperty(node, sourceFile) {
   const key = compactText(findFirst(node, (candidate) => hasClassPart(candidate, 'fern-api-property-key'))) || ''
   const meta = compactText(findFirst(node, (candidate) => hasClassPart(candidate, 'fern-api-property-meta'))) || ''
   const descriptions = findAll(node, (candidate, parents) =>
@@ -414,6 +448,58 @@ function renderProperty(node, sourceFile) {
   const label = [key && `\`${escapeInlineCode(key)}\``, meta && `_${escapeText(meta)}_`].filter(Boolean).join(' ')
   const description = descriptions.join(' ')
   return ['- ' + (label || blockText(node, sourceFile)), description ? `  ${description}` : ''].filter(Boolean).join('\n')
+}
+
+function renderProperty(node, sourceFile) {
+  const key = compactText(findFirst(node, (candidate) => hasPropertyPart(candidate, 'key'))) || ''
+  const type = compactText(findFirst(node, (candidate) => hasPropertyPart(candidate, 'type'))) || ''
+  const fallbackMeta = compactText(findFirst(node, (candidate) => hasPropertyPart(candidate, 'meta'))) || ''
+  const optional = compactText(findFirst(node, (candidate) => hasPropertyPart(candidate, 'optional'))) || ''
+  const required = compactText(findFirst(node, (candidate) => hasPropertyPart(candidate, 'required'))) || ''
+  const badges = findAll(node, (candidate) => hasClass(candidate, 'fern-docs-badge'))
+    .map((candidate) => compactText(candidate).toLowerCase())
+    .filter(Boolean)
+  const descriptions = findAll(node, (candidate, parents) =>
+    hasClass(candidate, 'fern-prose') && !isInside(parents, (parent) => parent !== node && isPropertyRow(parent))
+  ).map((candidate) => blockText(candidate, sourceFile)).filter(Boolean)
+  const metaParts = [
+    type || fallbackMeta,
+    optional && optional.toLowerCase(),
+    required && required.toLowerCase(),
+    ...badges
+  ].filter(Boolean)
+  const label = [
+    key && `\`${escapeInlineCode(key)}\``,
+    metaParts.length && `_${escapeText(metaParts.join(' · '))}_`
+  ].filter(Boolean).join(' — ')
+  const description = descriptions.join(' ')
+  return ['- ' + (label || blockText(node, sourceFile)), description].filter(Boolean).join(' — ')
+}
+
+function renderReferenceSchemaSections(document, sourceFile) {
+  if (!sourceFile.includes('/reference/grpc/')) return []
+  return ['request', 'response']
+    .map((sectionId) => findFirst(document, (candidate) =>
+      candidate.tagName === 'div' &&
+      attr(candidate, 'id') === sectionId &&
+      findFirst(candidate, isPropertyRow)
+    ))
+    .filter(Boolean)
+    .map((section) => renderReferenceSchemaSection(section, sourceFile))
+    .filter(Boolean)
+}
+
+function renderReferenceSchemaSection(section, sourceFile) {
+  const label = attr(section, 'id') === 'response' ? 'Response' : 'Request'
+  const schemaName = blockText(findFirst(section, (candidate) => candidate.tagName === 'h3') || {}, sourceFile)
+  const intro = blockText(findFirst(section, (candidate, parents) =>
+    hasClass(candidate, 'fern-prose') && !isInside(parents, isPropertyRow)
+  ) || {}, sourceFile)
+  const properties = findAll(section, (candidate) => isPropertyRow(candidate))
+    .map((property) => renderProperty(property, sourceFile))
+    .filter(Boolean)
+  if (!properties.length) return ''
+  return [`### ${label}`, schemaName && `**${schemaName}**`, intro, ...properties].filter(Boolean).join('\n\n')
 }
 
 function renderCodeCard(node, sourceFile, context) {
@@ -535,7 +621,10 @@ async function convertPage(sourceFile, targetFile) {
 
   const header = extractHeader(article, sourceFile)
   const contentRoots = children(article).filter((child) => child.tagName !== 'header')
-  const bodyBlocks = renderBlocks(contentRoots, sourceFile, { title: header.title })
+  const bodyBlocks = [
+    ...renderBlocks(contentRoots, sourceFile, { title: header.title, atomicProperties: sourceFile.includes('/reference/') }),
+    ...renderReferenceSchemaSections(document, sourceFile)
+  ]
   const usefulBlocks = bodyBlocks.filter((block) => !/^# /.test(block))
   if (!usefulBlocks.join('\n').trim()) return { skipped: true, reason: 'empty body' }
 

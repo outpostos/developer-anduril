@@ -1223,3 +1223,31 @@ title: "StreamEntityComponents"
 ```
 
 Establishes a server streaming RPC that returns a continuous stream of entities with specified components. This endpoint enables you to maintain a real-time view of the common operational picture (COP) by providing initial data for all pre-existing entities matching the filter, followed by updates as entities are created, modified, or deleted. The server first sends events with type PREEXISTING for all live entities matching the filter that existed before the stream was open, then continuously streams updates (EVENT_TYPE_UPDATE) and deletions (EVENT_TYPE_DELETED) as they occur. Optional heartbeat messages can be configured to maintain connection health and detect disconnects. Clients can use filter criteria to receive only relevant entities and specify which components they need populated, optimizing bandwidth usage. Rate limiting options are available to control throughput for high-volume scenarios.
+
+### Request
+
+**StreamEntityComponentsRequest**
+
+This endpoint expects an object.
+
+- `components_to_include` — _list of strings_ — lower_snake_case component names to include in response events, e.g. location. Only included components will populate.
+
+- `include_all_components` — _boolean_ — Subscribe to all components. This should only be used in cases where you want all components. Setting both components_to_include and include_all_components is invalid and will be rejected.
+
+- `filter` — _object_ — The root node of a statement filter "tree". If provided, only entities matching the filter criteria will be streamed. The filter is applied dynamically so if a new entity matches, it will be included, and if an entity updates to no longer match, it will be excluded.
+
+- `rate_limit` — _object_ — Optional rate-limiting / down-sampling parameters, see RateLimit message for details.
+
+- `heartbeat_period_millis` — _uint_ — The period (in milliseconds) at which a Heartbeat message will be sent on the message stream. If this field is set to 0 then no Heartbeat messages are sent.
+
+- `preexisting_only` — _boolean_ — Subscribe to a finite stream of preexisting events which closes when there are no additional pre-existing events to process. Respects the filter specified on the StreamEntityComponentsRequest.
+
+### Response
+
+**StreamEntityComponentsResponse**
+
+This endpoint returns an object.
+
+- `entity_event` — _object_ — Event representing some type of entity change.
+
+- `heartbeat` — _object_ — A message that is periodically sent on the stream for keep-alive behaviour.

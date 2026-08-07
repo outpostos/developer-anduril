@@ -1901,41 +1901,23 @@ This is a long polling API that will first return all pre-existing data and then
 
 ### Authentication
 
-- `Authorization`
-
-- Bearer
-
-Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+- `Authorization` — _Bearer_ — Bearer authentication of the form `Bearer <token>`, where token is your auth token.
 
 ### Request
 
 This endpoint expects an object.
 
-- `sessionToken`
+- `sessionToken` — _string · required_ — Long-poll session identifier. Leave empty to start a new polling session.
 
-- _stringRequired_
-
-Long-poll session identifier. Leave empty to start a new polling session.
-
-- `batchSize`
-
-- _integerOptional_
-
-Maximum size of response batch. Defaults to 100. Must be between 1 and 2000 (inclusive).
+- `batchSize` — _integer · optional_ — Maximum size of response batch. Defaults to 100. Must be between 1 and 2000 (inclusive).
 
 ### Response
 
 Entity event batch retrieval was successful
 
-- `sessionToken`
+- `sessionToken` — _string · optional_ — Long-poll session identifier. Use this token to resume polling on subsequent requests.
 
-- _stringOptional_
-
-Long-poll session identifier. Use this token to resume polling on subsequent requests.
-
-- `entityEvents`
-
-- _list of objectsOptional_
+- `entityEvents` — _list of objects · optional_
 
 ### Errors
 

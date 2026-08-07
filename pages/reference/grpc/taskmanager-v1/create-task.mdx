@@ -2481,3 +2481,37 @@ title: "CreateTask"
 ```
 
 Creates a new Task in the system with the specified parameters. This method initiates a new task with a unique ID, if one is not provided, sets the initial task state to STATUS_SENT, and establishes task ownership. The task must be assigned to a specific agent using the Relations field. Once created, a task enters the lifecycle workflow and can be tracked, updated, and managed through other Task Manager APIs.
+
+### Request
+
+**CreateTaskRequest**
+
+This endpoint expects an object.
+
+- `specification` — _object_ — The path for the Protobuf task definition, and the complete task data.
+
+- `author` — _object_ — Who or what is creating this Task. For example, if a user created this Task via a UI, it would contain the "user" Principal type with the user ID of that user. Or if a service is calling the CreateTask endpoint, then a "service" Principal type is to be provided.
+
+- `relations` — _object_ — Any relationships associated with this Task, such as a parent Task or an assignee this Task is designated to for execution.
+
+- `description` — _string_ — Longer, free-form, human-readable description of this Task.
+
+- `is_executed_elsewhere` — _boolean_ — If set, then task-manager will not trigger execution of this task on an agent. Useful for when ingesting tasks from an external system that is triggering execution of tasks on agents.
+
+- `task_id` — _string_ — If non-empty, will set the requested Task ID, otherwise will generate a new random GUID. Will reject if supplied Task ID does not match `[A-Za-z0-9_-.]{5,36}`.
+
+- `initial_entities` — _list of objects_ — Indicates an initial set of entities that can be used to execute an entity aware task. For example, an entity Objective, an entity Keep In Zone, etc.
+
+- `retry_strategy` — _object_ — Any retry strategy for task execution or update.
+
+- `delivery_constraints` — _object_ — Any scheduling constraints for Lattice delivery of the task.
+
+- `display_name` — _string · deprecated_ — DEPRECATED: Human-readable display name for this Task, should be short (&lt;100 chars).
+
+### Response
+
+**CreateTaskResponse**
+
+This endpoint returns an object.
+
+- `task` — _object_ — Task that was created.
