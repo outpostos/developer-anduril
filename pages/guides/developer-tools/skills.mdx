@@ -1,7 +1,51 @@
 ---
-title: Skills
+title: "Lattice SDK skills"
 ---
 
-# Skills
+# Lattice SDK skills
 
-占位页：后续补充 Skills 说明。
+Skills extend the capabilities of coding agents by giving them specialized knowledge and repeatable workflows.
+
+## Installation
+
+### Codex
+
+Install the [plugin](https://github.com/anduril/lattice-sdk-ai), which includes the skills and updates automatically:
+
+```
+codex plugin marketplace add anduril/lattice-sdk-ai
+codex plugin add lattice-plugin@lattice-sdk-ai
+```
+
+### Manual installation
+
+Run this command in your project:
+
+```
+npx skills add anduril/lattice-sdk-ai/lattice-plugin
+```
+
+This route does not update itself. Re-run `npx skills update -y` when you want newer versions of the skills.
+
+## Why skills?
+
+As we onboard more partners onto the public Lattice SDK, we’ve seen an increasing number of developers using coding agents like Codex to write their integrations. We wanted to give these developers agent-first developer tools, so that they can create Lattice integrations as quickly and effectively as possible.
+
+With skills, we can extend coding agents with:
+
+- Domain expertise : it’s like a Lattice expert is right there helping you every step of the way.
+- Repeatable workflows : you don’t have to keep giving the same Lattice integration instructions every time. The skills provide the context up front, so the agent has a more holistic idea of what its task is.
+
+## How they work
+
+Skills operate on the idea of progressive disclosure:
+
+- Discovery : initially the coding agent just has the name and description of each skill file.
+- Activation : if the coding agent’s task matches a skill’s description, the agent loads that SKILL.md into its context.
+- Execution : as the agent implements the task with the SKILL.md in its context, it can load other parts of the skill, like references/ , as needed.
+
+Progressive disclosure matters for coding agents because the context window is a limited resource for the underlying LLMs. It lets us give agents enough context without stuffing information into that limited window and causing problems like [context rot](https://www.trychroma.com/research/context-rot).
+
+## How we evaluate the skills
+
+We run coding agents with the plugin through a variety of Lattice integration scenarios in our internal agent benchmark, to evaluate how the agent performs with the plugin installed. As we keep running the benchmark, we find gaps in agent performance and continually improve the plugin for a better agent experience.

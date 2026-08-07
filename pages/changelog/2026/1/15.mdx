@@ -1,0 +1,43 @@
+---
+title: "Changelog"
+---
+
+# Changelog
+
+January 15, 2026
+
+## OAuth 2.0 client credentials for Sandboxes
+
+Lattice now supports machine-to-machine (M2M) authentication using the OAuth 2.0 client credentials flow. This gives you more control over permissions and improved security using short-lived tokens.
+
+Existing users
+
+We continue to support long-lived tokens for existing Lattice deployments while we roll out this new feature.
+
+If you have a pre-existing integration deployed to a production Lattice environment, we encourage you to work with your Anduril representative to determine a timeline for migrating to the OAuth 2.0 client credentials flow.
+
+If you are building a new integration within Lattice Sandboxes, we encourage you to start using the OAuth 2.0 client credentials flow.
+
+### Use OAuth 2.0 client credentials
+
+You can find your **Client ID** and **Client Secret** in the Sandboxes UI under the Resource Credentials section:
+
+- Lattice Client ID : This is a unique, public identifier associated with your integration.
+- Lattice Client Secret : This is the secure credential your integration will use to authenticate with the Lattice environment, proving its identity.
+
+In your integration, use the **Lattice Client ID** and **Lattice Client Secret** to submit requests to the API.
+
+```
+clientId := os.Getenv("LATTICE_CLIENT_ID")
+clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+
+LatticeClient := client.NewClient(
+    option.WithClientCredentials(clientID, clientSecret),
+    option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+    option.WithHTTPHeader(headers),
+)
+```
+
+For more information about setting up your development environment, see [Set up](/guides/getting-started/set-up) in the *Lattice SDK guide*.
+
+Was this page helpful?

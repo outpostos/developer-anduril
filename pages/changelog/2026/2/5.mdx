@@ -1,0 +1,61 @@
+---
+title: "Changelog"
+---
+
+# Changelog
+
+February 5, 2026
+
+## Server-sent events (SSE) for tasking
+
+The Lattice SDK now supports two new APIs that use server-sent events (SSE) for real-time task monitoring in Lattice:
+
+1. StreamTasks - For monitoring all tasks across your Lattice environment.
+2. StreamAsAgent - For receiving tasks assigned to specific agents.
+
+These new features provide instant updates on task creation, status changes, and completion without the need for polling, and replace the previous polling-based approach:
+
+- Filtering options : Focus on specific tasks using type prefix filtering.
+- Heartbeat mechanism : Verify connection health with configurable heartbeat intervals.
+- Comprehensive event data : Access full task details including status, description, and metadata.
+- Efficient resource usage : Reduce network traffic and server load compared to polling.
+
+### StreamTasks
+
+The `StreamTasks` API enables centralized monitoring of all tasks in your Lattice environment regardless of the assigned agent.
+
+```
+// Create task stream request
+request := &Lattice.TaskStreamRequest{
+    HeartbeatIntervalMs:     Lattice.Int(10000),
+    ExcludePreexistingTasks: Lattice.Bool(false),
+    TaskType: &Lattice.TaskStreamRequestTaskType{
+        TaskStreamRequestTaskTypeTaskTypePrefix: &Lattice.TaskStreamRequestTaskTypeTaskTypePrefix{
+            TaskTypePrefix: "type.googleapis.com/<your-organization>.tasks",
+        },
+    },
+}
+
+// Start the task stream
+stream, err := LatticeClient.Tasks.StreamTasks(ctx, request)
+```
+
+### StreamAsAgent
+
+The `StreamAsAgent` API replaces the previous ListenAsAgent method, allowing agents to listen for tasks assigned specifically to them using server-sent events.
+
+```
+// Create agent stream request
+agentRequest := &Lattice.AgentStreamRequest{
+    AgentSelector: &Lattice.EntityIdsSelector{
+        EntityIds: []string{entityId},
+    },
+}
+
+// Start streaming tasks for the agent
+agentStream, err := LatticeClient.Tasks.StreamAsAgent(ctx, agentRequest)
+```
+
+For more information about monitoring tasks, see [Command and operate](/guides/tasks/command-and-operate) in the Lattice SDK guide.
+
+Was this page helpful?

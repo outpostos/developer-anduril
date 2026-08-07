@@ -1,7 +1,169 @@
 ---
-title: Changelog
+title: "Changelog"
 ---
 
 # Changelog
 
-占位页：后续补充变更记录。
+Aug 3, 2026
+
+### [Lattice SDK skills](/changelog/2026/8/3)
+
+Today, we’re launching the official Lattice SDK skills. These teach coding agents how to create integrations using the latest best practices, so that you can get to a working integration as quickly as possible.
+
+For installation instructions, more on how they work, and how we measure how well agents perform with these skills, see [Lattice SDK skills](/guides/developer-tools/skills).
+
+Jul 23, 2026
+
+### [Lattice Schema Registry](/changelog/2026/7/23)
+
+The Lattice Schema Registry (LSR) is now available at [https://schema-registry.developer.anduril.com](https://schema-registry.developer.anduril.com/).
+
+![The Lattice Schema Registry dashboard, showing published schema repositories and their versions.](/img/anduril.docs.buildwithfern.com/948813b683a8d8aae00d83c090fe6cde782a0c6d68119969aa1ddf7674ffa076/assets/images/screenshots/registry-dashboard.png)
+
+The LSR enables you to publish, share, and use schema definitions with the Protobuf Interface Definition Language. Log in with your existing Lattice Developer single sign-on (SSO).
+
+Jun 9, 2026
+
+### [Lattice Developer Console](/changelog/2026/6/9)
+
+The Lattice Developer Console gives you a consolidated view of your data in Lattice. Use it to inspect and debug entities, tasks, and objects. The Developer Console is now the default app on Lattice Sandboxes at `https://your_lattice_url.com/developer-console`, but you still have access to the operator view at `https://your_lattice_url.com/c2`.
+
+May 11, 2026
+
+### [Okta authentication for Lattice Sandboxes](/changelog/2026/5/11)
+
+The Lattice Sandboxes developer portal now uses Okta to manage access. The new sign-in experience replaces the previous email, password, and authenticator-app MFA flow with a passkey-based login at [https://login.developer.anduril.com](https://login.developer.anduril.com/).
+
+Apr 22, 2026
+
+### [StreamTasks gRPC support](/changelog/2026/4/22)
+
+The Lattice SDK now supports streaming task updates in real-time using the gRPC API:
+
+- Added StreamTasks gRPC endpoint for establishing persistent connections to stream task events
+- Implemented Go/gRPC example demonstrating how to connect and process task streams
+- Updated documentation to include gRPC usage patterns alongside existing REST examples
+
+### [Key features](/changelog/2026/4/22#2026-04-22-key-features)
+
+The `StreamTasks` gRPC API provides the same configurable parameters as the REST version:
+
+- heartbeatIntervalMs : Configures how frequently the server sends heartbeat events to verify connection health.
+- excludePreexistingTasks : Controls whether to stream only new tasks created after the connection is established or include existing tasks.
+- taskType : Allows filtering the stream by task type prefix, reducing bandwidth usage and focusing on relevant task updates.
+
+### [Documentation updates](/changelog/2026/4/22#2026-04-22-documentation-updates)
+
+As a part of this release, the [Operate on tasks](/guides/tasks/command-and-operate) guide has been updated with a Go/gRPC code example. The example demonstrates how to establish a task stream connection, process heartbeat events, and handle incoming task events using the gRPC protocol.
+
+Apr 14, 2026
+
+### [Cancel tasks API](/changelog/2026/4/14)
+
+The Lattice SDK now supports task cancellation through the [`CancelTask`](/reference/rest/tasks/cancel-task) API available in both REST and gRPC. This API lets an operator request to cancel, giving you greater control over task lifecycle management.
+
+The cancellation behavior depends on the task’s current state:
+
+- Tasks not yet sent to an agent cancel immediately and transition to a terminal state.
+- Tasks already sent to an agent receive a cancellation request that the agent can accept or reject based on the task’s execution state.
+
+Feb 5, 2026
+
+### [Server-sent events (SSE) for tasking](/changelog/2026/2/5)
+
+The Lattice SDK now supports two new APIs that use server-sent events (SSE) for real-time task monitoring in Lattice:
+
+1. StreamTasks - For monitoring all tasks across your Lattice environment.
+2. StreamAsAgent - For receiving tasks assigned to specific agents.
+
+These new features provide instant updates on task creation, status changes, and completion without the need for polling, and replace the previous polling-based approach:
+
+Jan 15, 2026
+
+### [OAuth 2.0 client credentials for Sandboxes](/changelog/2026/1/15)
+
+Lattice now supports machine-to-machine (M2M) authentication using the OAuth 2.0 client credentials flow. This gives you more control over permissions and improved security using short-lived tokens.
+
+Existing users
+
+We continue to support long-lived tokens for existing Lattice deployments while we roll out this new feature.
+
+If you have a pre-existing integration deployed to a production Lattice environment, we encourage you to work with your Anduril representative to determine a timeline for migrating to the OAuth 2.0 client credentials flow.
+
+If you are building a new integration within Lattice Sandboxes, we encourage you to start using the OAuth 2.0 client credentials flow.
+
+Dec 12, 2025
+
+### [Updated SDKs](/changelog/2025/12/12)
+
+Today we have released new versions of the Lattice SDK in all four languages. This contains the following changes:
+
+- ⚠️ Breaking change - This addresses an issue where the centerRayPose component on the Entity was incorrectly modelled. If you were using this component, you will need to update your code to reference the new fields.
+- Dependency updates and other bug fixes
+
+Oct 27, 2025
+
+### [New SDK Versions](/changelog/2025/10/27)
+
+Today we have released new major versions of the Lattice SDK in all four languages:
+
+- Lattice SDK for Go
+- Lattice SDK for Java
+- Lattice SDK for Javascript
+- Lattice SDK for Python
+
+This addresses an issue where the [`status`](/reference/rest/entities/publish-entity#response.body.status) component on the `Entity` was previously incorrectly modelled. If you were using this component, you will need to update your code to reference the new fields on the message.
+
+Oct 3, 2025
+
+### [Java SDK v3](/changelog/2025/10/3)
+
+The [Lattice SDK for Java v3](https://github.com/anduril/lattice-sdk-java/releases/tag/v3.0.0) introduces a number of changes:
+
+- ⚠️ Breaking change - Alter how enum types are generated to support forward-compatible enums. These now follow a visitor pattern
+- Fixes for SSE streaming
+
+Sep 5, 2025
+
+### [Java SDK Improvements](/changelog/2025/9/5)
+
+The [Lattice SDK for Java 2.3.0](https://github.com/anduril/lattice-sdk-java/releases/tag/v2.3.0) introduces a simplified approach for adding authentication headers to API requests:
+
+- Added new addHeader method to the Lattice client builder that eliminates the need to create custom OkHttpClient instances.
+- Updated all Java examples to use this new approach, resulting in cleaner, more maintainable code.
+- Removed boilerplate OkHttpClient interceptor configuration that was previously required.
+
+Aug 11, 2025
+
+### [New features](/changelog/2025/8/11)
+
+The new `StreamEntities` API provides several configurable parameters:
+
+- preExistingOnly : Controls whether to stream only existing entities or include real-time updates.
+- heartbeatIntervalMS : Configures how frequently the server sends heartbeat events.
+- componentsToInclude : Allows filtering which entity components are streamed, reducing bandwidth usage and improving performance.
+
+### [Documentation updates](/changelog/2025/8/11#2025-08-11-documentation-updates)
+
+As a part of this release, [Watch entities](/guides/entities/watch) guide has been updated with code examples in all supported languages. Each example demonstrates both basic entity streaming and filtering specific components, providing common patterns for integrating real-time entity data into your Lattice apps.
+
+Jul 24, 2025
+
+### [New REST SDKs](/changelog/2025/7/24)
+
+The Lattice SDK introduces improved access to the Lattice SDK with REST support. Simply [install the Lattice SDK](/guides/getting-started/set-up#get-the-sdk) in a language of your choice to get started building with Lattice:
+
+### [The Buf Schema registry](/changelog/2025/7/24#2025-07-24-the-buf-schema-registry)
+
+The Lattice Protobuf definitions are now published, and available from the [Buf Schema registry](https://buf.build/anduril/lattice-sdk/).
+
+![Shows the Buf schema registry.](/img/anduril.docs.buildwithfern.com/7cf7ebc2f433fec5e77a2b7061b720f89bc2932716d34c05a73360a24cef1943/assets/images/screenshots/lattice-buf-schema-registry.png)
+
+Use the Lattice protos and a plugin of your choice, to generate SDK artifacts for your language of choice. For more information, and to see an example in Go, see [Generate the Lattice SDK for gRPC](/guides/getting-started/set-up#generate-the-sdk-for-grpc).
+
+### [Objects API](/changelog/2025/7/24#2025-07-24-objects-api)
+
+Lattice now supporting a resilient, distributed binary object store, letting you efficiently store binary data and relate them to entities in your environment. Some use cases include:
+
+- Creating image thumbnails for tracks in the Lattice UI.
+- Maintaining CSV data for entities for implementing vessel manifests, or other relevant entity metadata.

@@ -1,0 +1,64 @@
+---
+title: "Changelog"
+---
+
+# Changelog
+
+July 24, 2025
+
+Existing developers
+
+This major version update introduces breaking changes from SDK v1. If you are a current Lattice SDK developer, version v1 will continue to work but will no longer be maintained. We recommend upgrading to Lattice SDK v2.
+
+Lattice SDK v1 is built to natively support gRPC, while v2 uses OpenAPI to offer a more streamlined experience. To choose a migration path that works for you, see [migration guide](/reference/overview/versioning/migrating-to-v2).
+
+## New REST SDKs
+
+The Lattice SDK introduces improved access to the Lattice SDK with REST support. Simply [install the Lattice SDK](/guides/getting-started/set-up#get-the-sdk) in a language of your choice to get started building with Lattice:
+
+```
+package main
+
+import (
+    "os"
+    "fmt"
+    "github.com/anduril/lattice-sdk-go/v2/client"
+    "github.com/anduril/lattice-sdk-go/v2/option"
+)
+
+func main() {
+    latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+    environmentToken := os.Getenv("ENVIRONMENT_TOKEN")
+
+    client := client.NewClient(
+	    option.WithToken(environmentToken),
+	    option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+    )
+
+    client.Entities.GetEntity(
+	    context.TODO(),
+	    "ENTITY_ID",
+    )
+}
+```
+
+## The Buf Schema registry
+
+The Lattice Protobuf definitions are now published, and available from the [Buf Schema registry](https://buf.build/anduril/lattice-sdk/).
+
+![Shows the Buf schema registry.](/img/anduril.docs.buildwithfern.com/7cf7ebc2f433fec5e77a2b7061b720f89bc2932716d34c05a73360a24cef1943/assets/images/screenshots/lattice-buf-schema-registry.png)
+
+Use the Lattice protos and a plugin of your choice, to generate SDK artifacts for your language of choice. For more information, and to see an example in Go, see [Generate the Lattice SDK for gRPC](/guides/getting-started/set-up#generate-the-sdk-for-grpc).
+
+## Objects API
+
+Lattice now supporting a resilient, distributed binary object store, letting you efficiently store binary data and relate them to entities in your environment. Some use cases include:
+
+- Creating image thumbnails for tracks in the Lattice UI.
+- Maintaining CSV data for entities for implementing vessel manifests, or other relevant entity metadata.
+
+![Lattice UI object store.](/img/anduril.docs.buildwithfern.com/dc72382af2efe25a3f117a76ec39a7aaf531e7d501fadb6d805e24cdab27578b/assets/images/screenshots/changelog-vessel-track.png)
+
+The [Objects API](/reference/rest/objects/list-objects) lets you upload, retrieve, and delete objects across the Lattice mesh. For more information, see [Objects](/guides/objects/overview) in the *Lattice SDK Guide*.
+
+Was this page helpful?

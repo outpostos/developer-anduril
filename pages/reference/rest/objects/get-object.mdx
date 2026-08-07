@@ -1,0 +1,100 @@
+---
+title: "Get object"
+---
+
+# Get object
+
+**Endpoint**: `GET /api/v1/objects/:objectPath`
+
+**cURL**
+
+```bash
+curl https://example.developer.anduril.com/api/v1/objects/objectPath \
+     -H "Authorization: Bearer <token>"
+```
+
+Fetches an object from your environment using the objectPath path parameter.
+
+### Authentication
+
+- `Authorization`
+
+- Bearer
+
+Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+
+### Path parameters
+
+- `objectPath`
+
+- _stringRequiredformat: "^[a-zA-Z0-9/_=\\-.]*$"_
+
+The path of the object to fetch.
+
+### Headers
+
+- `Accept-Encoding`
+
+- _enumOptional_
+
+If set, Lattice will compress the response using the specified compression method. If the header is not defined, or the compression method is set to `identity`, no compression will be applied to the response.
+
+Allowed values
+
+:
+
+- `Priority`
+
+- _stringOptional_
+
+Indicates a client's preference for the priority of the response. The value is a structured header as defined in RFC 9218. If you do not set the header, Lattice uses the default priority set for the environment. Incremental delivery directives are not supported and will be ignored.
+
+### Response headers
+
+- `Checksum`
+
+- _stringOptional_
+
+- `Content-Length`
+
+- _integer_
+
+- `Content-Encoding`
+
+- _stringOptional_
+
+The compression used on the response body.
+
+- `Expires`
+
+- _stringOptional_
+
+- `Last-Modified`
+
+- _stringOptional_
+
+- `Path`
+
+- _stringOptional_
+
+### Response
+
+Successful operation
+
+### Errors
+
+400
+
+Bad Request Error
+
+401
+
+Unauthorized Error
+
+404
+
+Not Found Error
+
+500
+
+Internal Server Error

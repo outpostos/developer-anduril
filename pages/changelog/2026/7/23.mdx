@@ -1,0 +1,35 @@
+---
+title: "Changelog"
+---
+
+# Changelog
+
+July 23, 2026
+
+## Lattice Schema Registry
+
+The Lattice Schema Registry (LSR) is now available at [https://schema-registry.developer.anduril.com](https://schema-registry.developer.anduril.com/).
+
+![The Lattice Schema Registry dashboard, showing published schema repositories and their versions.](/img/anduril.docs.buildwithfern.com/948813b683a8d8aae00d83c090fe6cde782a0c6d68119969aa1ddf7674ffa076/assets/images/screenshots/registry-dashboard.png)
+
+The LSR enables you to publish, share, and use schema definitions with the Protobuf Interface Definition Language. Log in with your existing Lattice Developer single sign-on (SSO).
+
+Your organization owns the lifecycle of the schemas you publish to the LSR, giving you more control over defining your integration’s features in Lattice. For example, if you’re integrating a taskable agent, you can publish a task definition that expresses your platform’s unique capabilities to operators, then modify the schema as the integration evolves.
+
+To get started, see the following pages in the *Lattice SDK guide*:
+
+- Define tasks explains how to describe your platform’s capabilities as a custom task definition.
+- Create tasks shows you how to issue tasks to your agent from those definitions.
+- Registry explains how to publish, version, and share your schemas in the LSR.
+
+Repository visibility
+
+- The Lattice Schema Registry is not rated for ITAR specifications, regardless of repository visibility. Do not use the registry to store any classified specifications.
+
+For an example of how to define and use custom tasks, see the [Auto reconnaissance sample app](https://github.com/anduril/sample-app-auto-reconnaissance).
+
+Existing users
+
+If you have used the Schema Registry in beta prior to today, we are making a change to how revisions work. Breaking changes are no longer allowed for `alpha`, `beta`, and `test` packages. To prevent breaking changes, you must publish a new version (for example, `v1alpha` to `v2alpha`).
+
+Was this page helpful?

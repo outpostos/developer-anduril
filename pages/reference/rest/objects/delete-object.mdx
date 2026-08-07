@@ -1,0 +1,50 @@
+---
+title: "Delete object"
+---
+
+# Delete object
+
+**Endpoint**: `DELETE /api/v1/objects/:objectPath`
+
+**cURL**
+
+```bash
+curl -X DELETE https://example.developer.anduril.com/api/v1/objects/objectPath \
+     -H "Authorization: Bearer <token>"
+```
+
+Deletes an object from your environment given the objectPath path parameter.
+
+### Authentication
+
+- `Authorization`
+
+- Bearer
+
+Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+
+### Path parameters
+
+- `objectPath`
+
+- _stringRequiredformat: "^[a-zA-Z0-9/_=\\-.]*$"_
+
+The path of the object to delete.
+
+### Response
+
+Successful operation
+
+### Errors
+
+400
+
+Bad Request Error
+
+401
+
+Unauthorized Error
+
+500
+
+Internal Server Error

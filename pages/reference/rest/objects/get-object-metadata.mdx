@@ -1,0 +1,76 @@
+---
+title: "Get object metadata"
+---
+
+# Get object metadata
+
+**Endpoint**: `HEAD /api/v1/objects/:objectPath`
+
+```bash
+curl -X HEAD https://example.developer.anduril.com/api/v1/objects/objectPath \
+     -H "Authorization: Bearer <token>"
+```
+
+**200 OK**
+
+```json
+{}
+```
+
+Returns metadata for a specified object path. Use this to fetch metadata such as object size (size_bytes), its expiry time (expiry_time), or its latest update timestamp (last_updated_at).
+
+### Authentication
+
+- `Authorization`
+
+- Bearer
+
+Bearer authentication of the form `Bearer <token>`, where token is your auth token.
+
+### Path parameters
+
+- `objectPath`
+
+- _stringRequiredformat: "^[a-zA-Z0-9/_=\\-.]*$"_
+
+The path of the object to query.
+
+### Response headers
+
+- `Path`
+
+- _stringOptional_
+
+- `Checksum`
+
+- _stringOptional_
+
+- `Content-Length`
+
+- _integer_
+
+- `Last-Modified`
+
+- _stringOptional_
+
+- `Expires`
+
+- _stringOptional_
+
+### Response
+
+Successful operation
+
+### Errors
+
+400
+
+Bad Request Error
+
+401
+
+Unauthorized Error
+
+500
+
+Internal Server Error

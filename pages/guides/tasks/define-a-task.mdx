@@ -1,7 +1,230 @@
 ---
-title: Define a Task
+title: "Define a task"
 ---
 
-# Define a Task
+# Define a task
 
-占位页：后续补充任务定义说明。
+This guide describes best practices for authoring custom task definitions for use in Lattice. Custom task definitions allow you to extend Lattice’s tasking capabilities with your own specialized workflows.
+
+## Before you begin
+
+- Familiarize yourself with tasks in Lattice.
+- To create tasks, set up your Lattice environment.
+- Review the Protobuf files and packages guide to understand Protobuf fundamentals.
+
+## Authoring tasks
+
+A custom task is a Protobuf message type that contains the information your asset requires to execute a task autonomously. The complexity of your task definition depends on your integration’s requirements. For example:
+
+- Simple tasks : A sensor may define an on/off toggle message
+- Entity-targeted tasks : A tracking system may define a message containing an entity_id to track
+- Complex tasks : An autonomous vehicle may define multiple parameters including waypoints, speed limits, sensor configurations, and priority levels
+
+Custom tasks give you the flexibility to model domain-specific workflows while maintaining type safety and compatibility across your Lattice deployment.
+
+At its simplest, a task definition is a single Protobuf message. For example, the following schema defines a task that turns a sensor on:
+
+```proto
+syntax = "proto3";
+
+package org.example.sensor.v1;
+
+// Turn the sensor on.
+message SensorOn {}
+```
+
+Next, you’ll learn how to organize definitions into [packages](#create-a-package), how Lattice [identifies them](#fully-qualified-names), and how to model [richer task parameters](#define-a-custom-schema).
+
+## Create a package
+
+Define your tasks as Protobuf messages as part of a package. A package should contain all relevant message types to compose tasks that express an integration’s capabilities. Naming your package clearly and precisely is crucial to avoid potential naming conflicts.
+
+Use a consistent package naming pattern: `org.repository.package.version`
+
+Where:
+
+- org : Your organization name in the Schema Registry.
+- repository : Your repository name in the Schema Registry.
+- package : A descriptive name for your task domain, for example, reconnaissance , navigation , or sensor .
+- version : The API version, for example, v1 , v2 v1alpha or v2test .
+
+```
+// Example
+package company.isr.imaging.v1test;
+```
+
+During early development, mark your package as unstable by appending a stability marker (`alpha`, `beta`, or `test`) to the version.
+
+```
+package org.example.reconnaissance.v1beta;
+package org.example.navigation.v2beta;
+```
+
+The Schema Registry enforces breaking change detection on all packages, regardless of the stability marker. If you need to make a breaking change, you must create a new version.
+
+### Fully qualified names
+
+The fully qualified name of a message consists of its package and message name:
+
+```proto
+package org.example.reconnaissance.v1beta;
+
+message Objective {
+  // ...
+}
+```
+
+The above message yields the name: `org.example.reconnaissance.v1beta.Objective`.
+
+All protobuf type URLs are prefixed with `type.googleapis.com`. You will always reference your task definition by its type URL, for example: `type.googleapis.com/org.example.reconnaissance.v1beta.Objective`.
+
+Globally unique names
+
+Each fully qualified message name must be globally unique within the Schema Registry. This prevents naming conflicts when multiple organizations publish schemas.
+
+This type URL is also how you advertise a task on an asset. The Entity model’s [`taskCatalog`](/reference/rest/entities/publish-entity#request.body.taskCatalog) lists the tasks an asset can perform, and each entry’s `taskSpecificationUrl` is the type URL of a task definition:
+
+```
+"taskCatalog": {
+    "taskDefinitions": [
+        {
+            "taskSpecificationUrl": "type.googleapis.com/org.example.reconnaissance.v1beta.Objective"
+        }
+    ]
+}
+```
+
+An operator can only assign a task to an asset if the asset’s `taskCatalog` advertises that task’s type URL. To learn how to publish an asset with a `taskCatalog` and process the tasks it receives, see [Integrate an agent](/guides/tasks/integrate-an-agent).
+
+For more information about Protobuf packages and naming, see [Protobuf files and packages](https://buf.build/docs/reference/protobuf-files-and-packages/) in the Buf documentation.
+
+## Breaking change protection
+
+The Schema Registry enforces breaking change detection for all packages. This ensures backward compatibility for consumers of your schemas. You can deprecate old fields, or if necessary, release a new version of your package.
+
+| Breaking changes (prevented) | Non-breaking changes (allowed) |
+| --- | --- |
+| Removing or renaming fields | Adding new fields |
+| Changing field types | Adding new enumerated values |
+| Changing field numbers | Adding new messages |
+| Removing enumerated values | Deprecating fields (using the `deprecated` option) |
+
+For a complete guide on breaking changes, see the [Buf breaking change detector documentation](https://buf.build/docs/breaking/overview/).
+
+## Define a custom schema
+
+Every task in Lattice is represented by the `Task` message. Its `specification` field is a [`google.protobuf.Any`](https://protobuf.dev/reference/protobuf/google.protobuf/#any), which lets Lattice carry any custom task type without knowing its schema in advance:
+
+```proto
+message Task {
+  // Version of this task.
+  TaskVersion version = 1;
+
+  // The path for the Protobuf task definition, and the complete task data.
+  // Your custom task message is packed into this Any field.
+  google.protobuf.Any specification = 3;
+
+}
+```
+
+Lattice packs the message you define into this `specification` field when a task is created. To author an example custom task, create a new `.proto` file. For example:
+
+```proto
+syntax = "proto3";
+
+package org.example.reconnaissance.v1beta;
+
+// LLA is a geodetic position (latitude, longitude, altitude).
+message LLA {
+  // Latitude in degrees.
+  double latitude_degrees = 1;
+
+  // Longitude in degrees.
+  double longitude_degrees = 2;
+
+  // Altitude in Height Above Ellipsoid (WGS84) in meters.
+  double altitude_hae_m = 3;
+}
+
+// Objective represents the target of a reconnaissance task. The target is
+// either an entity to reconnoiter or a fixed geodetic point.
+message Objective {
+  oneof target {
+    // Entity to reconnoiter, identified by its entity ID.
+    string entity_id = 1;
+
+    // Fixed geodetic point to reconnoiter.
+    LLA lla = 2;
+  }
+}
+```
+
+Best practices
+
+- Use descriptive comments : Document each field and enum value to help other developers understand your schema.
+- Use wrapper types : For optional numeric fields, use google.protobuf.*Value wrapper types instead of primitive types.
+- Start with stability markers : Use v1alpha or v1beta during development to allow breaking changes.
+- Reserved field 0 : Always reserve enum value 0 for an INVALID or UNSPECIFIED variant. In proto3, an unset enum field defaults to 0 , so reserving it keeps an intentional value from being indistinguishable from an unset one.
+
+## Common patterns
+
+Track entity
+
+```proto
+syntax = "proto3";
+
+package company.sensor.v1;
+
+// Use the entity_id field task your Asset against an Entity
+message TrackEntity {
+    string entity_id = 1;
+}
+```
+
+Mission parameters
+
+```proto
+syntax = "proto3";
+
+package company.uas.v1;
+
+// Use Message types to compose a more complex Task
+message Coordinate {
+    double lat = 1;
+    double lon = 2;
+}
+
+// A target could be either a lat/lon, or an Entity that we can track
+message Target {
+    oneof target {
+        string entity_id = 1;
+        Coordinate coordinate = 2;
+    }
+}
+
+message FlightConstraints {
+    float min_altitude_agl_m = 1;
+    float max_altitude_agl_m = 2;
+    float max_ias_kts = 3;
+    float min_ias_kts = 4;
+}
+
+enum FlightPattern {
+    FLIGHT_PATTERN_GRID = 1;
+    FLIGHT_PATTERN_ORBIT = 2;
+    FLIGHT_PATTERN_SECTOR_SEARCH = 3;
+}
+
+// Task Message
+message Survey {
+    Target target = 1;
+    FlightPattern flight_pattern = 2;
+    FlightConstraints flight_constraints = 3;
+}
+```
+
+## What’s next?
+
+- Publish your schema to make it available for use.
+- Use your task definition to create tasks in Lattice.
+- Configure your agents to listen for tasks assigned to them.

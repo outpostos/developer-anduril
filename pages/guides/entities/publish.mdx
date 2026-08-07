@@ -1,7 +1,1092 @@
 ---
-title: Publish
+title: "Publish entities"
 ---
 
-# Publish
+# Publish entities
 
-占位页：后续补充发布 Entity 的说明。
+This page explains how to create and update assets, tracks, and geo-entities - the most common `Entity` templates in Lattice.
+
+In the following steps, you publish various entities and learn how the entity model lets you represent a variety of real-world objects and geographic areas.
+
+## Before you begin
+
+- To publish entities, set up the Lattice SDK and set up a Lattice environment.
+- The following examples use uuid to generate unique entity IDs. To use the TypeScript examples, install @types/uuid : ```bash npm install @types/uuid ```
+- Learn about required components and various entity shapes in Lattice.
+
+gRPC authentication
+
+If you are using gRPC with client credentials, [set up the token refresh module](/guides/getting-started/authenticate#using-grpc) before running the examples on this page.
+
+## Publish an asset
+
+An *asset* is an entity under your control, or under the control of another operator or system. Assets may accept tasks such as search or tracking. To publish an asset, do the following:
+
+Drone
+
+1
+
+Define the entity model’s required components. Together with the asset-specific fields, you get the following entity object:
+
+```json
+{
+  "entityId": "$ENTITY_ID",
+  "description": "Friendly drone asset",
+  "isLive": true,
+  "createdTime": "2025-01-01T00:00:00.000Z",
+  "expiryTime": "2025-01-01T01:00:00.000Z",
+  "location": {
+    "position": {
+      "latitudeDegrees": 51.013685596367665,
+      "longitudeDegrees": 0.8002299716355741,
+      "altitudeAsfMeters": 1000
+    },
+    "velocityEnu": {
+      "e": 50,
+      "n": 50,
+      "u": 0
+    },
+    "attitudeEnu": {
+      "x": 0,
+      "y": 0,
+      "z": 0.3827,
+      "w": 0.9239
+    }
+  },
+  "aliases": {
+    "name": "Drone 1"
+  },
+  "milView": {
+    "disposition": "DISPOSITION_FRIENDLY",
+    "environment": "ENVIRONMENT_AIR"
+  },
+  "ontology": {
+    "platformType": "UAV",
+    "template": "TEMPLATE_ASSET"
+  },
+  "provenance": {
+    "integrationName": "your_integration_name",
+    "dataType": "your_data_type",
+    "sourceUpdateTime": "2025-05-19T20:02:16.753Z"
+  },
+  "taskCatalog": {
+    "taskDefinitions": [
+      {
+        "taskSpecificationUrl": "type.googleapis.com/anduril.tasks.v2.VisualId",
+      },
+      {
+        "taskSpecificationUrl": "type.googleapis.com/anduril.tasks.v2.Investigate"
+      }
+    ]
+  },
+  "health": {
+    "connectionStatus": "CONNECTION_STATUS_ONLINE",
+    "healthStatus": "HEALTH_STATUS_HEALTHY",
+    "components": [
+      {
+        "id": "battery-0",
+        "name": "Battery",
+        "health": "HEALTH_STATUS_HEALTHY",
+        "messages": [
+          {
+            "status": "HEALTH_STATUS_HEALTHY",
+            "message": "Battery at 87% charge."
+          }
+        ],
+        "updateTime": "2025-01-01T00:00:00.000Z"
+      }
+    ],
+    "updateTime": "2025-01-01T00:00:00.000Z"
+  },
+  "sensors": {
+    "sensors": [
+      {
+        "sensorId": "camera-1",
+        "sensorType": "SENSOR_TYPE_CAMERA",
+        "operationalState": "OPERATIONAL_STATE_OPERATIONAL",
+        "fieldsOfView": [
+          {
+            "centerRayPose": {
+              "orientation": { "x": 0, "y": 0, "z": 0, "w": 1 }
+            },
+            "horizontalFov": 1.047,
+            "verticalFov": 0.785,
+            "range": 2000,
+            "mode": "SENSOR_MODE_SEARCH"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+2
+
+Take a closer look at the following components in `entity.json` and familiarize yourself with common patterns used to model an asset in Lattice. In this example:
+
+- Set template to TEMPLATE_ASSET .
+- Set platform_type to UAV rendering a drone icon in the Lattice UI.
+- Use taskCatalog to publicize the assets tasks. The asset can listen for, and act upon, any task assigned to it, matching its specified taskDefinition .
+- Use health to define the health status of the asset. Health reporting is exclusive to assets. Tracks and geo-entities never report health. When an asset sends updates to Lattice, Lattice automatically sets health.connection_status to CONNECTION_STATUS_ONLINE . If there are no updates after one minute, the field value changes to CONNECTION_STATUS_OFFLINE . Alongside the top-level health_status , report at least one entry in components to describe the health of an individual subsystem, such as the drone’s battery.
+
+```
+"ontology": {
+    // Set the required template.
+    "template": "TEMPLATE_ASSET",
+    // Optionally, set platform_type to UAV.
+    "platform_type": "UAV"
+}
+```
+
+The `position` component supports four altitude references, specified in meters. Populate the references available to your integration:
+
+- `altitude_hae_meters` _DoubleValue_
+  The entity’s height above the World Geodetic System 1984 (WGS84) ellipsoid.
+
+- `altitude_agl_meters` _DoubleValue_
+  The entity’s height above the terrain. This is typically measured with a radar altimeter or by using a terrain tile set lookup.
+
+- `altitude_asf_meters` _DoubleValue_
+  The entity’s height above the sea floor.
+
+- `pressure_depth_meters` _DoubleValue_
+  The depth of the entity from the surface of the water.
+
+Lattice doesn’t support Mean Sea Level (MSL) references, such as EGM-96 and EGM-08. If the only altitude reference available to your integration is MSL, convert it to Height Above Ellipsoid (HAE) and populate the `altitude_hae_meters` field. To apply this conversion, use an open-source library, such as [EGM96 for Go](https://pkg.go.dev/github.com/westphae/geomag/pkg/egm96).
+
+3
+
+Use the [`PublishEntity`](/reference/rest/entities/publish-entity) API method to publish the entity:
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"math"
+	"net/http"
+	"os"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+	"github.com/google/uuid"
+)
+
+// velocityToYawEnu converts an ENU velocity vector into a yaw angle, in
+// radians. It uses the ENU mathematical convention where a yaw of 0 points
+// East and a yaw of pi/2 points North.
+func velocityToYawEnu(velocityEast, velocityNorth float64) float64 {
+	return math.Atan2(velocityNorth, velocityEast)
+}
+
+// yawToQuaternionEnu converts a yaw angle into the attitude_enu quaternion.
+// Yaw is a rotation about the ENU Up (Z) axis, so the quaternion only has Z
+// and W components. The result is already unit-normalized.
+func yawToQuaternionEnu(yawRad float64) *Lattice.Quaternion {
+	return &Lattice.Quaternion{
+		X: Lattice.Float64(0.0),
+		Y: Lattice.Float64(0.0),
+		Z: Lattice.Float64(math.Sin(yawRad / 2.0)),
+		W: Lattice.Float64(math.Cos(yawRad / 2.0)),
+	}
+}
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+
+	// Remove sandboxesToken from the following statements if you are not developing on Sandboxes
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Generate a unique ID for the entity
+	entityId := uuid.New().String()
+
+	// Set a radius, in degrees, to simulate the entity moving in a circle
+	radiusDegrees := 0.1
+	count := 0.0
+	centerLat := 50.91402185768586
+	centerLon := 0.79203612077257
+	creationTime := time.Now().UTC()
+
+	// Continuously publish the entity
+	for {
+		latestTimestamp := time.Now().UTC()
+		ctx := context.Background()
+
+		// Update position
+		count += 0.1
+		t := math.Pi * count / 180.0
+
+		// Derive the ENU velocity from the circular motion, then convert it
+		// into a yaw angle and an attitude_enu quaternion.
+		lat := centerLat + (radiusDegrees * math.Cos(t))
+		metersPerDegreeLat := 111320.0
+		metersPerDegreeLon := 111320.0 * math.Cos(lat*math.Pi/180.0)
+		velocityEast := radiusDegrees * math.Cos(t) * metersPerDegreeLon
+		velocityNorth := -radiusDegrees * math.Sin(t) * metersPerDegreeLat
+		yawRad := velocityToYawEnu(velocityEast, velocityNorth)
+
+		// Create entity to publish
+		entity := Lattice.Entity{
+			EntityID:    &entityId,
+			Description: Lattice.String("Friendly drone asset"),
+			Aliases: &Lattice.Aliases{
+				Name: Lattice.String("Drone 1"),
+			},
+			IsLive:      Lattice.Bool(true),
+			CreatedTime: Lattice.Time(creationTime),
+			ExpiryTime:  Lattice.Time(latestTimestamp.Add(1 * time.Hour)),
+			Ontology: &Lattice.Ontology{
+				Template:     Lattice.OntologyTemplateTemplateAsset.Ptr(),
+				PlatformType: Lattice.String("UAV"),
+			},
+			MilView: &Lattice.MilView{
+				Disposition: Lattice.MilViewDispositionDispositionFriendly.Ptr(),
+				Environment: Lattice.MilViewEnvironmentEnvironmentAir.Ptr(),
+			},
+			Location: &Lattice.Location{
+				Position: &Lattice.Position{
+					LatitudeDegrees:   Lattice.Float64(centerLat + (radiusDegrees * math.Cos(t))),
+					LongitudeDegrees:  Lattice.Float64(centerLon + (radiusDegrees * math.Sin(t))),
+					AltitudeAsfMeters: Lattice.Float64(1000),
+				},
+				// Report the velocity in the ENU frame, in meters per second.
+				// Vertical velocity is 0 at constant altitude.
+				VelocityEnu: &Lattice.Enu{
+					E: Lattice.Float64(velocityEast),
+					N: Lattice.Float64(velocityNorth),
+					U: Lattice.Float64(0.0),
+				},
+				// Report the heading as a quaternion derived from velocity.
+				AttitudeEnu: yawToQuaternionEnu(yawRad),
+			},
+			Provenance: &Lattice.Provenance{
+				IntegrationName:  Lattice.String("your_integration_name"),
+				DataType:         Lattice.String("your_data_type"),
+				SourceUpdateTime: Lattice.Time(latestTimestamp),
+			},
+			Health: &Lattice.Health{
+				ConnectionStatus: Lattice.HealthConnectionStatusConnectionStatusOnline.Ptr(),
+				HealthStatus:     Lattice.HealthHealthStatusHealthStatusHealthy.Ptr(),
+				// Report the health of individual subsystems in components.
+				// Each component needs a stable ID, a display name, and a
+				// health status. Here, the drone reports its battery as healthy.
+				Components: []*Lattice.ComponentHealth{
+					{
+						ID:     Lattice.String("battery-0"),
+						Name:   Lattice.String("Battery"),
+						Health: Lattice.ComponentHealthHealthHealthStatusHealthy.Ptr(),
+						Messages: []*Lattice.ComponentMessage{
+							{
+								Status:  Lattice.ComponentMessageStatusHealthStatusHealthy.Ptr(),
+								Message: Lattice.String("Battery at 87% charge."),
+							},
+						},
+						UpdateTime: Lattice.Time(latestTimestamp),
+					},
+				},
+				// Live list of active alerts for the asset. Remove entries
+				// when the underlying condition clears; Lattice does not
+				// filter stale entries automatically.
+				ActiveAlerts: []*Lattice.Alert{},
+				UpdateTime:   Lattice.Time(latestTimestamp),
+			},
+			// Declare the sensors carried by the asset. Each entry requires a
+			// stable sensor_id, a sensor_type, and at least one field of view
+			// so Lattice can render the sensor cone.
+			Sensors: &Lattice.Sensors{
+				Sensors: []*Lattice.Sensor{
+					{
+						SensorID:         Lattice.String("camera-1"),
+						SensorType:       Lattice.SensorSensorTypeSensorTypeCamera.Ptr(),
+						OperationalState: Lattice.SensorOperationalStateOperationalStateOperational.Ptr(),
+						FieldsOfView: []*Lattice.FieldOfView{
+							{
+								CenterRayPose: &Lattice.EntityManagerPose{
+									Orientation: &Lattice.Quaternion{
+										X: Lattice.Float64(0.0),
+										Y: Lattice.Float64(0.0),
+										Z: Lattice.Float64(0.0),
+										W: Lattice.Float64(1.0),
+									},
+								},
+								HorizontalFov: Lattice.Float64(1.047),
+								VerticalFov:   Lattice.Float64(0.785),
+								Range:         Lattice.Float64(2000.0),
+								Mode:          Lattice.FieldOfViewModeSensorModeSearch.Ptr(),
+							},
+						},
+					},
+				},
+			},
+			TaskCatalog: &Lattice.TaskCatalog{
+				TaskDefinitions: []*Lattice.TaskDefinition{
+					{TaskSpecificationURL: Lattice.String("type.googleapis.com/anduril.tasks.v2.VisualId")},
+					{TaskSpecificationURL: Lattice.String("type.googleapis.com/anduril.tasks.v2.Investigate")},
+				},
+			},
+		}
+
+		// Publish the entity
+		_, err := LatticeClient.Entities.PublishEntity(ctx, &entity)
+
+		// Handle errors
+		if err != nil {
+			fmt.Printf("Error publishing entity: %v\n", err)
+		} else {
+			fmt.Println("Publishing asset")
+		}
+
+		// Wait before next request
+		time.Sleep(1 * time.Second)
+	}
+}
+```
+
+## Publish a track
+
+A *track* represents any entity tracked by another asset or integration source. Tracks are not directly under the control of friendly forces. This includes aircraft tracks from radar or sensor hits, signal detections, and vehicles, people, or animals detected through cameras. You can specify the type of track you want to publish by setting `ontology.template` field:
+
+Airplane
+
+1
+
+Define the entity model’s required components. To create a generic track, such as an airplane:
+
+- Set template to TEMPLATE_TRACK .
+- Set platform_type to AIRPLANE .
+
+Together with the track-specific fields, you get the following entity object:
+
+```json
+{
+    "entityId": "UNIQUE_ENTITY_ID",
+    "description": "Airplane 1",
+    "isLive": true,
+    "createdTime": "2025-01-01T00:00:00.000000Z",
+    "expiryTime": "2025-01-01T00:01:00.000000Z",
+    "milView": {
+        "disposition": "DISPOSITION_FRIENDLY",
+        "environment": "ENVIRONMENT_AIR"
+    },
+    "ontology": {
+        "template": "TEMPLATE_TRACK",
+        "platform_type": "AIRPLANE"
+    },
+    "aliases": {
+        "name": "DL-1234"
+    },
+    "location": {
+        "position": {
+            "latitudeDegrees": 50.91402185768586,
+            "longitudeDegrees": 0.79203612077257,
+            "altitudeHaeMeters": 2994,
+            "altitudeAglMeters": 2972.8
+        },
+        "velocityEnu": {
+            "e": 50,
+            "n": 50,
+            "u": 0
+        },
+        "attitudeEnu": {
+            "x": 0,
+            "y": 0,
+            "z": 0.3827,
+            "w": 0.9239
+        }
+    },
+    "provenance": {
+        "integrationName": "your integration",
+        "dataType": "your_data_type",
+        "sourceUpdateTime": "2025-01-01T00:00:00.000000Z"
+    }
+}
+```
+
+2
+
+Take a closer look at the components in `entity.json` to familiarize yourself with the track’s properties.
+
+```
+"milView": {
+    // Set the disposition to friendly to represent a
+    // friendly airplane detection.
+    "disposition": "DISPOSITION_FRIENDLY",
+    // Set the environment field to specify the terrain in which
+    // detection is made.
+    "environment": "ENVIRONMENT_AIR"
+}
+```
+
+Because the airplane is moving, the example also reports the track’s velocity and heading through the following `location` fields:
+
+- `velocity_enu` _ENU_
+  The track’s velocity in an East-North-Up (ENU) reference frame centered on the track’s position, measured in meters per second.
+
+- `attitude_enu` _Quaternion_
+  The track’s heading in the ENU frame, represented as a quaternion that rotates from the entity body frame to the ENU frame.
+
+If both `attitude_enu` and `velocity_enu` are populated, Lattice prioritizes the value from the `attitude_enu` component.
+
+3
+
+Convert the track’s velocity into the `attitude_enu` quaternion. Sensors typically report velocity rather than heading, so derive the heading in two steps:
+
+1. Convert the ENU velocity vector into a yaw angle with atan2(velocity_north, velocity_east) . This uses the ENU mathematical convention, where a yaw of 0 points East and a yaw of π/2 points North.
+2. Convert the yaw angle into a quaternion. Yaw is a rotation about the ENU Up (Z) axis, so the quaternion has only z = sin(yaw / 2) and w = cos(yaw / 2) components. The result is already unit-normalized.
+
+The example defines two helper functions for this conversion:
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"math"
+	"net/http"
+	"os"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+	"github.com/google/uuid"
+)
+
+// velocityToYawEnu converts an ENU velocity vector into a yaw angle, in
+// radians. It uses the ENU mathematical convention where a yaw of 0 points
+// East and a yaw of pi/2 points North.
+func velocityToYawEnu(velocityEast, velocityNorth float64) float64 {
+	return math.Atan2(velocityNorth, velocityEast)
+}
+
+// yawToQuaternionEnu converts a yaw angle into the attitude_enu quaternion.
+// Yaw is a rotation about the ENU Up (Z) axis, so the quaternion only has Z
+// and W components. The result is already unit-normalized.
+func yawToQuaternionEnu(yawRad float64) *Lattice.Quaternion {
+	return &Lattice.Quaternion{
+		X: Lattice.Float64(0.0),
+		Y: Lattice.Float64(0.0),
+		Z: Lattice.Float64(math.Sin(yawRad / 2.0)),
+		W: Lattice.Float64(math.Cos(yawRad / 2.0)),
+	}
+}
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+
+	// Remove sandboxesToken from the following statements if you are not developing on Sandboxes
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Generate a unique ID for the entity
+	entityId := uuid.New().String()
+
+	// Set a radius, in degrees, to simulate the entity moving in a circle
+	radiusDegrees := 0.1
+	count := 0.0
+	centerLat := 50.91402185768586
+	centerLon := 0.79203612077257
+	creationTime := time.Now().UTC()
+
+	// Continuously publish the entity
+	for {
+		latestTimestamp := time.Now().UTC()
+		ctx := context.Background()
+
+		// Update position
+		count += 0.1
+		t := math.Pi * count / 180.0
+
+		// Derive the ENU velocity from the circular motion, then convert it
+		// into a yaw angle and an attitude_enu quaternion.
+		lat := centerLat + (radiusDegrees * math.Cos(t))
+		metersPerDegreeLat := 111320.0
+		metersPerDegreeLon := 111320.0 * math.Cos(lat*math.Pi/180.0)
+		velocityEast := radiusDegrees * math.Cos(t) * metersPerDegreeLon
+		velocityNorth := -radiusDegrees * math.Sin(t) * metersPerDegreeLat
+		yawRad := velocityToYawEnu(velocityEast, velocityNorth)
+
+		// Create entity to publish
+		entity := Lattice.Entity{
+			EntityID:    &entityId,
+			Description: Lattice.String("Friendly airplane"),
+			Aliases: &Lattice.Aliases{
+				Name: Lattice.String("DL-1234"),
+			},
+			IsLive:      Lattice.Bool(true),
+			CreatedTime: Lattice.Time(creationTime),
+			ExpiryTime:  Lattice.Time(latestTimestamp.Add(5 * time.Minute)),
+			Ontology: &Lattice.Ontology{
+				Template:     Lattice.OntologyTemplateTemplateTrack.Ptr(),
+				PlatformType: Lattice.String("AIRPLANE"),
+			},
+			MilView: &Lattice.MilView{
+				Disposition: Lattice.MilViewDispositionDispositionFriendly.Ptr(),
+				Environment: Lattice.MilViewEnvironmentEnvironmentAir.Ptr(),
+			},
+			Location: &Lattice.Location{
+				Position: &Lattice.Position{
+					LatitudeDegrees:   Lattice.Float64(centerLat + (radiusDegrees * math.Cos(t))),
+					LongitudeDegrees:  Lattice.Float64(centerLon + (radiusDegrees * math.Sin(t))),
+					AltitudeHaeMeters: Lattice.Float64(2994),
+					AltitudeAglMeters: Lattice.Float64(2972.8),
+				},
+				// Report the velocity in the ENU frame, in meters per second.
+				// Vertical velocity is 0 at constant altitude.
+				VelocityEnu: &Lattice.Enu{
+					E: Lattice.Float64(velocityEast),
+					N: Lattice.Float64(velocityNorth),
+					U: Lattice.Float64(0.0),
+				},
+				// Report the heading as a quaternion derived from velocity.
+				AttitudeEnu: yawToQuaternionEnu(yawRad),
+			},
+			Provenance: &Lattice.Provenance{
+				IntegrationName:  Lattice.String("your_integration_name"),
+				DataType:         Lattice.String("your_data_type"),
+				SourceUpdateTime: Lattice.Time(latestTimestamp),
+			},
+		}
+
+		// Publish the entity
+		_, err := LatticeClient.Entities.PublishEntity(ctx, &entity)
+
+		// Handle errors
+		if err != nil {
+			fmt.Printf("Error publishing entity: %v\n", err)
+		} else {
+			fmt.Println("Publishing track")
+		}
+
+		// Wait before next request
+		time.Sleep(1 * time.Second)
+	}
+}
+```
+
+4
+
+Use the [`PublishEntity`](/reference/rest/entities/publish-entity) API method to publish the entity. The example derives the velocity from the simulated circular motion, then populates `velocity_enu` and `attitude_enu`:
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"math"
+	"net/http"
+	"os"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+	"github.com/google/uuid"
+)
+
+// velocityToYawEnu converts an ENU velocity vector into a yaw angle, in
+// radians. It uses the ENU mathematical convention where a yaw of 0 points
+// East and a yaw of pi/2 points North.
+func velocityToYawEnu(velocityEast, velocityNorth float64) float64 {
+	return math.Atan2(velocityNorth, velocityEast)
+}
+
+// yawToQuaternionEnu converts a yaw angle into the attitude_enu quaternion.
+// Yaw is a rotation about the ENU Up (Z) axis, so the quaternion only has Z
+// and W components. The result is already unit-normalized.
+func yawToQuaternionEnu(yawRad float64) *Lattice.Quaternion {
+	return &Lattice.Quaternion{
+		X: Lattice.Float64(0.0),
+		Y: Lattice.Float64(0.0),
+		Z: Lattice.Float64(math.Sin(yawRad / 2.0)),
+		W: Lattice.Float64(math.Cos(yawRad / 2.0)),
+	}
+}
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+
+	// Remove sandboxesToken from the following statements if you are not developing on Sandboxes
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Generate a unique ID for the entity
+	entityId := uuid.New().String()
+
+	// Set a radius, in degrees, to simulate the entity moving in a circle
+	radiusDegrees := 0.1
+	count := 0.0
+	centerLat := 50.91402185768586
+	centerLon := 0.79203612077257
+	creationTime := time.Now().UTC()
+
+	// Continuously publish the entity
+	for {
+		latestTimestamp := time.Now().UTC()
+		ctx := context.Background()
+
+		// Update position
+		count += 0.1
+		t := math.Pi * count / 180.0
+
+		// Derive the ENU velocity from the circular motion, then convert it
+		// into a yaw angle and an attitude_enu quaternion.
+		lat := centerLat + (radiusDegrees * math.Cos(t))
+		metersPerDegreeLat := 111320.0
+		metersPerDegreeLon := 111320.0 * math.Cos(lat*math.Pi/180.0)
+		velocityEast := radiusDegrees * math.Cos(t) * metersPerDegreeLon
+		velocityNorth := -radiusDegrees * math.Sin(t) * metersPerDegreeLat
+		yawRad := velocityToYawEnu(velocityEast, velocityNorth)
+
+		// Create entity to publish
+		entity := Lattice.Entity{
+			EntityID:    &entityId,
+			Description: Lattice.String("Friendly airplane"),
+			Aliases: &Lattice.Aliases{
+				Name: Lattice.String("DL-1234"),
+			},
+			IsLive:      Lattice.Bool(true),
+			CreatedTime: Lattice.Time(creationTime),
+			ExpiryTime:  Lattice.Time(latestTimestamp.Add(5 * time.Minute)),
+			Ontology: &Lattice.Ontology{
+				Template:     Lattice.OntologyTemplateTemplateTrack.Ptr(),
+				PlatformType: Lattice.String("AIRPLANE"),
+			},
+			MilView: &Lattice.MilView{
+				Disposition: Lattice.MilViewDispositionDispositionFriendly.Ptr(),
+				Environment: Lattice.MilViewEnvironmentEnvironmentAir.Ptr(),
+			},
+			Location: &Lattice.Location{
+				Position: &Lattice.Position{
+					LatitudeDegrees:   Lattice.Float64(centerLat + (radiusDegrees * math.Cos(t))),
+					LongitudeDegrees:  Lattice.Float64(centerLon + (radiusDegrees * math.Sin(t))),
+					AltitudeHaeMeters: Lattice.Float64(2994),
+					AltitudeAglMeters: Lattice.Float64(2972.8),
+				},
+				// Report the velocity in the ENU frame, in meters per second.
+				// Vertical velocity is 0 at constant altitude.
+				VelocityEnu: &Lattice.Enu{
+					E: Lattice.Float64(velocityEast),
+					N: Lattice.Float64(velocityNorth),
+					U: Lattice.Float64(0.0),
+				},
+				// Report the heading as a quaternion derived from velocity.
+				AttitudeEnu: yawToQuaternionEnu(yawRad),
+			},
+			Provenance: &Lattice.Provenance{
+				IntegrationName:  Lattice.String("your_integration_name"),
+				DataType:         Lattice.String("your_data_type"),
+				SourceUpdateTime: Lattice.Time(latestTimestamp),
+			},
+		}
+
+		// Publish the entity
+		_, err := LatticeClient.Entities.PublishEntity(ctx, &entity)
+
+		// Handle errors
+		if err != nil {
+			fmt.Printf("Error publishing entity: %v\n", err)
+		} else {
+			fmt.Println("Publishing track")
+		}
+
+		// Wait before next request
+		time.Sleep(1 * time.Second)
+	}
+}
+```
+
+## Publish a geo-entity
+
+A *geo-entity* is a shape, region, or point of interest drawn on the map, which may not physically exist. Use geo-entities to represent an geographical areas of interest, such as airfield, or a control zone for autonomous vehicles to operate in. To publish a geo-entity, do the following:
+
+Polygon
+
+1
+
+Define the entity model’s required components. Together with the geo-entity-specific fields, you get the following entity object:
+
+```json
+{
+  "entityId": "UNIQUE_ENTITY_ID",
+  "description": "Polygon entity",
+  "isLive": true,
+  "createdTime": "2025-05-28T18:16:34.969Z",
+  "noExpiry": true,
+  "aliases": {
+    "name": "Control-Area 1"
+  },
+  "ontology": {
+    "template": "TEMPLATE_GEO"
+  },
+  "geoDetails": {
+    "type": "GEO_TYPE_CONTROL_AREA",
+    "controlArea": {
+      "type": "CONTROL_AREA_TYPE_LOITER_ZONE"
+    }
+  },
+  "geoShape": {
+    "polygon": {
+      "rings": [
+        {
+          "positions": [
+            {
+              "position": {
+                "latitudeDegrees": 33.641132,
+                "longitudeDegrees": -117.918669,
+                "altitudeAglMeters": 500
+              },
+              "location": {
+                "latitudeDegrees": 33.641132,
+                "longitudeDegrees": -117.918669,
+                "additionalAltitudes": [
+                  {
+                    "agl": {
+                      "valueMeters": 500
+                    }
+                  }
+                ]
+              },
+              "heightM": 1
+            },
+            {
+              "position": {
+                "latitudeDegrees": 33.646911,
+                "longitudeDegrees": -117.929123,
+                "altitudeAglMeters": 500
+              },
+              "location": {
+                "latitudeDegrees": 33.646911,
+                "longitudeDegrees": -117.929123,
+                "additionalAltitudes": [
+                  {
+                    "agl": {
+                      "valueMeters": 500
+                    }
+                  }
+                ]
+              },
+              "heightM": 1
+            },
+            {
+              "position": {
+                "latitudeDegrees": 33.635059,
+                "longitudeDegrees": -117.917482,
+                "altitudeAglMeters": 500
+              },
+              "location": {
+                "latitudeDegrees": 33.635059,
+                "longitudeDegrees": -117.917482,
+                "additionalAltitudes": [
+                  {
+                    "agl": {
+                      "valueMeters": 500
+                    }
+                  }
+                ]
+              },
+              "heightM": 1
+            },
+            {
+              "position": {
+                "latitudeDegrees": 33.641132,
+                "longitudeDegrees": -117.918669,
+                "altitudeAglMeters": 500
+              },
+              "location": {
+                "latitudeDegrees": 33.641132,
+                "longitudeDegrees": -117.918669,
+                "additionalAltitudes": [
+                  {
+                    "agl": {
+                      "valueMeters": 500
+                    }
+                  }
+                ]
+              },
+              "heightM": 1
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "integrationName": "your_integration_name",
+    "dataType": "test_data",
+    "sourceUpdateTime": "2025-05-28T18:17:34.866Z",
+  }
+}
+```
+
+2
+
+Take a closer look at the following components in `entity_model.json` and familiarize yourself with common patterns used to model a get-entity in Lattice. You define `rings` to create the polygon. Each `ring` must have *at least four* points, each represented by a `position` component.
+
+The last point must be the same as the first point you define for the `ring` component.
+
+```
+"ontology": {
+  // Set the required template.
+  "template": "TEMPLATE_GEO"
+}
+```
+
+Each point in the polygon has a minimum altitude defined as `altitudeAglMeters`. The first and the last point have a `heightM` component, which sets additional height, in meters, above `altitudeAglMeters`.
+
+This represents a three-sided polygon that defines a control area. Control areas include, for example, `CONTROL_AREA_TYPE_KEEP_IN_ZONE`, `CONTROL_AREA_TYPE_KEEP_OUT_ZONE`, and `CONTROL_AREA_TYPE_LOITER_ZONE`.
+
+3
+
+Use the [`PublishEntity`](/reference/rest/entities/publish-entity) API method to publish the entity:
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+	"github.com/google/uuid"
+)
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+
+	// Remove sandboxesToken from the following statements if you are not developing on Sandboxes
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Generate a unique ID for the entity
+	entityId := uuid.New().String()
+
+	// Get creation time
+	creationTime := time.Now().UTC()
+
+	// Entities must be republished at least every 5 minutes to persist across Lattice service restarts
+	for {
+		latestTimestamp := time.Now().UTC()
+		ctx := context.Background()
+
+		// Create positions for the polygon
+		positions := []*Lattice.GeoPolygonPosition{
+			// First point
+			{
+				Position: &Lattice.Position{
+					LatitudeDegrees:   Lattice.Float64(33.641132),
+					LongitudeDegrees:  Lattice.Float64(-117.918669),
+					AltitudeAglMeters: Lattice.Float64(500),
+				},
+				HeightM: Lattice.Float64(1),
+			},
+			// Second point
+			{
+				Position: &Lattice.Position{
+					LatitudeDegrees:   Lattice.Float64(33.646911),
+					LongitudeDegrees:  Lattice.Float64(-117.929123),
+					AltitudeAglMeters: Lattice.Float64(500),
+				},
+				HeightM: Lattice.Float64(1),
+			},
+			// Third point
+			{
+				Position: &Lattice.Position{
+					LatitudeDegrees:   Lattice.Float64(33.635059),
+					LongitudeDegrees:  Lattice.Float64(-117.917482),
+					AltitudeAglMeters: Lattice.Float64(500),
+				},
+				HeightM: Lattice.Float64(1),
+			},
+			// Fourth point (same as first to close the polygon)
+			{
+				Position: &Lattice.Position{
+					LatitudeDegrees:   Lattice.Float64(33.641132),
+					LongitudeDegrees:  Lattice.Float64(-117.918669),
+					AltitudeAglMeters: Lattice.Float64(500),
+				},
+				HeightM: Lattice.Float64(1),
+			},
+		}
+
+		// Create entity to publish
+		entity := Lattice.Entity{
+			EntityID:    &entityId,
+			Description: Lattice.String("Polygon entity"),
+			Aliases: &Lattice.Aliases{
+				Name: Lattice.String("Control-Area Loiter Zone"),
+			},
+			IsLive:      Lattice.Bool(true),
+			CreatedTime: Lattice.Time(creationTime),
+			NoExpiry:    Lattice.Bool(true),
+			Ontology: &Lattice.Ontology{
+				Template: Lattice.OntologyTemplateTemplateGeo.Ptr(),
+			},
+			GeoDetails: &Lattice.GeoDetails{
+				Type: Lattice.GeoDetailsTypeGeoTypeControlArea.Ptr(),
+				ControlArea: &Lattice.ControlAreaDetails{
+					Type: Lattice.ControlAreaDetailsTypeControlAreaTypeLoiterZone.Ptr(),
+				},
+			},
+			GeoShape: &Lattice.GeoShape{
+				Polygon: &Lattice.GeoPolygon{
+					Rings: []*Lattice.LinearRing{
+						{
+							Positions: positions,
+						},
+					},
+				},
+			},
+			Provenance: &Lattice.Provenance{
+				IntegrationName:  Lattice.String("your_integration_name"),
+				DataType:         Lattice.String("test_data"),
+				SourceUpdateTime: Lattice.Time(latestTimestamp),
+			},
+		}
+
+		// Publish the entity
+		_, err := LatticeClient.Entities.PublishEntity(ctx, &entity)
+
+		// Handle errors
+		if err != nil {
+			fmt.Printf("Error publishing entity: %v\n", err)
+		} else {
+			fmt.Println("Publishing geo entity")
+		}
+
+		// Republishing every 10 seconds
+		time.Sleep(10 * time.Second)
+	}
+}
+```
+
+The example uses [`noExpiry`](/reference/rest/entities/publish-entity#request.body.noExpiry) instead of `expiryTime` used in the previous steps. Setting `noExpiry` to `true` indicates that the entity does not expire and persists indefinitely. Use this option *only* when the entity contains information that should be available to other tasks or integrations beyond its immediate operational context. In this case we assume that this long-living geographical entity maintains persistent relevance across multiple operations or tasks.
+
+Even when using `noExpiry: true`, entities must be republished at least every 5 minutes to ensure persistence across Lattice service restarts. If Lattice restarts and an entity hasn’t been republished within the previous 5 minutes, it won’t be restored after the restart. This is demonstrated in the example code, which republishes the entity every 10 seconds in an indefinite loop.
+
+## Set platform type
+
+For iconography within Lattice, add a [`platform_type`](/reference/rest/entities/get-entity#response.body.ontology.platformType) value to the `ontology` component. The Lattice UI supports the following types:
+
+Airplane
+
+Animal
+
+Car
+
+Person
+
+Radar
+
+Satellite
+
+Surface Vessel
+
+Submarine
+
+UAV
+
+Vehicle
+
+```
+"ontology": {
+  "template": "TEMPLATE_TRACK",
+  "platform_type": "AIRPLANE"
+}
+```
+
+![Shows the airplane platform type icon.](/img/anduril.docs.buildwithfern.com/0d4df04b2e1acf6a57abafd39ded3e824cf0f46db3766b09c9eb07cb508966e3/assets/images/icons/track_airplane_friendly.png)
+
+## What’s next?
+
+- Learn more about the Entities API in REST and gRPC .
+- Learn how to task an asset .
+- Check out the Lattice sample apps .

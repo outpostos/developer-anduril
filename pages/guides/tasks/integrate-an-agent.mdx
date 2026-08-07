@@ -1,7 +1,1700 @@
 ---
-title: Integrate an Agent
+title: "Integrate an agent"
 ---
 
-# Integrate an Agent
+# Integrate an agent
 
-占位页：后续补充 Agent 集成说明。
+A **taskable agent** is an asset, or a group of assets, that listens for tasks assigned to it in Lattice, executes them, and reports its progress back. This guide walks through the full agent workflow: publishing a taskable agent, streaming and parsing assigned tasks, updating task status, and handling cancellation requests.
+
+An agent calls the following API to listen for tasks assigned to it in Lattice:
+
+- StreamAsAgent — For monitoring tasks routed to the agent using REST.
+- ListenAsAgent — For monitoring tasks routed to the agent using gRPC.
+
+## Before you begin
+
+- To publish taskable entities, and subscribe to tasks, set up your Lattice environment.
+- Familiarize yourself with entities and different entity types.
+- Review how to define a task . This guide uses the Objective task definition from that page as its example.
+
+gRPC authentication
+
+If you are using gRPC with client credentials, [set up the token refresh module](/guides/getting-started/authenticate#using-grpc) before running the examples on this page.
+
+## Publish a taskable agent
+
+An *asset* is an entity under your control, or under the control of another operator or system. Assets may accept tasks such as search or tracking. An *agent* is an asset, or a group of assets, that can complete a specific set of defined tasks.
+
+To publish an agent, do the following:
+
+1
+
+### Define a `TaskCatalog`
+
+The entity model’s [`TaskCatalog`](/reference/rest/entities/publish-entity#request.body.taskCatalog) component defines the tasks that an asset can execute.
+
+For example, if your asset supports the [`Objective`](/guides/tasks/define-a-task) task, publish an asset entity that includes it in its catalog, and listen for and execute that task. The `taskSpecificationUrl` is the type URL of the task definition you authored and published to the Schema Registry:
+
+```
+  "taskCatalog": {
+      // Define the tasks the asset can perform.
+      "taskDefinitions": [
+          {
+              // Set the task specification URL to your Objective definition.
+              "taskSpecificationUrl": "type.googleapis.com/org.example.reconnaissance.v1beta.Objective",
+          }
+      ]
+  }
+```
+
+2
+
+### Publish the agent
+
+Use the [`PublishEntity`](/reference/rest/entities/publish-entity) method to publish a taskable agent:
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+	"github.com/google/uuid"
+)
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+
+	// Remove sandboxesToken from the following statements if you are not developing on Sandboxes
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Generate a unique ID for the entity
+	entityId := uuid.New().String()
+
+	// Get creation time
+	creationTime := time.Now().UTC()
+
+	// Continuously publish the entity
+	for {
+		latestTimestamp := time.Now().UTC()
+		ctx := context.Background()
+
+		// Create entity to publish
+		entity := Lattice.Entity{
+			EntityID:    &entityId,
+			Description: Lattice.String("Friendly drone asset"),
+			Aliases: &Lattice.Aliases{
+				Name: Lattice.String("Drone 1"),
+			},
+			IsLive:      Lattice.Bool(true),
+			CreatedTime: Lattice.Time(creationTime),
+			ExpiryTime:  Lattice.Time(latestTimestamp.Add(1 * time.Minute)),
+			Ontology: &Lattice.Ontology{
+				Template:     Lattice.OntologyTemplateTemplateAsset.Ptr(),
+				PlatformType: Lattice.String("UAV"),
+			},
+			MilView: &Lattice.MilView{
+				Disposition: Lattice.MilViewDispositionDispositionFriendly.Ptr(),
+				Environment: Lattice.MilViewEnvironmentEnvironmentAir.Ptr(),
+			},
+			Location: &Lattice.Location{
+				Position: &Lattice.Position{
+					LatitudeDegrees:   Lattice.Float64(50.91402185768586),
+					LongitudeDegrees:  Lattice.Float64(0.79203612077257),
+					AltitudeAsfMeters: Lattice.Float64(1000),
+				},
+			},
+			Provenance: &Lattice.Provenance{
+				IntegrationName:  Lattice.String("your_integration_name"),
+				DataType:         Lattice.String("your_data_type"),
+				SourceUpdateTime: Lattice.Time(latestTimestamp),
+			},
+			Health: &Lattice.Health{
+				ConnectionStatus: Lattice.HealthConnectionStatusConnectionStatusOnline.Ptr(),
+				HealthStatus:     Lattice.HealthHealthStatusHealthStatusHealthy.Ptr(),
+				UpdateTime:       Lattice.Time(latestTimestamp),
+			},
+			TaskCatalog: &Lattice.TaskCatalog{
+				TaskDefinitions: []*Lattice.TaskDefinition{
+					{TaskSpecificationURL: Lattice.String("type.googleapis.com/anduril.tasks.v2.VisualId")},
+					{TaskSpecificationURL: Lattice.String("type.googleapis.com/anduril.tasks.v2.Investigate")},
+				},
+			},
+		}
+
+		// Publish the entity
+		_, err := LatticeClient.Entities.PublishEntity(ctx, &entity)
+
+		// Handle errors
+		if err != nil {
+			fmt.Printf("Error publishing entity: %v\n", err)
+		} else {
+			fmt.Println("Published asset: " + entityId)
+		}
+
+		// Wait before next request
+		time.Sleep(5 * time.Second)
+	}
+}
+```
+
+If successful, you see the entity ID in the console:
+
+```
+2025-07-16T02:50:04.694Z [INFO]: Published asset: <entity-id>
+```
+
+## Process assigned tasks
+
+Once an agent is published, the integration should open a stream to receive tasks routed to it. Each task carries a [`specification`](/reference/rest/tasks/create-task#request.body.specification) — a [`google.protobuf.Any`](/guides/tasks/define-a-task#define-a-custom-schema) that holds the task’s data. To act on a task, the agent reads the metadata off the request, then decodes the specification into the task type it advertised in its catalog.
+
+1
+
+### Stream tasks as an agent
+
+Use [`StreamAsAgent`](/reference/rest/tasks/stream-as-agent), or [ListenAsAgent](/reference/grpc/taskmanager-v1/listen-as-agent) for gRPC, to open the stream. When an `executeRequest` arrives, the agent reads the task ID and status version, parses the task data, then reports that it has started the task.
+
+Task delivery over a stream does not wait for the agent to acknowledge receipt, so a silently dropped connection might result in your agent silently skipping a task. To get a positive signal that the connection is alive, set `heartbeatIntervalMs` when you open the stream:
+
+- `heartbeatIntervalMs` _Number_
+  The interval in milliseconds at which Lattice sends heartbeat events on the stream. For `StreamAsAgent`, the default is 30000 ms, and the minimum is 1000 ms. Smaller values are raised to 1000 ms. For `ListenAsAgent`, heartbeats are disabled unless you set this field.
+
+When set, Lattice sends a heartbeat at the specified interval, and your agent can treat a missing heartbeat as a dropped connection and reconnect. Heartbeats arrive on the same stream as task requests and carry only a timestamp, so the receive loop skips them rather than treating them as tasks.
+
+Replace `AGENT_ID` with the ID of the agent you want to task. If you are developing on Sandboxes, replace this with the following simulated asset: `Demo-Sim-Asset1`:
+
+```
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+// Type URL of the Objective task defined in objective.proto.
+const objectiveType = "type.googleapis.com/org.example.reconnaissance.v1beta.Objective"
+
+// parseObjective parses the Objective carried in the task's specification. Over
+// REST, the specification is a google.protobuf.Any represented as JSON: a Type
+// URL alongside the task's flattened fields, which the SDK surfaces as
+// ExtraProperties.
+func parseObjective(specification *Lattice.GoogleProtobufAny) {
+	if specification == nil || specification.Type == nil || *specification.Type != objectiveType {
+		log.Printf("Unsupported task type: %v", specification.GetType())
+		return
+	}
+
+	// Objective is a oneof: read whichever target the operator set.
+	fields := specification.ExtraProperties
+	if entityID, ok := fields["entityId"].(string); ok && entityID != "" {
+		log.Printf("  Objective: entity %s", entityID)
+	} else if lla, ok := fields["lla"].(map[string]interface{}); ok {
+		log.Printf("  Objective: LLA (lat %v, lon %v, alt %vm)",
+			lla["latitudeDegrees"], lla["longitudeDegrees"], lla["altitudeHaeM"])
+	} else {
+		log.Printf("  Objective: no target set")
+	}
+}
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Set the entity ID to listen for tasks
+	entityId := "<AGENT_ID>"
+	fmt.Printf("Streaming tasks for entity %s...\n", entityId)
+
+	// Create context for the request
+	ctx := context.Background()
+
+	// Create agent stream request. Set HeartbeatIntervalMs so Lattice sends
+	// periodic heartbeats; a missing heartbeat signals a dropped connection.
+	heartbeatIntervalMs := 30000
+	agentStreamRequest := Lattice.AgentStreamRequest{
+		AgentSelector: &Lattice.EntityIDsSelector{
+			EntityIDs: []string{entityId},
+		},
+		HeartbeatIntervalMs: &heartbeatIntervalMs,
+	}
+
+	// Stream tasks
+	stream, err := LatticeClient.Tasks.StreamAsAgent(ctx, &agentStreamRequest)
+	if err != nil {
+		fmt.Printf("Error streaming tasks: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Process stream events
+	for {
+		select {
+		case <-ctx.Done():
+			log.Printf("Context canceled: %v", ctx.Err())
+			return
+		default:
+			// Continue processing
+		}
+
+		event, err := stream.Recv()
+
+		if errors.Is(err, io.EOF) {
+			log.Println("Stream completed successfully.")
+			return
+		}
+
+		if err != nil {
+			log.Printf("Error receiving message: %v", err)
+			continue
+		}
+
+		if event.Event == "heartbeat" {
+			timestamp := *event.Heartbeat.Timestamp
+			log.Printf("Heartbeat: %s", timestamp)
+		} else {
+			request := event.GetAgentRequest()
+			if executeRequest := request.GetExecuteRequest(); executeRequest != nil {
+				task := executeRequest.GetTask()
+				if task != nil {
+					taskId := *task.GetVersion().GetTaskID()
+					taskStatusVersion := *task.GetVersion().GetStatusVersion()
+					description := *task.GetDescription()
+
+					log.Printf("Starting task %s, version %d: %s", taskId, taskStatusVersion, description)
+
+					// Parse the Objective the operator sent with the task.
+					parseObjective(task.GetSpecification())
+
+					// Update task status to STATUS_EXECUTING
+					result, err := startTask(ctx, LatticeClient, taskId, int(taskStatusVersion), entityId)
+					if err != nil {
+						log.Printf("Error starting task: %v", err)
+						continue
+					}
+
+					log.Printf("Started task with status version: %d", *result.StatusVersion)
+				}
+			} else if completeRequest := request.GetCompleteRequest(); completeRequest != nil {
+				taskToComplete := completeRequest.GetTaskID()
+				if taskToComplete != nil {
+					log.Printf("Completing task: %s", *taskToComplete)
+				}
+			} else if cancelRequest := request.GetCancelRequest(); cancelRequest != nil {
+				taskToCancel := cancelRequest.GetTaskID()
+				if taskToCancel != nil {
+					log.Printf("Cancelling task: %s", *taskToCancel)
+				}
+			}
+		}
+
+		// Sleep briefly to prevent tight looping
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+// startTask updates the task status to STATUS_EXECUTING
+func startTask(ctx context.Context, client *client.Client, taskId string, taskStatusVersion int, agentEntityId string) (*Lattice.TaskVersion, error) {
+	// Increment status version for the update
+	taskStatusVersion++
+
+	// Create system principal with the agent entity ID
+	principal := Lattice.Principal{
+		System: &Lattice.System{
+			EntityID: &agentEntityId,
+		},
+	}
+
+	taskStatus := Lattice.TaskStatus{
+		Status: Lattice.TaskStatusStatusStatusExecuting.Ptr(),
+	}
+
+	// Create task status update request
+	taskStatusUpdate := Lattice.TaskStatusUpdate{
+		TaskID:        taskId,
+		StatusVersion: &taskStatusVersion,
+		NewStatus:     &taskStatus,
+		Author:        &principal,
+	}
+
+	// Call the UpdateTaskStatus API
+	task, err := client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+	if err != nil {
+		return nil, fmt.Errorf("error updating task status: %w", err)
+	}
+
+	return task.Version, nil
+}
+```
+
+If successful, you see the following output:
+
+```
+Listening for tasks for entity with ID <entity-id>...
+```
+
+An agent should also handle stream interruptions gracefully. If the connection to Lattice fails, the stream closes. Handle stream errors and reconnect so that your agent keeps its subscription to task updates through transient network issues.
+
+For more information, see [Retry connections](/guides/best-practices/retry-connections).
+
+This example reports `STATUS_EXECUTING` as soon as a task arrives, but an agent isn’t obligated to accept every task.
+
+Before executing the task, validate that the agent can actually perform the task — for example, that the requested parameters are within its capabilities. If it can’t, the agent can reject the task by reporting `STATUS_DONE_NOT_OK` with a [`TaskError`](/reference/rest/tasks/update-task-status#request.body.newStatus.taskError) of `ERROR_CODE_REJECTED` instead of starting execution.
+
+2
+
+### Parse the task specification
+
+Decode the task’s `specification` to read the `Objective` the operator sent. Over REST, the specification is delivered as JSON — a `type` URL alongside the task’s flattened fields. Over gRPC, it’s a protobuf `Any` that you unpack into the `Objective` message generated from your message. Check the type URL before reading the fields, since an agent’s catalog can advertise more than one task type. Because `Objective` is a `oneof`, inspect which target is set — an `entity_id` or an `lla` point:
+
+```
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+// Type URL of the Objective task defined in objective.proto.
+const objectiveType = "type.googleapis.com/org.example.reconnaissance.v1beta.Objective"
+
+// parseObjective parses the Objective carried in the task's specification. Over
+// REST, the specification is a google.protobuf.Any represented as JSON: a Type
+// URL alongside the task's flattened fields, which the SDK surfaces as
+// ExtraProperties.
+func parseObjective(specification *Lattice.GoogleProtobufAny) {
+	if specification == nil || specification.Type == nil || *specification.Type != objectiveType {
+		log.Printf("Unsupported task type: %v", specification.GetType())
+		return
+	}
+
+	// Objective is a oneof: read whichever target the operator set.
+	fields := specification.ExtraProperties
+	if entityID, ok := fields["entityId"].(string); ok && entityID != "" {
+		log.Printf("  Objective: entity %s", entityID)
+	} else if lla, ok := fields["lla"].(map[string]interface{}); ok {
+		log.Printf("  Objective: LLA (lat %v, lon %v, alt %vm)",
+			lla["latitudeDegrees"], lla["longitudeDegrees"], lla["altitudeHaeM"])
+	} else {
+		log.Printf("  Objective: no target set")
+	}
+}
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Set the entity ID to listen for tasks
+	entityId := "<AGENT_ID>"
+	fmt.Printf("Streaming tasks for entity %s...\n", entityId)
+
+	// Create context for the request
+	ctx := context.Background()
+
+	// Create agent stream request. Set HeartbeatIntervalMs so Lattice sends
+	// periodic heartbeats; a missing heartbeat signals a dropped connection.
+	heartbeatIntervalMs := 30000
+	agentStreamRequest := Lattice.AgentStreamRequest{
+		AgentSelector: &Lattice.EntityIDsSelector{
+			EntityIDs: []string{entityId},
+		},
+		HeartbeatIntervalMs: &heartbeatIntervalMs,
+	}
+
+	// Stream tasks
+	stream, err := LatticeClient.Tasks.StreamAsAgent(ctx, &agentStreamRequest)
+	if err != nil {
+		fmt.Printf("Error streaming tasks: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Process stream events
+	for {
+		select {
+		case <-ctx.Done():
+			log.Printf("Context canceled: %v", ctx.Err())
+			return
+		default:
+			// Continue processing
+		}
+
+		event, err := stream.Recv()
+
+		if errors.Is(err, io.EOF) {
+			log.Println("Stream completed successfully.")
+			return
+		}
+
+		if err != nil {
+			log.Printf("Error receiving message: %v", err)
+			continue
+		}
+
+		if event.Event == "heartbeat" {
+			timestamp := *event.Heartbeat.Timestamp
+			log.Printf("Heartbeat: %s", timestamp)
+		} else {
+			request := event.GetAgentRequest()
+			if executeRequest := request.GetExecuteRequest(); executeRequest != nil {
+				task := executeRequest.GetTask()
+				if task != nil {
+					taskId := *task.GetVersion().GetTaskID()
+					taskStatusVersion := *task.GetVersion().GetStatusVersion()
+					description := *task.GetDescription()
+
+					log.Printf("Starting task %s, version %d: %s", taskId, taskStatusVersion, description)
+
+					// Parse the Objective the operator sent with the task.
+					parseObjective(task.GetSpecification())
+
+					// Update task status to STATUS_EXECUTING
+					result, err := startTask(ctx, LatticeClient, taskId, int(taskStatusVersion), entityId)
+					if err != nil {
+						log.Printf("Error starting task: %v", err)
+						continue
+					}
+
+					log.Printf("Started task with status version: %d", *result.StatusVersion)
+				}
+			} else if completeRequest := request.GetCompleteRequest(); completeRequest != nil {
+				taskToComplete := completeRequest.GetTaskID()
+				if taskToComplete != nil {
+					log.Printf("Completing task: %s", *taskToComplete)
+				}
+			} else if cancelRequest := request.GetCancelRequest(); cancelRequest != nil {
+				taskToCancel := cancelRequest.GetTaskID()
+				if taskToCancel != nil {
+					log.Printf("Cancelling task: %s", *taskToCancel)
+				}
+			}
+		}
+
+		// Sleep briefly to prevent tight looping
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+// startTask updates the task status to STATUS_EXECUTING
+func startTask(ctx context.Context, client *client.Client, taskId string, taskStatusVersion int, agentEntityId string) (*Lattice.TaskVersion, error) {
+	// Increment status version for the update
+	taskStatusVersion++
+
+	// Create system principal with the agent entity ID
+	principal := Lattice.Principal{
+		System: &Lattice.System{
+			EntityID: &agentEntityId,
+		},
+	}
+
+	taskStatus := Lattice.TaskStatus{
+		Status: Lattice.TaskStatusStatusStatusExecuting.Ptr(),
+	}
+
+	// Create task status update request
+	taskStatusUpdate := Lattice.TaskStatusUpdate{
+		TaskID:        taskId,
+		StatusVersion: &taskStatusVersion,
+		NewStatus:     &taskStatus,
+		Author:        &principal,
+	}
+
+	// Call the UpdateTaskStatus API
+	task, err := client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+	if err != nil {
+		return nil, fmt.Errorf("error updating task status: %w", err)
+	}
+
+	return task.Version, nil
+}
+```
+
+The gRPC examples import an `Objective` type generated from your own `objective.proto`. [Publish your schema](/guides/developer-tools/registry) to the Schema Registry, then generate the language bindings before running the agent.
+
+## Task and verify the task handler
+
+The following steps aren’t required to implement tasking — they show how to exercise your task handler end to end in a development environment. Assign a task to your agent, then confirm it receives, parses, and updates the task.
+
+1
+
+### Assign a task using the UI
+
+In most cases an operator uses the Lattice UI to task your agent. To test the agent’s task handler in Lattice Sandboxes, do the following:
+
+1. Open your environment’s Lattice UI, and choose an asset from the Assets panel. On Sandboxes, choose Demo-Sim-Asset1 .
+2. From the entity pane, choose Task , then select the Objective task.
+3. From the Task Details panel on the right hand side, set the objective — either an entity to reconnoiter or a lat/lon/altitude point — then choose Execute Task . This is the same field your agent reads from the task specification.
+
+2
+
+### Verify the task status
+
+If successful, you see the parsed task data and the updated status version in your local development console:
+
+```
+Starting task <task-id>, version 1: Reconnaissance objective
+  Objective: LLA (lat 37.7749, lon -122.4194, alt 100.0m)
+Started task with status version: 2.
+```
+
+The agent has successfully parsed the task data, updated the task status, and incremented the task status version.
+
+## Update the status of a task
+
+As an agent makes progress, it reports real-time updates to Lattice with [`UpdateTaskStatus`](/reference/rest/tasks/update-task-status), incrementing the task’s `statusVersion` on each update. In Lattice, tasks move through the following states:
+
+1
+
+### `STATUS_SENT`
+
+Lattice automatically starts with `STATUS_SENT` when it sends a task to an agent:
+
+```
+"task": {
+    "version": {
+        "taskId": "my-task",
+        "definitionVersion": 1,
+        "statusVersion": 1
+    },
+    "status": {
+        "status": "STATUS_SENT"
+    }
+}
+```
+
+2
+
+### `STATUS_MACHINE_RECEIPT`
+
+The agent then responds back with status `STATUS_MACHINE_RECEIPT`, indicating that the task has been received, and incrementing `statusVersion` accordingly:
+
+```
+"statusUpdate": {
+    "version": {
+        "taskId": "my-task",
+        "definitionVersion": 1,
+        "statusVersion": 2
+    },
+    "status": {
+        "status": "STATUS_MACHINE_RECEIPT"
+    }
+}
+```
+
+3
+
+### `STATUS_ACK`
+
+When the agent is ready to acknowledge the task, it does so using `STATUS_ACK`, and again increments `statusVersion`:
+
+```
+"statusUpdate": {
+    "version": {
+        "taskId": "my-task",
+        "definitionVersion": 1,
+        "statusVersion": 3
+    },
+    "status": {
+        "status": "STATUS_ACK"
+    }
+}
+```
+
+4
+
+### `STATUS_WILCO`
+
+The agent confirms it intends to execute the task using `STATUS_WILCO`:
+
+```
+"statusUpdate": {
+    "version": {
+        "taskId": "my-task",
+        "definitionVersion": 1,
+        "statusVersion": 4
+    },
+    "status": {
+        "status": "STATUS_WILCO"
+    }
+}
+```
+
+5
+
+### `STATUS_EXECUTING`
+
+As the agent begins to actively execute the task, it indicates this by reporting `STATUS_EXECUTING` back to Lattice:
+
+```
+"statusUpdate": {
+    "version": {
+        "taskId": "my-task",
+        "definitionVersion": 1,
+        "statusVersion": 5
+    },
+    "status": {
+        "status": "STATUS_EXECUTING"
+    }
+}
+```
+
+6
+
+### `STATUS_DONE_OK`
+
+Finally, when the agent reaches a terminal state and completes the task successfully, it reports `STATUS_DONE_OK`. The agent can reach this state on its own, such as when its logic determines that the task’s objective is met, or in response to an operator-initiated request for task completion:
+
+```
+"statusUpdate": {
+    "version": {
+        "taskId": "my-task",
+        "definitionVersion": 1,
+        "statusVersion": 6
+    },
+    "status": {
+        "status": "STATUS_DONE_OK"
+    }
+}
+```
+
+7
+
+### `STATUS_DONE_NOT_OK`
+
+If the agent reaches a terminal state but does not complete the task successfully, it reports `STATUS_DONE_NOT_OK`. The agent can reach this state on its own, such as when its logic determines that the task can’t be completed, or in response to an operator-initiated request for task completion or cancellation. The agent should include a descriptive [`TaskError`](/reference/rest/tasks/update-task-status#request.body.newStatus.taskError) when reporting `STATUS_DONE_NOT_OK`:
+
+```
+"statusUpdate": {
+    "version": {
+        "taskId": "my-task",
+        "definitionVersion": 1,
+        "statusVersion": 7
+    },
+    "status": {
+        "status": "STATUS_DONE_NOT_OK",
+        "taskError": {
+        "code": "ERROR_CODE_FAILED",
+        "message": "The asset failed task execution due to an internal error.",
+        }
+    }
+}
+```
+
+In this example, the message indicates that the agent encountered an internal error during task execution. You can add more descriptive errors to help the operator troubleshoot the issue accordingly.
+
+The `STATUS_DONE_OK` and `STATUS_DONE_NOT_OK` statuses are considered terminal states. Once a task reaches either state, it’s complete and cannot be updated.
+
+## Handle task cancellation
+
+An operator can request that a task be cancelled while the agent is executing it. When a task has already been sent to an agent, Lattice routes the [`CancelTask`](/reference/rest/tasks/cancel-task) request to that agent, which decides whether to accept or reject it. For the operator’s side of this workflow, see [Cancel tasks](/guides/tasks/command-and-operate#cancel-tasks).
+
+1
+
+### Set up a task processor
+
+Create a task processor that listens for tasks assigned to your agent and handles cancellation requests. For demonstration purposes, this example uses a `TASK_ACTIVE` environment variable to control whether the agent accepts or rejects cancellations:
+
+```
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+// Sets whether the task is currently being processed. If so, it cannot be cancelled.
+var taskActive bool
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+	taskActiveStr := os.Getenv("TASK_ACTIVE")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Parse TASK_ACTIVE environment variable
+	taskActive = strings.ToLower(taskActiveStr) == "true"
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Set the entity ID to listen for tasks
+	entityId := "<AGENT_ID>"
+	fmt.Printf("Streaming tasks for entity: %s...\n", entityId)
+
+	// Create context for the request
+	ctx := context.Background()
+
+	// Create agent stream request
+	agentStreamRequest := Lattice.AgentStreamRequest{
+		AgentSelector: &Lattice.EntityIDsSelector{
+			EntityIDs: []string{entityId},
+		},
+	}
+
+	// Stream tasks
+	stream, err := LatticeClient.Tasks.StreamAsAgent(ctx, &agentStreamRequest)
+	if err != nil {
+		fmt.Printf("Error streaming tasks: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Process stream events
+	for {
+		select {
+		case <-ctx.Done():
+			log.Printf("Context canceled: %v", ctx.Err())
+			return
+		default:
+			// Continue processing
+		}
+
+		event, err := stream.Recv()
+
+		if errors.Is(err, io.EOF) {
+			log.Println("Stream completed successfully.")
+			return
+		}
+
+		if err != nil {
+			log.Printf("Error receiving message: %v", err)
+			continue
+		}
+
+		if event.Event == "heartbeat" {
+			timestamp := *event.Heartbeat.Timestamp
+			log.Printf("Heartbeat: %s", timestamp)
+		} else {
+			request := event.GetAgentRequest()
+			if executeRequest := request.GetExecuteRequest(); executeRequest != nil {
+				task := executeRequest.GetTask()
+				if task != nil {
+					taskId := *task.GetVersion().GetTaskID()
+					taskStatusVersion := *task.GetVersion().GetStatusVersion()
+					description := *task.GetDescription()
+
+					log.Printf("Starting task %s, version %d: %s", taskId, taskStatusVersion, description)
+
+					// Update task status to STATUS_EXECUTING
+					result, err := executeTask(ctx, LatticeClient, taskId, int(taskStatusVersion), entityId)
+					if err != nil {
+						log.Printf("Error starting task: %v", err)
+						continue
+					}
+
+					log.Printf("Started task with status version: %d", *result.StatusVersion)
+				}
+			} else if completeRequest := request.GetCompleteRequest(); completeRequest != nil {
+				taskToComplete := completeRequest.GetTaskID()
+				if taskToComplete != nil {
+					log.Printf("Completing task: %s", *taskToComplete)
+					err := completeTask(ctx, LatticeClient, *taskToComplete, entityId)
+					if err != nil {
+						log.Printf("Error completing task: %v", err)
+					}
+				}
+			} else if cancelRequest := request.GetCancelRequest(); cancelRequest != nil {
+				taskToCancel := cancelRequest.GetTaskID()
+				if taskToCancel != nil {
+					log.Printf("Cancelling task: %s", *taskToCancel)
+					err := cancelTask(ctx, LatticeClient, *taskToCancel, entityId)
+					if err != nil {
+						log.Printf("Error cancelling task: %v", err)
+					}
+				}
+			}
+		}
+
+		// Sleep briefly to prevent tight looping
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+// executeTask updates the task status to STATUS_EXECUTING
+func executeTask(ctx context.Context, client *client.Client, taskId string, taskStatusVersion int, agentEntityId string) (*Lattice.TaskVersion, error) {
+	// Increment status version for the update
+	taskStatusVersion++
+
+	// Create system principal with the agent entity ID
+	principal := Lattice.Principal{
+		System: &Lattice.System{
+			EntityID: &agentEntityId,
+		},
+	}
+
+	taskStatus := Lattice.TaskStatus{
+		Status: Lattice.TaskStatusStatusStatusExecuting.Ptr(),
+	}
+
+	// Create task status update request
+	taskStatusUpdate := Lattice.TaskStatusUpdate{
+		TaskID:        taskId,
+		StatusVersion: &taskStatusVersion,
+		NewStatus:     &taskStatus,
+		Author:        &principal,
+	}
+
+	// Call the UpdateTaskStatus API
+	task, err := client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+	if err != nil {
+		return nil, fmt.Errorf("error updating task status: %w", err)
+	}
+
+	return task.Version, nil
+}
+
+// cancelTask handles cancellation requests from Lattice
+func cancelTask(ctx context.Context, client *client.Client, taskId string, entityId string) error {
+	// Get current task to retrieve status_version
+	getTaskRequest := Lattice.GetTaskRequest{
+		TaskID: taskId,
+	}
+	task, err := client.Tasks.GetTask(ctx, &getTaskRequest)
+	if err != nil {
+		return fmt.Errorf("error getting task: %w", err)
+	}
+	if task.Status == nil || task.Version == nil || task.Version.StatusVersion == nil {
+		return fmt.Errorf("task status or version is missing")
+	}
+	currentTaskStatus := task.Status.Status
+	taskStatusVersion := *task.Version.StatusVersion
+	taskStatusVersion++
+
+	// Create system principal with the agent entity ID
+	principal := Lattice.Principal{
+		System: &Lattice.System{
+			EntityID: &entityId,
+		},
+	}
+
+	if taskActive {
+		// Reject cancellation: task is active and cannot be cancelled
+		rejectedMessage := "Task is already active, and cannot be cancelled."
+		taskStatus := Lattice.TaskStatus{
+			// Because the cancellation is being rejected, we do not
+			// change the task status.
+			Status: currentTaskStatus,
+			TaskError: &Lattice.TaskError{
+				Code:    Lattice.TaskErrorCodeErrorCodeRejected.Ptr(),
+				Message: &rejectedMessage,
+			},
+		}
+
+		taskStatusUpdate := Lattice.TaskStatusUpdate{
+			TaskID:        taskId,
+			StatusVersion: &taskStatusVersion,
+			NewStatus:     &taskStatus,
+			Author:        &principal,
+		}
+
+		_, err := client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+		if err != nil {
+			return fmt.Errorf("error updating task status: %w", err)
+		}
+
+		log.Println("Task could not be cancelled.")
+	} else {
+		// Accept cancellation
+		cancelledMessage := "Task cancelled by agent."
+		taskStatus := Lattice.TaskStatus{
+			Status: Lattice.TaskStatusStatusStatusDoneNotOk.Ptr(),
+			TaskError: &Lattice.TaskError{
+				Code:    Lattice.TaskErrorCodeErrorCodeCancelled.Ptr(),
+				Message: &cancelledMessage,
+			},
+		}
+
+		taskStatusUpdate := Lattice.TaskStatusUpdate{
+			TaskID:        taskId,
+			StatusVersion: &taskStatusVersion,
+			NewStatus:     &taskStatus,
+			Author:        &principal,
+		}
+
+		_, err := client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+		if err != nil {
+			return fmt.Errorf("error updating task status: %w", err)
+		}
+
+		log.Println("Task has been cancelled.")
+	}
+
+	return nil
+}
+
+// completeTask updates the task status to STATUS_DONE_OK
+func completeTask(ctx context.Context, client *client.Client, taskId string, entityId string) error {
+	// Get current task to retrieve status_version
+	getTaskRequest := Lattice.GetTaskRequest{
+		TaskID: taskId,
+	}
+	task, err := client.Tasks.GetTask(ctx, &getTaskRequest)
+	if err != nil {
+		return fmt.Errorf("error getting task: %w", err)
+	}
+
+	if task.Version == nil || task.Version.StatusVersion == nil {
+		return fmt.Errorf("task version is missing")
+	}
+
+	taskStatusVersion := *task.Version.StatusVersion
+	// Increment version and update to terminal state
+	taskStatusVersion++
+
+	// Create system principal with the agent entity ID
+	principal := Lattice.Principal{
+		System: &Lattice.System{
+			EntityID: &entityId,
+		},
+	}
+
+	taskStatus := Lattice.TaskStatus{
+		Status: Lattice.TaskStatusStatusStatusDoneOk.Ptr(),
+	}
+
+	taskStatusUpdate := Lattice.TaskStatusUpdate{
+		TaskID:        taskId,
+		StatusVersion: &taskStatusVersion,
+		NewStatus:     &taskStatus,
+		Author:        &principal,
+	}
+
+	_, err = client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+	if err != nil {
+		return fmt.Errorf("error updating task status: %w", err)
+	}
+
+	return nil
+}
+```
+
+The [`StreamAsAgent`](/reference/rest/tasks/stream-as-agent) API establishes a server-sent events (SSE) stream that delivers three types of requests: **`executeRequest`** which notifies the agent to start executing a task, **`completeRequest`** which requests the agent to complete a task, and **`cancelRequest`** which requests the agent to cancel a task.
+
+2
+
+### Handle cancellation requests
+
+When a `cancelRequest` arrives, the agent retrieves the current task state and decides whether to accept or reject the cancellation.
+
+**Rejecting cancellation:**
+
+If the task is active and cannot be cancelled, the agent rejects the cancellation by keeping the current status and attaching a [`TaskError`](/reference/rest/tasks/update-task-status#request.body.newStatus.taskError) with code [`ERROR_CODE_REJECTED`](/reference/rest/tasks/update-task-status#request.body.newStatus.taskError.code):
+
+```
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+// Sets whether the task is currently being processed. If so, it cannot be cancelled.
+var taskActive bool
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+	taskActiveStr := os.Getenv("TASK_ACTIVE")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Parse TASK_ACTIVE environment variable
+	taskActive = strings.ToLower(taskActiveStr) == "true"
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Set the entity ID to listen for tasks
+	entityId := "<AGENT_ID>"
+	fmt.Printf("Streaming tasks for entity: %s...\n", entityId)
+
+	// Create context for the request
+	ctx := context.Background()
+
+	// Create agent stream request
+	agentStreamRequest := Lattice.AgentStreamRequest{
+		AgentSelector: &Lattice.EntityIDsSelector{
+			EntityIDs: []string{entityId},
+		},
+	}
+
+	// Stream tasks
+	stream, err := LatticeClient.Tasks.StreamAsAgent(ctx, &agentStreamRequest)
+	if err != nil {
+		fmt.Printf("Error streaming tasks: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Process stream events
+	for {
+		select {
+		case <-ctx.Done():
+			log.Printf("Context canceled: %v", ctx.Err())
+			return
+		default:
+			// Continue processing
+		}
+
+		event, err := stream.Recv()
+
+		if errors.Is(err, io.EOF) {
+			log.Println("Stream completed successfully.")
+			return
+		}
+
+		if err != nil {
+			log.Printf("Error receiving message: %v", err)
+			continue
+		}
+
+		if event.Event == "heartbeat" {
+			timestamp := *event.Heartbeat.Timestamp
+			log.Printf("Heartbeat: %s", timestamp)
+		} else {
+			request := event.GetAgentRequest()
+			if executeRequest := request.GetExecuteRequest(); executeRequest != nil {
+				task := executeRequest.GetTask()
+				if task != nil {
+					taskId := *task.GetVersion().GetTaskID()
+					taskStatusVersion := *task.GetVersion().GetStatusVersion()
+					description := *task.GetDescription()
+
+					log.Printf("Starting task %s, version %d: %s", taskId, taskStatusVersion, description)
+
+					// Update task status to STATUS_EXECUTING
+					result, err := executeTask(ctx, LatticeClient, taskId, int(taskStatusVersion), entityId)
+					if err != nil {
+						log.Printf("Error starting task: %v", err)
+						continue
+					}
+
+					log.Printf("Started task with status version: %d", *result.StatusVersion)
+				}
+			} else if completeRequest := request.GetCompleteRequest(); completeRequest != nil {
+				taskToComplete := completeRequest.GetTaskID()
+				if taskToComplete != nil {
+					log.Printf("Completing task: %s", *taskToComplete)
+					err := completeTask(ctx, LatticeClient, *taskToComplete, entityId)
+					if err != nil {
+						log.Printf("Error completing task: %v", err)
+					}
+				}
+			} else if cancelRequest := request.GetCancelRequest(); cancelRequest != nil {
+				taskToCancel := cancelRequest.GetTaskID()
+				if taskToCancel != nil {
+					log.Printf("Cancelling task: %s", *taskToCancel)
+					err := cancelTask(ctx, LatticeClient, *taskToCancel, entityId)
+					if err != nil {
+						log.Printf("Error cancelling task: %v", err)
+					}
+				}
+			}
+		}
+
+		// Sleep briefly to prevent tight looping
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+// executeTask updates the task status to STATUS_EXECUTING
+func executeTask(ctx context.Context, client *client.Client, taskId string, taskStatusVersion int, agentEntityId string) (*Lattice.TaskVersion, error) {
+	// Increment status version for the update
+	taskStatusVersion++
+
+	// Create system principal with the agent entity ID
+	principal := Lattice.Principal{
+		System: &Lattice.System{
+			EntityID: &agentEntityId,
+		},
+	}
+
+	taskStatus := Lattice.TaskStatus{
+		Status: Lattice.TaskStatusStatusStatusExecuting.Ptr(),
+	}
+
+	// Create task status update request
+	taskStatusUpdate := Lattice.TaskStatusUpdate{
+		TaskID:        taskId,
+		StatusVersion: &taskStatusVersion,
+		NewStatus:     &taskStatus,
+		Author:        &principal,
+	}
+
+	// Call the UpdateTaskStatus API
+	task, err := client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+	if err != nil {
+		return nil, fmt.Errorf("error updating task status: %w", err)
+	}
+
+	return task.Version, nil
+}
+
+// cancelTask handles cancellation requests from Lattice
+func cancelTask(ctx context.Context, client *client.Client, taskId string, entityId string) error {
+	// Get current task to retrieve status_version
+	getTaskRequest := Lattice.GetTaskRequest{
+		TaskID: taskId,
+	}
+	task, err := client.Tasks.GetTask(ctx, &getTaskRequest)
+	if err != nil {
+		return fmt.Errorf("error getting task: %w", err)
+	}
+	if task.Status == nil || task.Version == nil || task.Version.StatusVersion == nil {
+		return fmt.Errorf("task status or version is missing")
+	}
+	currentTaskStatus := task.Status.Status
+	taskStatusVersion := *task.Version.StatusVersion
+	taskStatusVersion++
+
+	// Create system principal with the agent entity ID
+	principal := Lattice.Principal{
+		System: &Lattice.System{
+			EntityID: &entityId,
+		},
+	}
+
+	if taskActive {
+		// Reject cancellation: task is active and cannot be cancelled
+		rejectedMessage := "Task is already active, and cannot be cancelled."
+		taskStatus := Lattice.TaskStatus{
+			// Because the cancellation is being rejected, we do not
+			// change the task status.
+			Status: currentTaskStatus,
+			TaskError: &Lattice.TaskError{
+				Code:    Lattice.TaskErrorCodeErrorCodeRejected.Ptr(),
+				Message: &rejectedMessage,
+			},
+		}
+
+		taskStatusUpdate := Lattice.TaskStatusUpdate{
+			TaskID:        taskId,
+			StatusVersion: &taskStatusVersion,
+			NewStatus:     &taskStatus,
+			Author:        &principal,
+		}
+
+		_, err := client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+		if err != nil {
+			return fmt.Errorf("error updating task status: %w", err)
+		}
+
+		log.Println("Task could not be cancelled.")
+	} else {
+		// Accept cancellation
+		cancelledMessage := "Task cancelled by agent."
+		taskStatus := Lattice.TaskStatus{
+			Status: Lattice.TaskStatusStatusStatusDoneNotOk.Ptr(),
+			TaskError: &Lattice.TaskError{
+				Code:    Lattice.TaskErrorCodeErrorCodeCancelled.Ptr(),
+				Message: &cancelledMessage,
+			},
+		}
+
+		taskStatusUpdate := Lattice.TaskStatusUpdate{
+			TaskID:        taskId,
+			StatusVersion: &taskStatusVersion,
+			NewStatus:     &taskStatus,
+			Author:        &principal,
+		}
+
+		_, err := client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+		if err != nil {
+			return fmt.Errorf("error updating task status: %w", err)
+		}
+
+		log.Println("Task has been cancelled.")
+	}
+
+	return nil
+}
+
+// completeTask updates the task status to STATUS_DONE_OK
+func completeTask(ctx context.Context, client *client.Client, taskId string, entityId string) error {
+	// Get current task to retrieve status_version
+	getTaskRequest := Lattice.GetTaskRequest{
+		TaskID: taskId,
+	}
+	task, err := client.Tasks.GetTask(ctx, &getTaskRequest)
+	if err != nil {
+		return fmt.Errorf("error getting task: %w", err)
+	}
+
+	if task.Version == nil || task.Version.StatusVersion == nil {
+		return fmt.Errorf("task version is missing")
+	}
+
+	taskStatusVersion := *task.Version.StatusVersion
+	// Increment version and update to terminal state
+	taskStatusVersion++
+
+	// Create system principal with the agent entity ID
+	principal := Lattice.Principal{
+		System: &Lattice.System{
+			EntityID: &entityId,
+		},
+	}
+
+	taskStatus := Lattice.TaskStatus{
+		Status: Lattice.TaskStatusStatusStatusDoneOk.Ptr(),
+	}
+
+	taskStatusUpdate := Lattice.TaskStatusUpdate{
+		TaskID:        taskId,
+		StatusVersion: &taskStatusVersion,
+		NewStatus:     &taskStatus,
+		Author:        &principal,
+	}
+
+	_, err = client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+	if err != nil {
+		return fmt.Errorf("error updating task status: %w", err)
+	}
+
+	return nil
+}
+```
+
+**Accepting cancellation:**
+
+If the task can be cancelled, the agent accepts by setting the status to `STATUS_DONE_NOT_OK` with a `TaskError` indicating `ERROR_CODE_CANCELLED`:
+
+```
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
+	Lattice "github.com/anduril/lattice-sdk-go/v4"
+	"github.com/anduril/lattice-sdk-go/v4/client"
+	"github.com/anduril/lattice-sdk-go/v4/option"
+)
+
+// Sets whether the task is currently being processed. If so, it cannot be cancelled.
+var taskActive bool
+
+func main() {
+	// Get environment variables
+	latticeEndpoint := os.Getenv("LATTICE_ENDPOINT")
+	clientSecret := os.Getenv("LATTICE_CLIENT_SECRET")
+	clientId := os.Getenv("LATTICE_CLIENT_ID")
+	sandboxesToken := os.Getenv("SANDBOXES_TOKEN")
+	taskActiveStr := os.Getenv("TASK_ACTIVE")
+
+	// Check required environment variables
+	if latticeEndpoint == "" || clientId == "" || clientSecret == "" || sandboxesToken == "" {
+		fmt.Println("Missing required environment variables")
+		os.Exit(1)
+	}
+
+	// Parse TASK_ACTIVE environment variable
+	taskActive = strings.ToLower(taskActiveStr) == "true"
+
+	// Initialize headers for sandbox authorization
+	headers := http.Header{}
+	headers.Add("Anduril-Sandbox-Authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+
+	// Create the client
+	LatticeClient := client.NewClient(
+		option.WithClientCredentials(clientId, clientSecret),
+		option.WithBaseURL(fmt.Sprintf("https://%s", latticeEndpoint)),
+		option.WithHTTPHeader(headers),
+	)
+
+	// Set the entity ID to listen for tasks
+	entityId := "<AGENT_ID>"
+	fmt.Printf("Streaming tasks for entity: %s...\n", entityId)
+
+	// Create context for the request
+	ctx := context.Background()
+
+	// Create agent stream request
+	agentStreamRequest := Lattice.AgentStreamRequest{
+		AgentSelector: &Lattice.EntityIDsSelector{
+			EntityIDs: []string{entityId},
+		},
+	}
+
+	// Stream tasks
+	stream, err := LatticeClient.Tasks.StreamAsAgent(ctx, &agentStreamRequest)
+	if err != nil {
+		fmt.Printf("Error streaming tasks: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Process stream events
+	for {
+		select {
+		case <-ctx.Done():
+			log.Printf("Context canceled: %v", ctx.Err())
+			return
+		default:
+			// Continue processing
+		}
+
+		event, err := stream.Recv()
+
+		if errors.Is(err, io.EOF) {
+			log.Println("Stream completed successfully.")
+			return
+		}
+
+		if err != nil {
+			log.Printf("Error receiving message: %v", err)
+			continue
+		}
+
+		if event.Event == "heartbeat" {
+			timestamp := *event.Heartbeat.Timestamp
+			log.Printf("Heartbeat: %s", timestamp)
+		} else {
+			request := event.GetAgentRequest()
+			if executeRequest := request.GetExecuteRequest(); executeRequest != nil {
+				task := executeRequest.GetTask()
+				if task != nil {
+					taskId := *task.GetVersion().GetTaskID()
+					taskStatusVersion := *task.GetVersion().GetStatusVersion()
+					description := *task.GetDescription()
+
+					log.Printf("Starting task %s, version %d: %s", taskId, taskStatusVersion, description)
+
+					// Update task status to STATUS_EXECUTING
+					result, err := executeTask(ctx, LatticeClient, taskId, int(taskStatusVersion), entityId)
+					if err != nil {
+						log.Printf("Error starting task: %v", err)
+						continue
+					}
+
+					log.Printf("Started task with status version: %d", *result.StatusVersion)
+				}
+			} else if completeRequest := request.GetCompleteRequest(); completeRequest != nil {
+				taskToComplete := completeRequest.GetTaskID()
+				if taskToComplete != nil {
+					log.Printf("Completing task: %s", *taskToComplete)
+					err := completeTask(ctx, LatticeClient, *taskToComplete, entityId)
+					if err != nil {
+						log.Printf("Error completing task: %v", err)
+					}
+				}
+			} else if cancelRequest := request.GetCancelRequest(); cancelRequest != nil {
+				taskToCancel := cancelRequest.GetTaskID()
+				if taskToCancel != nil {
+					log.Printf("Cancelling task: %s", *taskToCancel)
+					err := cancelTask(ctx, LatticeClient, *taskToCancel, entityId)
+					if err != nil {
+						log.Printf("Error cancelling task: %v", err)
+					}
+				}
+			}
+		}
+
+		// Sleep briefly to prevent tight looping
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+// executeTask updates the task status to STATUS_EXECUTING
+func executeTask(ctx context.Context, client *client.Client, taskId string, taskStatusVersion int, agentEntityId string) (*Lattice.TaskVersion, error) {
+	// Increment status version for the update
+	taskStatusVersion++
+
+	// Create system principal with the agent entity ID
+	principal := Lattice.Principal{
+		System: &Lattice.System{
+			EntityID: &agentEntityId,
+		},
+	}
+
+	taskStatus := Lattice.TaskStatus{
+		Status: Lattice.TaskStatusStatusStatusExecuting.Ptr(),
+	}
+
+	// Create task status update request
+	taskStatusUpdate := Lattice.TaskStatusUpdate{
+		TaskID:        taskId,
+		StatusVersion: &taskStatusVersion,
+		NewStatus:     &taskStatus,
+		Author:        &principal,
+	}
+
+	// Call the UpdateTaskStatus API
+	task, err := client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+	if err != nil {
+		return nil, fmt.Errorf("error updating task status: %w", err)
+	}
+
+	return task.Version, nil
+}
+
+// cancelTask handles cancellation requests from Lattice
+func cancelTask(ctx context.Context, client *client.Client, taskId string, entityId string) error {
+	// Get current task to retrieve status_version
+	getTaskRequest := Lattice.GetTaskRequest{
+		TaskID: taskId,
+	}
+	task, err := client.Tasks.GetTask(ctx, &getTaskRequest)
+	if err != nil {
+		return fmt.Errorf("error getting task: %w", err)
+	}
+	if task.Status == nil || task.Version == nil || task.Version.StatusVersion == nil {
+		return fmt.Errorf("task status or version is missing")
+	}
+	currentTaskStatus := task.Status.Status
+	taskStatusVersion := *task.Version.StatusVersion
+	taskStatusVersion++
+
+	// Create system principal with the agent entity ID
+	principal := Lattice.Principal{
+		System: &Lattice.System{
+			EntityID: &entityId,
+		},
+	}
+
+	if taskActive {
+		// Reject cancellation: task is active and cannot be cancelled
+		rejectedMessage := "Task is already active, and cannot be cancelled."
+		taskStatus := Lattice.TaskStatus{
+			// Because the cancellation is being rejected, we do not
+			// change the task status.
+			Status: currentTaskStatus,
+			TaskError: &Lattice.TaskError{
+				Code:    Lattice.TaskErrorCodeErrorCodeRejected.Ptr(),
+				Message: &rejectedMessage,
+			},
+		}
+
+		taskStatusUpdate := Lattice.TaskStatusUpdate{
+			TaskID:        taskId,
+			StatusVersion: &taskStatusVersion,
+			NewStatus:     &taskStatus,
+			Author:        &principal,
+		}
+
+		_, err := client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+		if err != nil {
+			return fmt.Errorf("error updating task status: %w", err)
+		}
+
+		log.Println("Task could not be cancelled.")
+	} else {
+		// Accept cancellation
+		cancelledMessage := "Task cancelled by agent."
+		taskStatus := Lattice.TaskStatus{
+			Status: Lattice.TaskStatusStatusStatusDoneNotOk.Ptr(),
+			TaskError: &Lattice.TaskError{
+				Code:    Lattice.TaskErrorCodeErrorCodeCancelled.Ptr(),
+				Message: &cancelledMessage,
+			},
+		}
+
+		taskStatusUpdate := Lattice.TaskStatusUpdate{
+			TaskID:        taskId,
+			StatusVersion: &taskStatusVersion,
+			NewStatus:     &taskStatus,
+			Author:        &principal,
+		}
+
+		_, err := client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+		if err != nil {
+			return fmt.Errorf("error updating task status: %w", err)
+		}
+
+		log.Println("Task has been cancelled.")
+	}
+
+	return nil
+}
+
+// completeTask updates the task status to STATUS_DONE_OK
+func completeTask(ctx context.Context, client *client.Client, taskId string, entityId string) error {
+	// Get current task to retrieve status_version
+	getTaskRequest := Lattice.GetTaskRequest{
+		TaskID: taskId,
+	}
+	task, err := client.Tasks.GetTask(ctx, &getTaskRequest)
+	if err != nil {
+		return fmt.Errorf("error getting task: %w", err)
+	}
+
+	if task.Version == nil || task.Version.StatusVersion == nil {
+		return fmt.Errorf("task version is missing")
+	}
+
+	taskStatusVersion := *task.Version.StatusVersion
+	// Increment version and update to terminal state
+	taskStatusVersion++
+
+	// Create system principal with the agent entity ID
+	principal := Lattice.Principal{
+		System: &Lattice.System{
+			EntityID: &entityId,
+		},
+	}
+
+	taskStatus := Lattice.TaskStatus{
+		Status: Lattice.TaskStatusStatusStatusDoneOk.Ptr(),
+	}
+
+	taskStatusUpdate := Lattice.TaskStatusUpdate{
+		TaskID:        taskId,
+		StatusVersion: &taskStatusVersion,
+		NewStatus:     &taskStatus,
+		Author:        &principal,
+	}
+
+	_, err = client.Tasks.UpdateTaskStatus(ctx, &taskStatusUpdate)
+	if err != nil {
+		return fmt.Errorf("error updating task status: %w", err)
+	}
+
+	return nil
+}
+```
+
+The agent must first retrieve the current task using [`GetTask`](/reference/rest/tasks/get-task) to obtain the current [`statusVersion`](/reference/rest/tasks/get-task#response.body.version.statusVersion), then increment it before calling [`UpdateTaskStatus`](/reference/rest/tasks/update-task-status).
+
+## What’s next
+
+- To create, monitor, and cancel tasks as an operator, see Operate on tasks .
+- To author your own task definitions, see Define a task .
+- See tasks in action with the auto-reconnaissance sample app.

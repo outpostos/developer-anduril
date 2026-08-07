@@ -1,0 +1,27 @@
+---
+title: "Changelog"
+---
+
+# Changelog
+
+October 3, 2025
+
+## Java SDK v3
+
+The [Lattice SDK for Java v3](https://github.com/anduril/lattice-sdk-java/releases/tag/v3.0.0) introduces a number of changes:
+
+- ⚠️ Breaking change - Alter how enum types are generated to support forward-compatible enums. These now follow a visitor pattern
+- Fixes for SSE streaming
+
+```
+switch (event.getEventType().get()) {
+    case EVENT_TYPE_PREEXISTING:
+        System.out.println("Received pre-existing entity event");
+        break;
+    default:
+        System.out.println("Default case");
+        break;
+}
+```
+
+Was this page helpful?

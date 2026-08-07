@@ -1,0 +1,29 @@
+---
+title: "Changelog"
+---
+
+# Changelog
+
+April 22, 2026
+
+## StreamTasks gRPC support
+
+The Lattice SDK now supports streaming task updates in real-time using the gRPC API:
+
+- Added StreamTasks gRPC endpoint for establishing persistent connections to stream task events
+- Implemented Go/gRPC example demonstrating how to connect and process task streams
+- Updated documentation to include gRPC usage patterns alongside existing REST examples
+
+## Key features
+
+The `StreamTasks` gRPC API provides the same configurable parameters as the REST version:
+
+- heartbeatIntervalMs : Configures how frequently the server sends heartbeat events to verify connection health.
+- excludePreexistingTasks : Controls whether to stream only new tasks created after the connection is established or include existing tasks.
+- taskType : Allows filtering the stream by task type prefix, reducing bandwidth usage and focusing on relevant task updates.
+
+## Documentation updates
+
+As a part of this release, the [Operate on tasks](/guides/tasks/command-and-operate) guide has been updated with a Go/gRPC code example. The example demonstrates how to establish a task stream connection, process heartbeat events, and handle incoming task events using the gRPC protocol.
+
+Was this page helpful?

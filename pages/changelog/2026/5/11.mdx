@@ -1,0 +1,29 @@
+---
+title: "Changelog"
+---
+
+# Changelog
+
+May 11, 2026
+
+## Okta authentication for Lattice Sandboxes
+
+The Lattice Sandboxes developer portal now uses Okta to manage access. The new sign-in experience replaces the previous email, password, and authenticator-app MFA flow with a passkey-based login at [https://login.developer.anduril.com](https://login.developer.anduril.com/).
+
+### What’s new
+
+- Okta account activation : New developers receive a welcome email from no-reply@developer.anduril.com with an Activate Okta Account link that expires seven days after it’s sent.
+- Passkey-based MFA : During activation, you register one of three passkey methods:
+  - Browser passkey : Stored by your browser’s password manager so that you can sign in from any device signed in to the same browser profile.
+  - Operating system biometrics : Uses Touch ID, Face ID, Windows Hello, or another built-in platform authenticator bound to the current device.
+  - Physical FIDO or UBI key : Uses a hardware token such as a YubiKey, which you can carry with you between devices.
+- New sign-in URL : Sign in at https://login.developer.anduril.com . On success, Okta redirects you to the Lattice Sandboxes dashboard.
+- Self-service passkey management : Manage your registered passkeys and password at https://login.developer.anduril.com/account-settings/home . If you lose access to your passkey, email lattice-developers@anduril.com for assistance.
+
+Browser support
+
+Use Chrome or a Chromium-based browser, such as Microsoft Edge or Brave, to access the Lattice Sandboxes developer portal. Firefox is not supported and will prevent you from completing the sign-in procedure.
+
+For the full activation and sign-in procedures, see the [Sign in](/guides/developer-tools/sandboxes#sign-in) section of the Lattice Sandboxes guide.
+
+Was this page helpful?
